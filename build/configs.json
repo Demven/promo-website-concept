@@ -1,0 +1,10 @@
+{
+  "assets": {
+    "src": {
+      "styles": "./assets/stylus/*.styl"
+    },
+    "dest": {
+      "styles": "./public/css"
+    }
+  }
+}
