@@ -1,10 +1,14 @@
 {
   "assets": {
     "src": {
-      "styles": "./assets/stylus/*.styl"
+      "styles": "./assets/stylus/*.styl",
+      "revisions": "./revisions/*.json",
+      "html": "./assets/html/*.html"
     },
     "dest": {
-      "styles": "./public/css"
+      "styles": "./public/css",
+      "revisions": "./revisions",
+      "html": "./public"
     }
   }
 }

@@ -18,11 +18,11 @@ var gulp = require("gulp"),
     };
 
 
-gulp.task("stylus", function () {
+gulp.task("css:build", function () {
     // Read sources
     var CSSSourcesStream = gulp.src(configs.assets.src.styles);
     // Source map initialization
-    CSSSourcesStream.pipe(plugins.sourcemaps.init())
+    return CSSSourcesStream.pipe(plugins.sourcemaps.init())
         // Compile stylus
         .pipe(plugins.stylus()).on("error", error)
         // Validate CSS
@@ -33,12 +33,26 @@ gulp.task("stylus", function () {
         })).on("error", error)
         // Compress css
         .pipe(plugins.csso()).on("error", error)
-        // Versionization
+        // Add versions
         .pipe(plugins.revAll())
         // Notify user
         .pipe(plugins.notify("CSS ready"))
         // Write maps
         .pipe(plugins.sourcemaps.write(".")).on("error", error)
         // Write to destination
-        .pipe(gulp.dest(configs.assets.dest.styles));
+        .pipe(gulp.dest(configs.assets.dest.styles))
+        // Save revision
+        .pipe(plugins.revAll.manifest({ fileName: "CSSManifest.json" }))
+        .pipe(gulp.dest(configs.assets.dest.revisions));
+});
+
+gulp.task("html:build", function () {
+    // Read sources
+    var HTMLSourcesStream = gulp.src([configs.assets.src.revisions, configs.assets.src.html]);
+    return HTMLSourcesStream.pipe(plugins.revCollector({
+        replaceReved: true
+    }))
+        // Minify
+        //.pipe(plugins.htmlmin()).on("error", error)
+        .pipe(gulp.dest(configs.assets.dest.html));
 });
