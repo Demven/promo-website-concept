@@ -1,0 +1,5 @@
+{
+  "directory": "assets/static/vendor",
+  "analytics": true,
+  "timeout": 120000
+}
