@@ -5,7 +5,9 @@
 var gulp = require("gulp"),
     path = require("path"),
 // Task to run in order
-    runSequence = require("run-sequence");
+    runSequence = require("run-sequence"),
+    nodemon = require("gulp-nodemon"),
+    connect = require("gulp-connect");
 
 // Load all gulp plugins
 var plugins = require("gulp-load-plugins")({
@@ -26,7 +28,7 @@ var error = function (error) {
 
 // Clean previous build
 gulp.task("clean:build", function (cb) {
-    // Read sources
+    // Get sources without reading and remove it
     var CleanStream = gulp.src(["public", "revisions"], {read: false});
     return CleanStream.pipe(plugins.rimraf({force: true}));
 });
@@ -76,13 +78,22 @@ gulp.task("css:build", function () {
         .pipe(gulp.dest("revisions"));
 });
 
+// Build server sources
+gulp.task("js:server:hint", function () {
+    gulp.src("server/{,**/}*.js")
+        .pipe(plugins.jshint()).on("error", error)
+        .pipe(plugins.jshint.reporter("jshint-stylish"));
+});
+
 // Build javascript
 gulp.task("js:build", function () {
     // Read sources
     var JSSourcesStream = gulp.src("assets/js/*.js");
     // Source map initialization
     return JSSourcesStream.pipe(plugins.sourcemaps.init())
-        // PostCSS process to add prefixes
+        // Validate JS
+        .pipe(plugins.jshint()).on("error", error)
+        .pipe(plugins.jshint.reporter("jshint-stylish"))
         // Compress js
         .pipe(plugins.uglify()).on("error", error)
         // Notify user
@@ -93,9 +104,6 @@ gulp.task("js:build", function () {
         .pipe(gulp.dest("public/js"))
         // Filter only css files
         .pipe(plugins.filter("*.js"))
-        // Validate JS
-        .pipe(plugins.jshint()).on("error", error)
-        .pipe(plugins.jshint.reporter("jshint-stylish"))
         // Add versions
         .pipe(plugins.revAll({
             transformFilename: transformRevFilename
@@ -133,6 +141,25 @@ gulp.task("copy:static", function () {
     return StaticSourcesStream.pipe(gulp.dest("public"));
 });
 
+gulp.task("connect:static", function () {
+    connect.server({
+        root: "public"
+    });
+});
+
+gulp.task("server:api", function () {
+    nodemon({
+        script: "server/server.js",
+        ext: "js json",
+        ignore: ["assets/*", "public/*"],
+        env: {
+            NODE_ENV: "development",
+            PORT: 3000
+        }
+    })
+    .on("change", ["js:server:hint"]);
+});
+
 gulp.task("watch", function () {
     gulp.watch("assets/stylus/*.styl", function () {
         runSequence("css:build", "html:build", "clean:tmp");
@@ -143,6 +170,21 @@ gulp.task("watch", function () {
     gulp.watch("assets/static/**", ["copy:static"]);
 });
 
+// BUILD TASKS
 gulp.task("default", function () {
-    runSequence("clean:build", ["css:build", "js:build"], ["html:build", "copy:static"], "clean:tmp", "watch")
+    runSequence("clean:build", ["css:build", "js:build"],
+        ["html:build", "copy:static"], "clean:tmp", "connect:static", "server:api", "js:server:hint", "watch");
 });
+
+//DOCS
+gulp.task("server:docs", function () {
+    gulp.src(["server/{,**/}*.js"])
+        .pipe(plugins.doxx({
+            title: "Inspirr",
+            urlPrefix: "/docs"
+        }))
+        .pipe(gulp.dest("docs"));
+
+});
+
+gulp.task("docs", ["server:docs"]);
