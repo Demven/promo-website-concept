@@ -7,7 +7,8 @@ var gulp = require("gulp"),
 // Task to run in order
     runSequence = require("run-sequence"),
     nodemon = require("gulp-nodemon"),
-    connect = require("gulp-connect");
+    connect = require("gulp-connect"),
+    apidoc = require("apidoc");
 
 // Load all gulp plugins
 var plugins = require("gulp-load-plugins")({
@@ -39,6 +40,13 @@ gulp.task("clean:tmp", function (cb) {
     var CleanStream = gulp.src(["revisions"], {read: false});
     return CleanStream.pipe(plugins.rimraf({force: true}));
 });
+// Clean tmp folders
+gulp.task("clean:docs", function (cb) {
+    // Read sources
+    var CleanStream = gulp.src(["docs"], {read: false});
+    return CleanStream.pipe(plugins.rimraf({force: true}));
+});
+
 
 // Build CSS files
 gulp.task("css:build", function () {
@@ -154,7 +162,7 @@ gulp.task("server:api", function () {
         ignore: ["assets/*", "public/*"],
         env: {
             NODE_ENV: "development",
-            PORT: 3000
+            PORT: 9000
         }
     })
     .on("change", ["js:server:hint"]);
@@ -176,15 +184,13 @@ gulp.task("default", function () {
         ["html:build", "copy:static"], "clean:tmp", "connect:static", "server:api", "js:server:hint", "watch");
 });
 
-//DOCS
-gulp.task("server:docs", function () {
-    gulp.src(["server/{,**/}*.js"])
-        .pipe(plugins.doxx({
-            title: "Inspirr",
-            urlPrefix: "/docs"
-        }))
-        .pipe(gulp.dest("docs"));
-
+gulp.task("api:docs", function () {
+    apidoc.createDoc({
+        src: "server/",
+        dest: "docs/api/"
+    });
 });
 
-gulp.task("docs", ["server:docs"]);
+gulp.task("docs", function(){
+    runSequence("clean:docs", ["api:docs"]);
+});
