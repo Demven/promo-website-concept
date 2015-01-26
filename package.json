@@ -42,7 +42,6 @@
     "gulp-jshint": "^1.9.0",
     "gulp-load-plugins": "^0.8.0",
     "gulp-nodemon": "^1.0.5",
-    "gulp-notify": "^2.1.0",
     "gulp-rev-all": "^0.7.5",
     "gulp-rev-collector": "^0.1.2",
     "gulp-rimraf": "^0.1.1",
