@@ -26,6 +26,7 @@
     "expect.js": "^0.3.1",
     "faker": "^2.1.2",
     "gulp": "^3.8.10",
+    "gulp-connect": "^2.2.0",
     "gulp-angular-htmlify": "^2.1.1",
     "gulp-apidoc": "^0.1.2",
     "gulp-autoprefixer": "^2.0.0",
