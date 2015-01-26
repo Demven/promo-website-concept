@@ -64,8 +64,6 @@ gulp.task("css:build", function () {
         })).on("error", error)
         // versionization of css urls
         .pipe(plugins.cssUrlVersioner())
-        // Notify user
-        .pipe(plugins.notify("CSS build complete"))
         // Write maps
         .pipe(plugins.sourcemaps.write(".")).on("error", error)
         // Write to distributive folder
@@ -104,8 +102,6 @@ gulp.task("js:build", function () {
         .pipe(plugins.jshint.reporter("jshint-stylish"))
         // Compress js
         .pipe(plugins.uglify()).on("error", error)
-        // Notify user
-        .pipe(plugins.notify("JS build complete"))
         // Write maps
         .pipe(plugins.sourcemaps.write(".")).on("error", error)
         // Write to distributive folder
@@ -137,8 +133,6 @@ gulp.task("html:build", function () {
             collapseWhitespace: true,
             removeComments: true
         })).on("error", error)
-        //Notify user
-        .pipe(plugins.notify("HTML build complete"))
         .pipe(gulp.dest("public"));
 });
 
