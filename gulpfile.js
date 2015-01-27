@@ -191,6 +191,23 @@ gulp.task("api:docs", function () {
     });
 });
 
+gulp.task("server:docs", function () {
+    gulp.src("server/{,**/}*.js")
+        .pipe(plugins.yuidoc.parser({
+            "paths": ["server/**/"],
+            "project": {
+                "name": "Inspirr",
+                "description": "Inspirr documentation",
+                "version": "0.1.0"
+            }
+        }))
+        .pipe(plugins.yuidoc.generator({
+            "themedir": "node_modules/yuidoc-lucid-theme",
+            "helpers": ["node_modules/yuidoc-lucid-theme/helpers/helpers.js"]
+        }))
+        .pipe(gulp.dest("docs/server"));
+});
+
 gulp.task("docs", function(){
-    runSequence("clean:docs", ["api:docs"]);
+    runSequence("clean:docs", ["api:docs", "server:docs"]);
 });
