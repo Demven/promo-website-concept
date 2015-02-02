@@ -5,10 +5,7 @@
 var gulp = require("gulp"),
     path = require("path"),
 // Task to run in order
-    runSequence = require("run-sequence"),
-    nodemon = require("gulp-nodemon"),
-    connect = require("gulp-connect"),
-    apidoc = require("apidoc");
+    runSequence = require("run-sequence");
 
 // Load all gulp plugins
 var plugins = require("gulp-load-plugins")({
@@ -18,96 +15,108 @@ var plugins = require("gulp-load-plugins")({
 });
 
 // Helpers. Log function that throw error and exit from task
-var error = function (error) {
-        console.log(["Error plugin: " + error.plugin, error.message].join("\n"));
-        this.end();
-    },
-    transformRevFilename = function (file, hash) {
-        var ext = path.extname(file.path);
-        return path.basename(file.path, ext) + "-" + hash.substr(0, 10) + ext;
-    };
+var transformRevFilename = function (file, hash) {
+    var ext = path.extname(file.path);
+    return path.basename(file.path, ext) + "-" + hash.substr(0, 10) + ext;
+};
 
+//*********************************
+//********* Clean tasks ***********
+//*********************************
 // Clean previous build
-gulp.task("clean:build", function (cb) {
+gulp.task("clean:previous:build", ["clear:revisions"], function () {
     // Get sources without reading and remove it
-    var CleanStream = gulp.src(["public", "revisions"], {read: false});
-    return CleanStream.pipe(plugins.rimraf({force: true}));
+    return gulp.src(["public"], {read: false})
+        // Clean
+        .pipe(plugins.rimraf({force: true}));
 });
-
-// Clean tmp folders
-gulp.task("clean:tmp", function (cb) {
+// Clean folder with revisions information
+gulp.task("clear:revisions", function () {
+    // Get sources without reading and remove it
+    return gulp.src(["revisions"], {read: false})
+        .pipe(plugins.rimraf({force: true}));
+});
+// Clean docs folders
+gulp.task("clean:docs", function () {
     // Read sources
-    var CleanStream = gulp.src(["revisions"], {read: false});
-    return CleanStream.pipe(plugins.rimraf({force: true}));
-});
-// Clean tmp folders
-gulp.task("clean:docs", function (cb) {
-    // Read sources
-    var CleanStream = gulp.src(["docs"], {read: false});
-    return CleanStream.pipe(plugins.rimraf({force: true}));
+    return gulp.src(["docs"], {read: false})
+        .pipe(plugins.rimraf({force: true}));
 });
 
-
+//*********************************
+//*********** Build CSS ***********
+//*********************************
 // Build CSS files
-gulp.task("css:build", function () {
+gulp.task("css:build:compile", function () {
     // Read sources
     return gulp.src("assets/stylus/*.styl")
-        // Source map initialization
-        .pipe(plugins.sourcemaps.init())
-        // Compile stylus
+        // Plumber to track and fix pipes
+        .pipe(plugins.plumber())
+        // Generate stylus code
         .pipe(plugins.stylus({
-            compress: true
-        })).on("error", error)
+            compress: true,
+            // Generate inline sources
+            sourcemap: {
+                inline: true
+            }
+        }))
+        // Compile stylus
+        .pipe(plugins.sourcemaps.init({
+            loadMaps: true
+        }))
         // PostCSS process to add prefixes
         .pipe(plugins.autoprefixer({
             // Here will be specific versions of browser
-        })).on("error", error)
-        // versionization of css urls
-        .pipe(plugins.cssUrlVersioner())
-        // Write maps
-        .pipe(plugins.sourcemaps.write(".")).on("error", error)
+        }))
+        .pipe(plugins.sourcemaps.write('.'))
         // Write to distributive folder
         .pipe(gulp.dest("public/css"))
-        // Filter only css files
         .pipe(plugins.filter("*.css"))
-        // Validate CSS
-        .pipe(plugins.csslint()).on("error", error)
-        .pipe(plugins.csslint.reporter())
         // Add versions
         .pipe(plugins.revAll({
             transformFilename: transformRevFilename
         }))
+        // add versions to urls
+        .pipe(plugins.cssUrlVersioner())
+        .pipe(plugins.filesize())
         // Write to destination
         .pipe(gulp.dest("public/css"))
         // Save revision
         .pipe(plugins.revAll.manifest({fileName: "CSSManifest.json"}))
+        // Revert plumber
+        .pipe(plugins.plumber.stop())
         .pipe(gulp.dest("revisions"));
 });
-
-// Build server sources
-gulp.task("js:server:hint", function () {
-    gulp.src("server/{,**/}*.js")
-        .pipe(plugins.jshint()).on("error", error)
-        .pipe(plugins.jshint.reporter("jshint-stylish"));
+// Create gzipped files to not load server with dynamic gzip generation
+gulp.task("css:build:gzip", function () {
+    gulp.src("public/css/*.css")
+        .pipe(plugins.pako.gzip())
+        .pipe(gulp.dest("public/css"));
+});
+// Complex task to build css
+gulp.task("css:build", function () {
+    runSequence("css:build:compile", "css:build:gzip");
 });
 
+
+//*********************************
+//*********** Build JS ************
+//*********************************
+
 // Build javascript
-gulp.task("js:build", function () {
+gulp.task("js:build:compile", function () {
     // Read sources
     var JSSourcesStream = gulp.src("assets/js/*.js");
-    // Source map initialization
-    return JSSourcesStream.pipe(plugins.sourcemaps.init())
-        // Validate JS
-        .pipe(plugins.jshint()).on("error", error)
-        .pipe(plugins.jshint.reporter("jshint-stylish"))
-        // Compress js
-        .pipe(plugins.uglify()).on("error", error)
-        // Write maps
-        .pipe(plugins.sourcemaps.write(".")).on("error", error)
+    // Validate JS
+    return JSSourcesStream
+        // Plumber to track and fix pipes
+        .pipe(plugins.plumber())
+        // requireJS here
+        //------------
         // Write to distributive folder
         .pipe(gulp.dest("public/js"))
-        // Filter only css files
-        .pipe(plugins.filter("*.js"))
+        // Show filesize of generated files
+        .pipe(plugins.filesize())
         // Add versions
         .pipe(plugins.revAll({
             transformFilename: transformRevFilename
@@ -116,68 +125,129 @@ gulp.task("js:build", function () {
         .pipe(gulp.dest("public/js"))
         // Save revision
         .pipe(plugins.revAll.manifest({fileName: "JSManifest.json"}))
+        // Revert pipes
+        .pipe(plugins.plumber.stop())
         .pipe(gulp.dest("revisions"));
 });
+// Generate gzip packages
+gulp.task("js:build:gzip", function () {
+    gulp.src("public/js/*.js")
+        .pipe(plugins.pako.gzip())
+        .pipe(gulp.dest("public/js"));
+});
+// Complex task to build JS
+gulp.task("js:build", function () {
+    runSequence("js:build:compile", "js:build:gzip");
+});
+
+//*********************************
+//********** Build HTML ***********
+//*********************************
 
 // Build HTML entry point
-gulp.task("html:build", function () {
+gulp.task("html:build", ["css:build:compile", "js:build:compile"], function () {
     // Read sources
     var HTMLSourcesStream = gulp.src(["revisions/*.json", "assets/html/*.html"]);
-    return HTMLSourcesStream.pipe(plugins.revCollector({
-        replaceReved: true,
-        revSuffix: "-[0-9a-f]{10}-?"
-    }))
+    return HTMLSourcesStream
+        // Replace revisions due to manifiest
+        .pipe(plugins.revCollector({
+            replaceReved: true,
+            revSuffix: "-[0-9a-f]{10}-?"
+        }))
         .pipe(plugins.filter("*.html"))
         // Minify HTMl
         .pipe(plugins.htmlmin({
             collapseWhitespace: true,
             removeComments: true
-        })).on("error", error)
+        }))
         .pipe(gulp.dest("public"));
 });
 
+//*********************************
+//********** Copy tasks ***********
+//*********************************
 // Copy static resources
 gulp.task("copy:static", function () {
     // Read sources
-    var StaticSourcesStream = gulp.src("assets/static/**");
-    return StaticSourcesStream.pipe(gulp.dest("public"));
+    return gulp.src("assets/static/**")
+        .pipe(gulp.dest("public"))
+        .pipe(plugins.pako.gzip())
+        .pipe(gulp.dest("public"));
 });
+gulp.task("images:build", function () {
+    // Read sources
+    return gulp.src("assets/images/*.*")
+        .pipe(gulp.dest("public/images"))
+        .pipe(plugins.pako.gzip())
+        .pipe(gulp.dest("public/images"));
+});
+//**********************************
+//********* Server tasks ***********
+//**********************************
+var nodemon = require("gulp-nodemon"),
+    connect = require("gulp-connect");
 
 gulp.task("connect:static", function () {
     connect.server({
         root: "public"
     });
 });
-
 gulp.task("server:api", function () {
     nodemon({
         script: "server/server.js",
         ext: "js json",
-        ignore: ["assets/*", "public/*"],
+        ignore: ["assets/**", "public/**", "node_modules/**"],
         env: {
             NODE_ENV: "development",
             PORT: 9000
         }
     })
-    .on("change", ["js:server:hint"]);
+        .on("change", ["js:server:hint"]);
 });
 
+//*********************************
+//********* Watch tasks ***********
+//*********************************
+
 gulp.task("watch", function () {
-    gulp.watch("assets/stylus/*.styl", function () {
-        runSequence("css:build", "html:build", "clean:tmp");
+    gulp.watch("assets/html/*.html", function () {
+        runSequence("html:build");
     });
-    gulp.watch("assets/js/*.js", function () {
-        runSequence("js:build", "html:build", "clean:tmp");
+    gulp.watch("assets/stylus/{,**/}*.styl", function () {
+        runSequence("css:build", "html:build", "clear:revisions");
+    });
+    gulp.watch("assets/js/{,**/}*.js", function () {
+        runSequence("js:build", "html:build", "clear:revisions");
     });
     gulp.watch("assets/static/**", ["copy:static"]);
 });
 
-// BUILD TASKS
-gulp.task("default", function () {
-    runSequence("clean:build", ["css:build", "js:build"],
-        ["html:build", "copy:static"], "clean:tmp", "connect:static", "server:api", "js:server:hint", "watch");
+//*********************************
+//******* Validation tasks ********
+//*********************************
+
+gulp.task("js:server:hint", function () {
+    gulp.src("server/{,**/}*.js")
+        .pipe(plugins.jshint())
+        .pipe(plugins.jshint.reporter("jshint-stylish"));
+});
+gulp.task("build:css:validation", function () {
+    gulp.src("public/css/*.css")
+        // Validate CSS
+        .pipe(plugins.csslint("csslintrc.json"))
+        .pipe(plugins.csslint.reporter());
+});
+gulp.task("build:js:validation", function () {
+    gulp.src(["assets/js/{,**/}*.js"])
+        // Validate JS
+        .pipe(plugins.jshint())
+        .pipe(plugins.jshint.reporter("jshint-stylish"))
 });
 
+//*********************************
+//********** Docs tasks ***********
+//*********************************
+var apidoc = require("apidoc");
 gulp.task("api:docs", function () {
     apidoc.createDoc({
         src: "server/",
@@ -202,6 +272,16 @@ gulp.task("server:docs", function () {
         .pipe(gulp.dest("docs/server"));
 });
 
-gulp.task("docs", function(){
+//***********************************
+//********** Complex tasks ***********
+//***********************************
+
+gulp.task("default", function () {
+    runSequence("clean:previous:build",
+        ["html:build", "copy:static", "images:build"], ["build:js:validation", "build:css:validation"],
+        "clear:revisions", "connect:static", "server:api", "js:server:hint", "watch");
+});
+
+gulp.task("docs", function () {
     runSequence("clean:docs", ["api:docs", "server:docs"]);
 });
