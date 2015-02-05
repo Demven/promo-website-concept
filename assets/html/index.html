@@ -1,12 +1,28 @@
 <!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title>Example</title>
-    <link type="text/css" href="css/style.css">
-    <script src="js/sample.js"></script>
+<html ng-app="inspirr">
+<head>
+    <meta charset="utf-8">
+    <title>My AngularJS App</title>
+    <meta name="description" content="">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-Example
+<!--[if lt IE 10]>
+<p class="browsehappy">You are using an <b>outdated</b> browser.
+    Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<div ui-view></div>
+<br/>
+<br/>
+<br/>
+<a ui-sref="settings">Show Settings</a>
+
+<!-- In production use:
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
+-->
+<script src="vendor/angular/angular.js"></script>
+<script src="vendor/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="js/inspirr.js"></script>
 </body>
 </html>
