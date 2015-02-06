@@ -106,7 +106,7 @@ gulp.task("css:build", function () {
 // Build javascript
 gulp.task("js:build:compile", function () {
     // Read sources
-    var JSSourcesStream = gulp.src("assets/js/*.js");
+    var JSSourcesStream = gulp.src("assets/js/{,**/}*.js");
     // Validate JS
     return JSSourcesStream
         // Plumber to track and fix pipes
@@ -147,14 +147,14 @@ gulp.task("js:build", function () {
 // Build HTML entry point
 gulp.task("html:build", ["css:build:compile", "js:build:compile"], function () {
     // Read sources
-    var HTMLSourcesStream = gulp.src(["revisions/*.json", "assets/html/*.html"]);
+    var HTMLSourcesStream = gulp.src(["revisions/*.json", "assets/html/{,**/}*.html"]);
     return HTMLSourcesStream
         // Replace revisions due to manifiest
         .pipe(plugins.revCollector({
             replaceReved: true,
             revSuffix: "-[0-9a-f]{10}-?"
         }))
-        .pipe(plugins.filter("*.html"))
+        .pipe(plugins.filter("{,**/}*.html"))
         // Minify HTMl
         .pipe(plugins.htmlmin({
             collapseWhitespace: true,
@@ -210,7 +210,7 @@ gulp.task("server:api", function () {
 //*********************************
 
 gulp.task("watch", function () {
-    gulp.watch("assets/html/*.html", function () {
+    gulp.watch("assets/html/{,**/}*.html", function () {
         runSequence("html:build");
     });
     gulp.watch("assets/stylus/{,**/}*.styl", function () {
