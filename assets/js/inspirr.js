@@ -46,6 +46,21 @@ IR.MODULE = new (function(){
     ]);
 })();
 
+IR.EVENT = {
+    WISH: {
+        /** request to change page title using data send with this event */
+        SET_PAGE_TITLE: "WISH_SET_PAGE_TITLE", // data = "pageTitle"
+        /** request to change page subtitle using data send with this event */
+        SET_PAGE_SUBTITLE: "WISH_SET_PAGE_SUBTITLE" // data = "pageSubtitle"
+    },
+    OCCURRED: {
+        WINDOW_RESIZE: "OCCURRED_WINDOW_RESIZE",
+        PAGE_CHANGED: "OCCURRED_PAGE_CHANGED",
+        LOAD_DATA_START: "OCCURRED_LOAD_DATA_START",
+        LOAD_DATA_FINISHED: "OCCURRED_LOAD_DATA_FINISHED"
+    }
+};
+
 IR.MODULE.INSPIRR
     .config(function($stateProvider, $urlRouterProvider) {
         // router config
@@ -75,36 +90,8 @@ IR.MODULE.INSPIRR
                     "settingsContent":{templateUrl: "templates/settingsProfile.html"}
                 }
             });
-
-        // Supported gestures events
-        /**
-         hmDoubleTap : 'doubletap',
-         hmDragstart : 'dragstart',
-         hmDrag : 'drag',
-         hmDragUp : 'dragup',
-         hmDragDown : 'dragdown',
-         hmDragLeft : 'dragleft',
-         hmDragRight : 'dragright',
-         hmDragend : 'dragend',
-         hmHold : 'hold',
-         hmPinch : 'pinch',
-         hmPinchIn : 'pinchin',
-         hmPinchOut : 'pinchout',
-         hmRelease : 'release',
-         hmRotate : 'rotate',
-         hmSwipe : 'swipe',
-         hmSwipeUp : 'swipeup',
-         hmSwipeDown : 'swipedown',
-         hmSwipeLeft : 'swipeleft',
-         hmSwipeRight : 'swiperight',
-         hmTap : 'tap',
-         hmTouch : 'touch',
-         hmTransformstart : 'transformstart',
-         hmTransform : 'transform',
-         hmTransformend : 'transformend'
-         */
     })
-    .run(function($rootScope, $state /*,authService*/, eventsMYService){
+    .run(function($rootScope, $state /*,authService*/){
         // Authentication checkout
         /*$rootScope.$on('$stateChangeStart',
             function(event, toState, toParams, fromState, fromParams){
@@ -127,8 +114,7 @@ IR.MODULE.INSPIRR
             });
 
         window.addEventListener("resize", function(){
-            $rootScope.$broadcast(eventsMYService.OCCURRED.WINDOW_RESIZE);
+            $rootScope.$broadcast(IR.EVENT.OCCURRED.WINDOW_RESIZE);
             console.log("resize");
         });
     });
-
