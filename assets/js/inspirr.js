@@ -1,14 +1,14 @@
 // Declare app level module which depends on templates, and components
 angular.module('inspirr', [
-  'ui.router'/*,
+    'ui.router',
+    'angular-gestures'
+  /*,
   'inspirr.main',
   'inspirr.settings'*/
 ])
-.config(function($stateProvider, $urlRouterProvider) {
-    // For any unmatched url, redirect to main state
+.config(function($stateProvider, $urlRouterProvider, hammerDefaultOptsProvider) {
+    // router config
     $urlRouterProvider.otherwise("/main");
-
-    // Now set up the states
     $stateProvider
         .state('main', {
             url: "/main",
@@ -34,4 +34,37 @@ angular.module('inspirr', [
                 "settingsContent":{templateUrl: "templates/settingsProfile.html"}
             }
         });
+
+    // gestures config
+    hammerDefaultOptsProvider.set({
+        recognizers: [[Hammer.Tap, {time: 250}]]
+    });
+
+    /*
+     Supported events:
+     hmDoubleTap : 'doubletap',
+     hmDragstart : 'dragstart',
+     hmDrag : 'drag',
+     hmDragUp : 'dragup',
+     hmDragDown : 'dragdown',
+     hmDragLeft : 'dragleft',
+     hmDragRight : 'dragright',
+     hmDragend : 'dragend',
+     hmHold : 'hold',
+     hmPinch : 'pinch',
+     hmPinchIn : 'pinchin',
+     hmPinchOut : 'pinchout',
+     hmRelease : 'release',
+     hmRotate : 'rotate',
+     hmSwipe : 'swipe',
+     hmSwipeUp : 'swipeup',
+     hmSwipeDown : 'swipedown',
+     hmSwipeLeft : 'swipeleft',
+     hmSwipeRight : 'swiperight',
+     hmTap : 'tap',
+     hmTouch : 'touch',
+     hmTransformstart : 'transformstart',
+     hmTransform : 'transform',
+     hmTransformend : 'transformend'
+     */
 });
