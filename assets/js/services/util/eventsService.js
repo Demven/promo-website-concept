@@ -2,7 +2,7 @@
  * Created by Dzmitry_Salnikau on 2/9/2015.
  * Service, that contains all global events definitions
  */
-IR.MODULE.UTIL.factory("eventsService", function(){
+IR.MODULE.UTIL.factory("eventsMYService", function(){
     return {
         WISH: {
             /** request to change page title using data send with this event */
@@ -11,7 +11,8 @@ IR.MODULE.UTIL.factory("eventsService", function(){
             SET_PAGE_SUBTITLE: "WISH_SET_PAGE_SUBTITLE" // data = "pageSubtitle"
         },
         OCCURRED: {
-            WINDOW_RESIZE: "OCCURRED_WINDOW_RESIZE"
+            WINDOW_RESIZE: "OCCURRED_WINDOW_RESIZE",
+            PAGE_CHANGED: "OCCURRED_PAGE_CHANGED"
         }
-    }
+    };
 });
