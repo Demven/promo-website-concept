@@ -1,16 +1,14 @@
-/**
- * A utility that brokers HTTP requests...
- *
- * @class ProductsDataAccess
- * @constructor
- */
-var ProductsDataAccess = require("../DataAccess/products/products.js"),
-    // Create DAO
-    ProductsDataAccessObject = new ProductsDataAccess();
+var ProductsDataAccess = require("../DataAccess/products/products.js");
 module.exports = {
+    configureDataAccess: function (req, res, next) {
+        req.dataAccess = new ProductsDataAccess({
+            access: req.dataSrc.db.get("products")
+        });
+        next();
+    },
     getList: function (req, res, next) {
-        res.status(200).send(ProductsDataAccessObject.getList({
-            type: req.query.type || "default"
-        }));
+        req.dataAccess.getProducts().success(function(doc){
+            res.status(200).send(doc);
+        });
     }
 };

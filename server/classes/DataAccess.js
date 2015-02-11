@@ -12,33 +12,24 @@ DataAccess.prototype.initialize = function(configs){
     _.extend(that, configs);
 };
 
-DataAccess.prototype.setAccess = function(access, options){
-    if(!DataAccess.prototype.access || (options && options.force)) {
-        DataAccess.prototype.access = _.extend(DataAccess.prototype.access || {},
-            access || {});
-    }
-};
-
 DataAccess.prototype.setOptions = function(options){
     // setting options for data access
     var that = this;
     that.options = _.extend(that.options || {}, options || {});
 };
 
-
 // Class that give access to base access class
-var DataAccessFactory = function(configs){
+var DataAccessFactory = function(){};
+
+DataAccessFactory.create = function(prototypeExtend){
     var Func = function(){
         var that = this;
         DataAccess.prototype.initialize.apply(that, arguments);
     };
     // Inherit all prototype methods
     util.inherits(Func, DataAccess);
+    _.extend(Func.prototype, prototypeExtend || {});
     return Func;
-};
-
-DataAccessFactory.setAccess = function(){
-    DataAccess.prototype.setAccess.apply(null, arguments);
 };
 
 module.exports = DataAccessFactory;

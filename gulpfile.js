@@ -4,6 +4,8 @@
 
 var gulp = require("gulp"),
     path = require("path"),
+    argv = require("yargs").argv,
+    _ = require("lodash"),
 // Task to run in order
     runSequence = require("run-sequence");
 
@@ -68,7 +70,7 @@ gulp.task("css:build:compile", function () {
         .pipe(plugins.autoprefixer({
             // Here will be specific versions of browser
         }))
-        .pipe(plugins.sourcemaps.write('.'))
+        .pipe(plugins.sourcemaps.write("."))
         // Write to distributive folder
         .pipe(gulp.dest("public/css"))
         .pipe(plugins.filter("*.css"))
@@ -78,6 +80,7 @@ gulp.task("css:build:compile", function () {
         }))
         // add versions to urls
         .pipe(plugins.cssUrlVersioner())
+        // File size of files
         .pipe(plugins.filesize())
         // Write to destination
         .pipe(gulp.dest("public/css"))
@@ -108,13 +111,19 @@ gulp.task("js:build:compile", function () {
     // Read sources
     var JSSourcesStream = gulp.src("assets/js/{,**/}*.js");
     // Validate JS
-    return JSSourcesStream
+    JSSourcesStream = JSSourcesStream
         // Plumber to track and fix pipes
-        .pipe(plugins.plumber())
-        // requireJS here
-        //------------
-        // Write to distributive folder
-        .pipe(gulp.dest("public/js"))
+        .pipe(plugins.plumber());
+
+    // Production version
+    if (argv.production) {
+        JSSourcesStream = JSSourcesStream
+            .pipe(plugins.ngAnnotate())
+            .pipe(plugins.uglify());
+    }
+
+    // Write to distributive folder
+    return JSSourcesStream.pipe(gulp.dest("public/js"))
         // Show filesize of generated files
         .pipe(plugins.filesize())
         // Add versions
@@ -148,13 +157,22 @@ gulp.task("js:build", function () {
 gulp.task("html:build", ["css:build:compile", "js:build:compile"], function () {
     // Read sources
     var HTMLSourcesStream = gulp.src(["revisions/*.json", "assets/html/{,**/}*.html"]);
-    return HTMLSourcesStream
+    HTMLSourcesStream = HTMLSourcesStream
         // Replace revisions due to manifiest
         .pipe(plugins.revCollector({
             replaceReved: true,
             revSuffix: "-[0-9a-f]{10}-?"
         }))
-        .pipe(plugins.filter("{,**/}*.html"))
+        .pipe(plugins.filter("{,**/}*.html"));
+    // Production version
+    if (argv.production) {
+        HTMLSourcesStream = HTMLSourcesStream
+            .pipe(plugins.cdnizer([
+                // matches all root angular files
+                "google:angular"
+            ]));
+    }
+    return HTMLSourcesStream
         // Minify HTMl
         .pipe(plugins.htmlmin({
             collapseWhitespace: true,
@@ -184,25 +202,31 @@ gulp.task("images:build", function () {
 //**********************************
 //********* Server tasks ***********
 //**********************************
-var nodemon = require("gulp-nodemon"),
-    connect = require("gulp-connect");
 
 gulp.task("connect:static", function () {
-    connect.server({
-        root: "public"
+    plugins.connect.server({
+        root: "public",
+        port: 3002
     });
 });
-gulp.task("server:api", function () {
-    nodemon({
+gulp.task("server:api", function (done) {
+    // Done triggers only once
+    plugins.nodemon({
         script: "server/server.js",
         ext: "js json",
         ignore: ["assets/**", "public/**", "node_modules/**"],
         env: {
-            NODE_ENV: "development",
-            PORT: 9000
+            NODE_ENV: argv.production ? "production" : "development",
+            PORT: 4002,
+            dataSrc: argv.fake ? "fake" : "db"
         }
     })
-        .on("change", ["js:server:hint"]);
+    .on("start", _.once(function () {
+        setTimeout(function () {
+            done();
+        }, 1000);
+    }))
+    .on("change", ["js:server:hint"]);
 });
 
 //*********************************
@@ -238,10 +262,14 @@ gulp.task("build:css:validation", function () {
         .pipe(plugins.csslint.reporter());
 });
 gulp.task("build:js:validation", function () {
-    gulp.src(["assets/js/{,**/}*.js"])
+    return gulp.src(["assets/js/{,**/}*.js"])
         // Validate JS
-        .pipe(plugins.jshint())
-        .pipe(plugins.jshint.reporter("jshint-stylish"))
+        .pipe(plugins.jshint({
+            "globals": {
+                "angular": true
+            }
+        }))
+        .pipe(plugins.jshint.reporter(require("jshint-stylish"), {verbose: true}));
 });
 
 //*********************************
@@ -271,7 +299,13 @@ gulp.task("server:docs", function () {
         }))
         .pipe(gulp.dest("docs/server"));
 });
-
+//***********************************
+//********** Tests tasks ***********
+//***********************************
+gulp.task("tests", function () {
+    return gulp.src("tests/api.js", {read: false})
+        .pipe(plugins.mocha({reporter: "spec", timeout: 1000}));
+});
 //***********************************
 //********** Complex tasks ***********
 //***********************************
@@ -279,7 +313,7 @@ gulp.task("server:docs", function () {
 gulp.task("default", function () {
     runSequence("clean:previous:build",
         ["html:build", "copy:static", "images:build"], ["build:js:validation", "build:css:validation"],
-        "clear:revisions", "connect:static", "server:api", "js:server:hint", "watch");
+        ["clear:revisions", "connect:static", "server:api", "js:server:hint"], ["watch", "tests"]);
 });
 
 gulp.task("docs", function () {
