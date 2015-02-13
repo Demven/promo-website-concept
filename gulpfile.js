@@ -218,7 +218,7 @@ gulp.task("server:api", function (done) {
         env: {
             NODE_ENV: argv.production ? "production" : "development",
             PORT: 4002,
-            dataSrc: argv.fake ? "fake" : "db"
+            dataSrc: argv.db || "remote"
         }
     })
     .on("start", _.once(function () {

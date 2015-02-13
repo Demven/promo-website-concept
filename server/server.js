@@ -8,23 +8,21 @@ var express = require("express"),
 app.set("trust proxy", true);
 app.set("x-powered-by", false);
 app.set("port", process.env.PORT || 4002);
-app.set("dataSrcType", process.env.dataSrc || "db");
+app.set("dataSrcType", process.env.dataSrc || "remote");
 
 // Data source access
-// TODO here need to implement access to fake data
 app.set("dataSrc", (function(){
-    var access = null,
-        dataSrcType = app.get("dataSrcType");
-    if(dataSrcType === "db"){
-        access = require("monk")("mongodb://inspirr:Neph1711@192.241.227.182:27000/inspirr");
-    } else if (dataSrcType == "fake") {
-        //Here must be some fake data object
-        //access = require("fake data object");
+    var dbConfigs = null, db,
+        mongoHelpers = new (require(path.join(__dirname, "classes/MongoDBHelpers.js")))();
+    if(app.get("dataSrcType") === "remote"){
+        dbConfigs = configs.db.remote;
+    } else if (app.get("dataSrcType") == "local") {
+        //Here must be some fake DB connection
     }
+    db = require("monk")(mongoHelpers.createAuthenticationLink(dbConfigs));
     return {
-        type: dataSrcType,
-        db: access,
-        session: access
+        db: db,
+        session: db
     };
 }()));
 

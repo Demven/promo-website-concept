@@ -1,3 +1,13 @@
 {
+  "db": {
+    "remote": {
+      "username": "inspirr",
+      "pass": "Neph1711",
+      "dbName": "inspirr",
+      "link": "192.241.227.182:27000"
+    },
+    "local": {
 
+    }
+  }
 }
