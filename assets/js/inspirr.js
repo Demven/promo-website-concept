@@ -69,30 +69,32 @@ IR.MODULE.INSPIRR
             .state('main', {
                 url: "/main",
                 views:{
-                    "content":{templateUrl: "templates/main.html"}
+                    "header": {templateUrl: "components/header.html"},
+                    "content":{templateUrl: "pages/main/main.html"}
                 }
             })
             .state('main.music', {
                 url: "/music",
                 views:{
-                    "mainContent":{templateUrl: "templates/mainMusic.html"}
+                    "mainContent":{templateUrl: "pages/main/mainMusic.html"}
                 }
             })
             .state('settings', {
                 url: "/settings",
                 views:{
-                    "content":{templateUrl: "templates/settings.html"}
+                    "header": {templateUrl: "components/header.html"},
+                    "content":{templateUrl: "pages/settings/settings.html"}
                 }
             })
             .state('settings.profile', {
                 url: "/profile",
                 views:{
-                    "settingsContent":{templateUrl: "templates/settingsProfile.html"}
+                    "settingsContent":{templateUrl: "pages/settings/settingsProfile.html"}
                 }
             });
     })
-    .run(function($rootScope, $state /*,authService*/){
-        // Authentication checkout
+    .run(function($rootScope /*, $state, authService*/){
+        // TODO: Authentication checkout
         /*$rootScope.$on('$stateChangeStart',
             function(event, toState, toParams, fromState, fromParams){
                 if(authService.isGuest()){
@@ -109,7 +111,7 @@ IR.MODULE.INSPIRR
 
                 if(fromParentState !== toParentState){
                     // it is a whole new page
-                    $rootScope.$broadcast(eventsMYService.OCCURRED.PAGE_CHANGED);
+                    $rootScope.$broadcast(IR.EVENT.OCCURRED.PAGE_CHANGED);
                 }
             });
 
