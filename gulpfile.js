@@ -112,7 +112,7 @@ gulp.task("css:build", function () {
 // Build javascript
 gulp.task("js:build:compile", function () {
     // Read sources
-    var JSSourcesStream = gulp.src("assets/js/{,**/}*.js");
+    var JSSourcesStream = gulp.src("assets/js/**/*.js");
     // Validate JS
     JSSourcesStream = JSSourcesStream
         // Plumber to track and fix pipes
@@ -122,7 +122,8 @@ gulp.task("js:build:compile", function () {
             "globals": {
                 "angular": true
             },
-            "browser": true
+            "browser": true,
+            "devel": true
         }))
         .pipe(plugins.jshint.reporter(require("jshint-stylish"), {verbose: true}));
 
