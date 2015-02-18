@@ -26,7 +26,7 @@ IR.MODULE.UTIL.factory("extendService", function(){
                 Child.prototype = new F();
                 Child.prototype.constructor = Child;
                 Child.superclass = Parent.prototype;
-            }
+            };
         }());
 
         /**

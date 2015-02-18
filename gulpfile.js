@@ -112,18 +112,20 @@ gulp.task("css:build", function () {
 // Build javascript
 gulp.task("js:build:compile", function () {
     // Read sources
-    var JSSourcesStream = gulp.src("assets/js/**/*.js");
+    var JSSourcesStream = gulp.src(["assets/js/**/*"]);
     // Validate JS
     JSSourcesStream = JSSourcesStream
         // Plumber to track and fix pipes
         .pipe(plugins.plumber())
         // Validate JS
         .pipe(plugins.jshint({
-            "globals": {
-                "angular": true
+            globals: {
+                angular: true,
+                IR: true
             },
-            "browser": true,
-            "devel": true
+            browser: true,
+            devel: true,
+            "-W057": false
         }))
         .pipe(plugins.jshint.reporter(require("jshint-stylish"), {verbose: true}));
 
