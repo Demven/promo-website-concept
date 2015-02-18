@@ -5,7 +5,7 @@
 @require './base/util'
 
 $header-height = 126px
-$header-icon-size = 4em
+$header-action-size = 4em
 $header-logo-height = 7em
 
 header
@@ -13,23 +13,29 @@ header
   display: flex
   font-size: 1rem
   align-items: center
-  .user-icon
-    width: $header-height
-    height: 100%
-    position: relative
+  flex-wrap: nowrap
+
+  header-action-icon-after(url, border-radius = 0)
     &:after
       content: ''
-      width: $header-icon-size
-      height: $header-icon-size
+      width: $header-action-size
+      height: $header-action-size
       position: absolute
       top: 50%
       left: 50%
-      margin-top: -($header-icon-size/2)
-      margin-left: -($header-icon-size/2)
+      margin-top: -($header-action-size/2)
+      margin-left: -($header-action-size/2)
       display: block
-      background-image: url("http://fotohost.by/images/2015/02/17/avatar-medium.png")
-      background-size: $header-icon-size $header-icon-size
-      border-radius: 4px
+      background: url(url) no-repeat
+      background-size: $header-action-size $header-action-size
+      if border-radius
+        border-radius: border-radius
+
+  .user-menu-button
+    width: $header-height
+    height: 100%
+    position: relative
+    header-action-icon-after("http://fotohost.by/images/2015/02/17/avatar-medium.png", 4px)
 
   figure
     height: $header-logo-height
@@ -43,3 +49,45 @@ header
       font-size: 6.6em
       color: $color-base
       order: 1
+
+  .title-box
+    width: 300px
+    height: 80%
+    display: flex
+    flex-direction: column
+    flex-grow: 1
+    border-left: 1px solid #dedede
+    border-right: 1px solid #dedede
+    margin-left: 2em
+    padding-left: 2em
+    font-family: $font-base
+    font-weight: normal
+    color: #8e8e8e
+    text-transform: uppercase
+    .title
+      font-size: 2em
+      padding-top: 11px
+    .subtitle
+      font-size: 5.6em
+      padding-top: 3px
+
+  .actions
+    height: $header-height
+    position: absolute
+    top: 0
+    right: $header-height
+    display: flex
+    align-items: center
+    .action
+      width: $header-height
+      height: $header-height
+      cursor: pointer
+      &.search
+        header-action-icon-after("http://fotohost.by/images/2015/02/18/search.png")
+
+  .notifications-button
+    width: $header-height
+    height: $header-height
+    position: relative
+    cursor: pointer
+    header-action-icon-after("http://fotohost.by/images/2015/02/18/bell.png")
