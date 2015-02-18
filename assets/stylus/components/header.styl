@@ -1,0 +1,45 @@
+/** HEADER COMPONENT
+  * @author Dmitry Salnikov
+  * @since 2/17/2015
+ */
+@require './base/util'
+
+$header-height = 126px
+$header-icon-size = 4em
+$header-logo-height = 7em
+
+header
+  height: $header-height
+  display: flex
+  font-size: 1rem
+  align-items: center
+  .user-icon
+    width: $header-height
+    height: 100%
+    position: relative
+    &:after
+      content: ''
+      width: $header-icon-size
+      height: $header-icon-size
+      position: absolute
+      top: 50%
+      left: 50%
+      margin-top: -($header-icon-size/2)
+      margin-left: -($header-icon-size/2)
+      display: block
+      background-image: url("http://fotohost.by/images/2015/02/17/avatar-medium.png")
+      background-size: $header-icon-size $header-icon-size
+      border-radius: 4px
+
+  figure
+    height: $header-logo-height
+    display: flex
+    align-items: flex-start
+    img
+      order: 2
+    figcaption
+      font-family: $font-base
+      font-weight: 700
+      font-size: 6.6em
+      color: $color-base
+      order: 1

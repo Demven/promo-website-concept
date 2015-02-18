@@ -69,27 +69,25 @@ IR.MODULE.INSPIRR
             .state('main', {
                 url: "/main",
                 views:{
-                    "header": {templateUrl: "components/header.html"},
-                    "content":{templateUrl: "pages/main/main.html"}
+                    "content":{templateUrl: "templates/pages/main/main.html"}
                 }
             })
             .state('main.music', {
                 url: "/music",
                 views:{
-                    "mainContent":{templateUrl: "pages/main/mainMusic.html"}
+                    "mainContent":{templateUrl: "templates/pages/main/mainMusic.html"}
                 }
             })
             .state('settings', {
                 url: "/settings",
                 views:{
-                    "header": {templateUrl: "components/header.html"},
-                    "content":{templateUrl: "pages/settings/settings.html"}
+                    "content":{templateUrl: "templates/pages/settings/settings.html"}
                 }
             })
             .state('settings.profile', {
                 url: "/profile",
                 views:{
-                    "settingsContent":{templateUrl: "pages/settings/settingsProfile.html"}
+                    "settingsContent":{templateUrl: "templates/pages/settings/settingsProfile.html"}
                 }
             });
     })

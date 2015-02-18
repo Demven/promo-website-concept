@@ -12,7 +12,9 @@
     Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 <![endif]-->
 
-<div ui-view="header"></div>
+<header></header>
+<ir-left-drawer></ir-left-drawer>
+<ir-right-drawer></ir-right-drawer>
 <div ui-view="content"></div>
 
 <!-- In production use:
@@ -23,7 +25,9 @@
 <script src="vendor/angular-ui-router/release/angular-ui-router.js"></script>
 <script src="vendor/angular-gestures/gestures.js"></script>
 <script src="js/inspirr.js"></script>
-<script src="js/services/util/eventsService.js"></script>
+<script src="js/components/header.js"></script>
+<script src="js/components/left-drawer.js"></script>
+<script src="js/components/right-drawer.js"></script>
 </body>
 
 </html>
