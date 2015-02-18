@@ -7,7 +7,7 @@ var gulp = require("gulp"),
     argv = require("yargs").argv,
     _ = require("lodash"),
 // Task to run in order
-    runSequence = require("run-sequence");
+    runSequence = require("run-sequence").use(gulp);
 
 // Load all gulp plugins
 var plugins = require("gulp-load-plugins")({
@@ -62,6 +62,9 @@ gulp.task("css:build:compile", function () {
                 inline: true
             }
         }))
+        // Validate CSS
+        .pipe(plugins.csslint("csslintrc.json"))
+        .pipe(plugins.csslint.reporter())
         // Compile stylus
         .pipe(plugins.sourcemaps.init({
             loadMaps: true
@@ -92,13 +95,13 @@ gulp.task("css:build:compile", function () {
 });
 // Create gzipped files to not load server with dynamic gzip generation
 gulp.task("css:build:gzip", function () {
-    gulp.src("public/css/*.css")
+    return gulp.src("public/css/*.css")
         .pipe(plugins.pako.gzip())
         .pipe(gulp.dest("public/css"));
 });
 // Complex task to build css
 gulp.task("css:build", function () {
-    runSequence("css:build:compile", "css:build:gzip");
+    return runSequence("css:build:compile", "css:build:gzip");
 });
 
 
@@ -113,7 +116,15 @@ gulp.task("js:build:compile", function () {
     // Validate JS
     JSSourcesStream = JSSourcesStream
         // Plumber to track and fix pipes
-        .pipe(plugins.plumber());
+        .pipe(plugins.plumber())
+        // Validate JS
+        .pipe(plugins.jshint({
+            "globals": {
+                "angular": true
+            },
+            "browser": true
+        }))
+        .pipe(plugins.jshint.reporter(require("jshint-stylish"), {verbose: true}));
 
     // Production version
     if (argv.production) {
@@ -140,13 +151,13 @@ gulp.task("js:build:compile", function () {
 });
 // Generate gzip packages
 gulp.task("js:build:gzip", function () {
-    gulp.src("public/js/*.js")
+    return gulp.src("public/js/*.js")
         .pipe(plugins.pako.gzip())
         .pipe(gulp.dest("public/js"));
 });
 // Complex task to build JS
 gulp.task("js:build", function () {
-    runSequence("js:build:compile", "js:build:gzip");
+    return runSequence("js:build:compile", "js:build:gzip");
 });
 
 //*********************************
@@ -192,6 +203,9 @@ gulp.task("copy:static", function () {
         .pipe(plugins.pako.gzip())
         .pipe(gulp.dest("public"));
 });
+//*********************************
+//********* Images tasks **********
+//*********************************
 gulp.task("images:build", function () {
     // Read sources
     return gulp.src("assets/images/*.*")
@@ -202,7 +216,6 @@ gulp.task("images:build", function () {
 //**********************************
 //********* Server tasks ***********
 //**********************************
-
 gulp.task("connect:static", function () {
     plugins.connect.server({
         root: "public",
@@ -226,13 +239,14 @@ gulp.task("server:api", function (done) {
             done();
         }, 1000);
     }))
-    .on("change", ["js:server:hint"]);
+    .on("change", function(){
+            runSequence("js:server:hint");
+        });
 });
 
 //*********************************
 //********* Watch tasks ***********
 //*********************************
-
 gulp.task("watch", function () {
     gulp.watch("assets/html/{,**/}*.html", function () {
         runSequence("html:build");
@@ -249,42 +263,26 @@ gulp.task("watch", function () {
 //*********************************
 //******* Validation tasks ********
 //*********************************
-
 gulp.task("js:server:hint", function () {
-    gulp.src("server/{,**/}*.js")
+    return gulp.src("server/{,**/}*.js")
         .pipe(plugins.jshint())
         .pipe(plugins.jshint.reporter("jshint-stylish"));
-});
-gulp.task("build:css:validation", function () {
-    gulp.src("public/css/*.css")
-        // Validate CSS
-        .pipe(plugins.csslint("csslintrc.json"))
-        .pipe(plugins.csslint.reporter());
-});
-gulp.task("build:js:validation", function () {
-    return gulp.src(["assets/js/{,**/}*.js"])
-        // Validate JS
-        .pipe(plugins.jshint({
-            "globals": {
-                "angular": true
-            }
-        }))
-        .pipe(plugins.jshint.reporter(require("jshint-stylish"), {verbose: true}));
 });
 
 //*********************************
 //********** Docs tasks ***********
 //*********************************
-var apidoc = require("apidoc");
-gulp.task("api:docs", function () {
+gulp.task("api:docs", function (done) {
+    var apidoc = require("apidoc");
     apidoc.createDoc({
         src: "server/",
         dest: "docs/api/"
     });
+    done();
 });
 
 gulp.task("server:docs", function () {
-    gulp.src("server/{,**/}*.js")
+    return gulp.src("server/{,**/}*.js")
         .pipe(plugins.yuidoc.parser({
             "paths": ["server/**/"],
             "project": {
@@ -304,7 +302,7 @@ gulp.task("server:docs", function () {
 //***********************************
 gulp.task("tests", function () {
     return gulp.src("tests/api.js", {read: false})
-        .pipe(plugins.mocha({reporter: "spec", timeout: 1000}));
+        .pipe(plugins.mocha({reporter: "spec", timeout: 3000}));
 });
 //***********************************
 //********** Complex tasks ***********
@@ -312,7 +310,7 @@ gulp.task("tests", function () {
 
 gulp.task("default", function () {
     runSequence("clean:previous:build",
-        ["html:build", "copy:static", "images:build"], ["build:js:validation", "build:css:validation"],
+        ["html:build", "copy:static", "images:build"],
         ["clear:revisions", "connect:static", "server:api", "js:server:hint"], ["watch", "tests"]);
 });
 
