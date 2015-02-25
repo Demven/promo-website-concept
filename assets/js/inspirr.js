@@ -54,7 +54,7 @@ IR.EVENT = {
         SET_PAGE_SUBTITLE: "WISH_SET_PAGE_SUBTITLE" // data = "pageSubtitle"
     },
     OCCURRED: {
-        WINDOW_RESIZE: "OCCURRED_WINDOW_RESIZE",
+        WINDOW_RESIZE: "OCCURRED_WINDOW_RESIZE", // data = {vw, vh}
         PAGE_CHANGED: "OCCURRED_PAGE_CHANGED",
         LOAD_DATA_START: "OCCURRED_LOAD_DATA_START",
         LOAD_DATA_FINISHED: "OCCURRED_LOAD_DATA_FINISHED"
@@ -91,7 +91,7 @@ IR.MODULE.INSPIRR
                 }
             });
     })
-    .run(function($rootScope /*, $state, authService*/){
+    .run(function($rootScope, $window /*, $state, authService*/){
         // TODO: Authentication checkout
         /*$rootScope.$on('$stateChangeStart',
             function(event, toState, toParams, fromState, fromParams){
@@ -114,7 +114,7 @@ IR.MODULE.INSPIRR
             });
 
         window.addEventListener("resize", function(){
-            $rootScope.$broadcast(IR.EVENT.OCCURRED.WINDOW_RESIZE);
+            $rootScope.$broadcast(IR.EVENT.OCCURRED.WINDOW_RESIZE, {vw: $window.outerWidth, vh: $window.outerHeight});
             console.log("resize");
         });
     });

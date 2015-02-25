@@ -3,15 +3,19 @@
   * @since 2/17/2015
  */
 @require './base/util'
+@require './base/devices'
 
-$header-height = 126px
+$header-base-font-size = 1rem // Desktop
+
+$header-height = 12.6em
 $header-action-size = 4em
+$header-mobile-action-size = 7em
 $header-logo-height = 7em
 
 header
   height: $header-height
   display: flex
-  font-size: 1rem
+  font-size: $header-base-font-size
   align-items: center
   flex-wrap: nowrap
 
@@ -37,12 +41,13 @@ header
     position: relative
     header-action-icon-after("http://fotohost.by/images/2015/02/17/avatar-medium.png", 4px)
 
-  figure
+  figure.logo
     height: $header-logo-height
     display: flex
     align-items: flex-start
     img
       order: 2
+      width: 8.1em
     figcaption
       font-family: $font-base
       font-weight: 700
@@ -50,40 +55,41 @@ header
       color: $color-base
       order: 1
 
-  .title-box
-    width: 300px
+  .center-box
     height: 80%
     display: flex
-    flex-direction: column
+    flex-direction: row
     flex-grow: 1
+    justify-content: space-between
     border-left: 1px solid #dedede
     border-right: 1px solid #dedede
     margin-left: 2em
-    padding-left: 2em
-    font-family: $font-base
-    font-weight: normal
-    color: #8e8e8e
-    text-transform: uppercase
-    .title
-      font-size: 2em
-      padding-top: 11px
-    .subtitle
-      font-size: 5.6em
-      padding-top: 3px
+    .title-box
+      display: flex
+      flex-direction: column
+      justify-content: center
+      padding-left: 2em
+      font-family: $font-base
+      font-weight: normal
+      color: #8e8e8e
+      text-transform: uppercase
+      white-space: nowrap
+      .title
+        font-size: 2em
+      .subtitle
+        font-size: 5.6em
 
-  .actions
-    height: $header-height
-    position: absolute
-    top: 0
-    right: $header-height
-    display: flex
-    align-items: center
-    .action
-      width: $header-height
-      height: $header-height
-      cursor: pointer
-      &.search
-        header-action-icon-after("http://fotohost.by/images/2015/02/18/search.png")
+    .actions-box
+      height: 100%
+      display: flex
+      align-items: center
+      .action
+        width: $header-height
+        height: $header-height
+        cursor: pointer
+        position: relative
+        &.search
+          header-action-icon-after("http://fotohost.by/images/2015/02/18/search.png")
 
   .notifications-button
     width: $header-height
@@ -91,3 +97,76 @@ header
     position: relative
     cursor: pointer
     header-action-icon-after("http://fotohost.by/images/2015/02/18/bell.png")
+
+
+@media $mobile
+  header-mobile-action-icon-after()
+    &:after
+      width: $header-mobile-action-size
+      height: $header-mobile-action-size
+      margin-top: -($header-mobile-action-size/2)
+      margin-left: -($header-mobile-action-size/2)
+      background-size: $header-mobile-action-size $header-mobile-action-size
+
+  header
+    font-size: 0.44 * $header-base-font-size !important
+    /* background: rgba(65, 170, 255, 0.1) */
+    .user-menu-button
+      header-mobile-action-icon-after()
+
+    figure.logo
+      height: 8.6em
+      img
+        width: 11em
+      figcaption
+        font-size: 8.2em
+
+    .center-box
+      border: 0
+      justify-content: flex-end
+      margin: 0
+      .title-box
+        width: 100%
+        position: absolute
+        top: 12.6em
+        left: 0
+        flex-direction: row
+        padding: 1.2em 0
+        .title
+          font-size: 3em
+          padding: 0.2em 0.4em
+          border-right: 1px solid #dedede
+        .subtitle
+          font-size: 3em
+          padding: 0.2em 0.4em
+      .actions-box
+        .action
+          &.search
+           header-mobile-action-icon-after()
+
+    .notifications-button
+      header-mobile-action-icon-after()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
