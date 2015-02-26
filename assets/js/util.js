@@ -323,10 +323,226 @@ IR.MODULE.UTIL.factory("extendService", function(){
         // BaseListJsonService is a extension of the BaseJsonService
         extend(BaseListJsonService, BaseJsonService);
 
+
+        // Components
+        /**
+         * Used as abstract component for creating angular directives that replace elements
+         * You should at least override 'WINDOW' and 'ROOTSCOPE' before use.
+         * @constructor
+         */
+        var BaseElementComponent = function() {
+            /**
+             * Please do not forget to init this field with an instance of $rootScope
+             * @type {$rootScope}
+             */
+            this.ROOTSCOPE = null;
+            this.WINDOW = null;
+            /**
+             * Init this with the name of component for right logging
+             * @type {string}
+             */
+            this.NAME = "";
+
+            /** Flag indicates whether to destroy this component on the changing of a page
+             *  Default value is true, but you can set it false to allow component working in the background
+             *  while user can go around the app
+             */
+            this.isDestroyOnPageChange = true;
+            /** Flag indicates whether to resize this component on the changing of vieport dimensions
+             *  Default value is false, but you can set it true to allow component resize itself
+             */
+            this.isTriggerResize = false;
+
+            /** Object with css classes, that are used by this component */
+            this.CLASS = {};
+            /** Object with css attributes, that are used by this component */
+            this.ATTR = {};
+            /** Object with string values and their parts */
+            this.VAL = {};
+            /** Object containing angular elements, that are used by this component */
+            this.ELEMENT = {};
+            /** Object containing data from services*/
+            this.DATA = {};
+            /** Object containing strings for i10n */
+            this.TEXT = {};
+
+            this.DEVICE_STATE = {
+                MOBILE: "mobile",
+                TABLET: "tablet",
+                DESKTOP: "desktop"
+            };
+
+            this.currentDeviceState = this.DEVICE_STATE.DESKTOP; // default state
+
+            /** will contain a reference to a concrete descendant object */
+            var self = this;
+
+            // boolean
+            var isBuilt = false,
+                isCreated = false,
+                isRendered = false;
+
+            // global listeners
+            var offListenerPageChanged,
+                offListenerWindowResize;
+
+            /** Builds the directive
+             * Should be called before render() method
+             * @return {BaseElementComponent}
+             */
+            this.build = function () {
+                this.init()
+                    .create()
+                    .postCreate();
+
+                isBuilt = true;
+
+                return this;
+            };
+
+            /**
+             * Init services and component variables
+             * @return {BaseElementComponent}
+             */
+            this.init = function () {
+                console.log(this.NAME + ": init");
+                this._init();
+                return this;
+            };
+
+            /**
+             * For override
+             * @return {BaseElementComponent}
+             */
+            this._init = function () {
+                return this;
+            };
+
+            /**
+             * Create all dom elements if there is no template provided
+             * @return {BaseElementComponent}
+             */
+            this.create = function () {
+                console.log(this.NAME + ": create");
+                this._create();
+                isCreated = true;
+                return this;
+            };
+
+            /**
+             * For override
+             * @return {BaseElementComponent}
+             */
+            this._create = function () {
+                return this;
+            };
+
+            /**
+             * Fired after create method
+             * @return {BaseElementComponent}
+             */
+            this.postCreate = function () {
+                console.log(this.NAME + ": postCreate");
+                if(this.ROOTSCOPE) {
+                    if(this.isDestroyOnPageChange){
+                        // destroy component if page has just changed
+                        offListenerPageChanged = this.ROOTSCOPE.$on(IR.EVENT.OCCURRED.PAGE_CHANGED, function () {
+                            self.destroy();
+                        });
+                    }
+
+                    if(this.isTriggerResize){
+                        offListenerWindowResize = this.ROOTSCOPE.$on(IR.EVENT.OCCURRED.WINDOW_RESIZE, function (ev, data) {
+                            self.resize(data.vw, data.vh);
+                        });
+                    }
+                }
+
+                this._postCreate();
+
+                return this;
+            };
+
+            /**
+             * For override
+             * @return {BaseElementComponent}
+             */
+            this._postCreate = function () {
+                return this;
+            };
+
+            /** Render the component using created DOM-elements
+             * @throw Error - if component is not built before render
+             * @return {BaseElementComponent}
+             */
+            this.render = function () {
+                console.log(this.NAME + ": render");
+                if(isBuilt){
+                    this._render();
+
+                    if(this.isTriggerResize){
+                        this.resize(this.WINDOW.outerWidth, this.WINDOW.outerHeight);
+                    }
+
+                    isRendered = true;
+                } else{
+                    throw new Error("UI component " + this.NAME + " should be built before render! Use 'build() method.'");
+                }
+
+                return this;
+            };
+
+            /**
+             * For override
+             * @return {BaseElementComponent}
+             * @private
+             */
+            this._render = function () {
+                return this;
+            };
+
+            /** Resize the component */
+            this.resize = function (vw, vh) {
+                console.log(this.NAME + ": resize");
+
+                this._resize(vw, vh);
+            };
+
+            /** For override
+             *  Please remove all listeners and clear all data
+             */
+            this._resize = function (vw, vh) {
+                return this;
+            };
+
+            /** Destroys the component */
+            this.destroy = function () {
+                // remove global listeners
+                if(offListenerPageChanged) {
+                    offListenerPageChanged();
+                }
+                if(offListenerWindowResize) {
+                    offListenerWindowResize();
+                }
+
+                this._destroy();
+
+                console.log(this.NAME + " component DESTROYED");
+            };
+
+            /** For override
+             *  Please remove all listeners and clear all data
+             */
+            this._destroy = function () {
+                return this;
+            };
+        };
+
         return {
             extend: extend,
             BaseJsonService: BaseJsonService,
-            BaseListJsonService: BaseListJsonService
+            BaseListJsonService: BaseListJsonService,
+            BaseElementComponent: BaseElementComponent
         };
     })();
 });

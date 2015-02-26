@@ -3,6 +3,15 @@ var IR = {
     // global scope
 };
 
+/**
+ * Namespace for UI Component (UIC) instances
+ */
+IR.UIC = new (function(){
+    this.HEADER = null;
+    this.LEFT_DRAWER = null;
+    this.RIGHT_DRAWER = null;
+})();
+
 IR.MODULE_NAME = new (function(){
     this.APP_NAME = "inspirr";
     this.HEADER = this.APP_NAME + ".header";
