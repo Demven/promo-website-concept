@@ -6,9 +6,9 @@
 
 /**
  * Factory, that provides base objects for services and components
- * Also returns method to extend objects
+ * Also have method to extend objects
  * @service
- * @return Object{extend, BaseJsonService, BaseListJsonService}
+ * @return Object{extend, BaseJsonService, BaseListJsonService, BaseElementComponent}
  */
 IR.MODULE.UTIL.factory("extendService", function(){
     return (function(){
@@ -545,6 +545,109 @@ IR.MODULE.UTIL.factory("extendService", function(){
             BaseElementComponent: BaseElementComponent
         };
     })();
+});
+
+/**
+ * Service, that provides all available data about user device
+ * Also knows about device dimensions
+ * @service
+ */
+IR.MODULE.UTIL.provider("deviceInfoService", function(){
+    this.MOBILE_WIDTH = 690;
+    this.TABLET_WIDTH = 995;
+    this.DESKTOP_WIDTH = 1440;
+
+    this.DESKTOP_BASE_WIDTH = 1280; // for 19' monitors
+
+    // The code below is taken from https://github.com/benbscholz/detect
+    var browser,
+        version,
+        mobile,
+        os,
+        osversion,
+        bit,
+        ua = window.navigator.userAgent,
+        platform = window.navigator.platform;
+
+    if ( /MSIE/.test(ua) ) {
+        browser = 'Internet Explorer';
+        if ( /IEMobile/.test(ua) ) {
+            mobile = 1;
+        }
+        version = /MSIE \d+[.]\d+/.exec(ua)[0].split(' ')[1];
+    } else if ( /Chrome/.test(ua) ) {
+        // Platform override for Chromebooks
+        if ( /CrOS/.test(ua) ) {
+            platform = 'CrOS';
+        }
+        browser = 'Chrome';
+        version = /Chrome\/[\d\.]+/.exec(ua)[0].split('/')[1];
+    } else if ( /Opera/.test(ua) ) {
+        browser = 'Opera';
+        if ( /mini/.test(ua) || /Mobile/.test(ua) ) {
+            mobile = 1;
+        }
+    } else if ( /Android/.test(ua) ) {
+        browser = 'Android Webkit Browser';
+        mobile = 1;
+        os = /Android\s[\.\d]+/.exec(ua)[0];
+    } else if ( /Firefox/.test(ua) ) {
+        browser = 'Firefox';
+        if ( /Fennec/.test(ua) ) {
+            mobile = 1;
+        }
+        version = /Firefox\/[\.\d]+/.exec(ua)[0].split('/')[1];
+    } else if ( /Safari/.test(ua) ) {
+        browser = 'Safari';
+        if ( (/iPhone/.test(ua)) || (/iPad/.test(ua)) || (/iPod/.test(ua)) ) {
+            os = 'iOS';
+            mobile = 1;
+        }
+    }
+
+    if ( !version ) {
+        version = /Version\/[\.\d]+/.exec(ua);
+        if (version) {
+            version = version[0].split('/')[1];
+        } else {
+            version = /Opera\/[\.\d]+/.exec(ua)[0].split('/')[1];
+        }
+    }
+
+    if ( platform === 'MacIntel' || platform === 'MacPPC' ) {
+        os = 'Mac OS X';
+        osversion = /10[\.\_\d]+/.exec(ua)[0];
+        if ( /[\_]/.test(osversion) ) {
+            osversion = osversion.split('_').join('.');
+        }
+    } else if ( platform === 'CrOS' ) {
+        os = 'ChromeOS';
+    } else if ( platform === 'Win32' || platform == 'Win64' ) {
+        os = 'Windows';
+        bit = platform.replace(/[^0-9]+/,'');
+    } else if ( !os && /Android/.test(ua) ) {
+        os = 'Android';
+    } else if ( !os && /Linux/.test(platform) ) {
+        os = 'Linux';
+    } else if ( !os && /Windows/.test(ua) ) {
+        os = 'Windows';
+    }
+
+    this.$get = function(){
+        return {
+            mobileWidth: this.MOBILE_WIDTH,
+            tabletWidth: this.TABLET_WIDTH,
+            desktopWidth: this.DESKTOP_WIDTH,
+            desktopBaseWidth: this.DESKTOP_BASE_WIDTH,
+
+            browser : browser,
+            version : version,
+            mobile : mobile,
+            os : os,
+            osVersion : osversion,
+            bit: bit
+        }
+    }
 });
 
 // Supported gestures events
