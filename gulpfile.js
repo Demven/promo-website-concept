@@ -116,18 +116,7 @@ gulp.task("js:build:compile", function () {
     // Validate JS
     JSSourcesStream = JSSourcesStream
         // Plumber to track and fix pipes
-        .pipe(plugins.plumber())
-        // Validate JS
-        .pipe(plugins.jshint({
-            globals: {
-                angular: true,
-                IR: true
-            },
-            browser: true,
-            devel: true,
-            "-W057": false
-        }))
-        .pipe(plugins.jshint.reporter(require("jshint-stylish"), {verbose: true}));
+        .pipe(plugins.plumber());
 
     // Production version
     if (argv.production) {
@@ -211,7 +200,7 @@ gulp.task("copy:static", function () {
 //*********************************
 gulp.task("images:build", function () {
     // Read sources
-    return gulp.src("assets/images/*.*")
+    return gulp.src("assets/images/**")
         .pipe(gulp.dest("public/images"))
         .pipe(plugins.pako.gzip())
         .pipe(gulp.dest("public/images"));
