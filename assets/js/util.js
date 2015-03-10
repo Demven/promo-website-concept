@@ -366,14 +366,6 @@ IR.MODULE.UTIL.factory("extendService", function(){
             /** Object containing strings for i10n */
             this.TEXT = {};
 
-            this.DEVICE_STATE = {
-                MOBILE: "mobile",
-                TABLET: "tablet",
-                DESKTOP: "desktop"
-            };
-
-            this.currentDeviceState = this.DEVICE_STATE.DESKTOP; // default state
-
             /** will contain a reference to a concrete descendant object */
             var self = this;
 
@@ -558,6 +550,14 @@ IR.MODULE.UTIL.provider("deviceInfoService", function(){
     this.DESKTOP_WIDTH = 1440;
 
     this.DESKTOP_BASE_WIDTH = 1280; // for 19' monitors
+
+    this.DEVICE_STATE = {
+        MOBILE: "mobile",
+        TABLET: "tablet",
+        DESKTOP: "desktop"
+    };
+
+    this.currentDeviceState = this.DEVICE_STATE.DESKTOP; // default state TODO: change states
 
     // The code below is taken from https://github.com/benbscholz/detect
     var browser,

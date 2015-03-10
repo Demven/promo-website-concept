@@ -18,6 +18,8 @@ header
   font-size: $header-base-font-size
   align-items: center
   flex-wrap: nowrap
+  margin-left: 0
+  transition: margin $drawer-open-anim-dur
 
   header-action-icon-after(url, border-radius = 0)
     &:after
@@ -39,7 +41,19 @@ header
     width: $header-height
     height: 100%
     position: relative
+    cursor: pointer
+    transition: width $drawer-open-anim-dur
     header-action-icon-after("http://fotohost.by/images/2015/02/17/avatar-medium.png", 4px)
+    &:after
+      transform: scale(1)
+      opacity: 1
+      transition: transform $drawer-open-anim-dur, opacity $drawer-open-anim-dur
+    &.collapsed
+      width: ($header-height/3.5)
+      cursor: auto
+      &:after
+        transform: scale(0)
+        opacity: 0
 
   figure.logo
     height: $header-logo-height
@@ -98,7 +112,13 @@ header
     cursor: pointer
     header-action-icon-after("http://fotohost.by/images/2015/02/18/bell.png")
 
+/* ANIMATIONS */
+header
+  &.slide-right
+    margin-left: $header-height
 
+
+/* MOBILE STYLES */
 @media $mobile
   header-mobile-action-icon-after()
     &:after
@@ -146,9 +166,6 @@ header
 
     .notifications-button
       header-mobile-action-icon-after()
-
-
-
 
 
 
