@@ -32,7 +32,9 @@ IR.MODULE.LEFT_DRAWER.directive('irLeftDrawer', function($rootScope, $window, ex
                 };
 
                 this.EVENT = {
-                    CLICK: "click"
+                    TAP: "tap",
+                    SWIPE_RIGHT: "swiperight",
+                    SWIPE_LEFT: "swipeleft"
                 };
 
                 this.ELEMENT = {
@@ -52,10 +54,15 @@ IR.MODULE.LEFT_DRAWER.directive('irLeftDrawer', function($rootScope, $window, ex
                 this._postCreate = function(){
                     // global listeners
                     offHeaderUserMenuButtonClicked = $rootScope.$on(IR.EVENT.HEADER_USER_MENU_BUTTON_CLICKED, angular.bind(this, this.toggle));
-                    this.ELEMENT.DRAGGER.bind(this.EVENT.CLICK, angular.bind(this, this.toggle));
+                    // local listeners
+                    this.ELEMENT.DRAGGER.hammer = new Hammer(this.ELEMENT.DRAGGER[0])
+                        .on(this.EVENT.TAP, angular.bind(this, this.toggle))
+                        .on(this.EVENT.SWIPE_RIGHT, angular.bind(this, this.open))
+                        .on(this.EVENT.SWIPE_LEFT, angular.bind(this, this.close));
                 };
 
                 this.toggle = function(){
+                    console.log("LeftDrawer: toggle");
                     if(currentState === this.STATE.CLOSE){
                         this.open();
                     } else{
@@ -64,12 +71,14 @@ IR.MODULE.LEFT_DRAWER.directive('irLeftDrawer', function($rootScope, $window, ex
                 };
 
                 this.open = function(){
+                    console.log("LeftDrawer: open");
                     wrapper.addClass(this.CLASS.OPEN);
                     currentState = this.STATE.OPEN;
                     $rootScope.$broadcast(IR.EVENT.OCCURRED.LEFT_DRAWER_OPEN);
                 };
 
                 this.close = function(){
+                    console.log("LeftDrawer: close");
                     if(wrapper.hasClass(this.CLASS.OPEN)){
                         wrapper.removeClass(this.CLASS.OPEN)
                         currentState = this.STATE.CLOSE;
@@ -82,7 +91,7 @@ IR.MODULE.LEFT_DRAWER.directive('irLeftDrawer', function($rootScope, $window, ex
                     offHeaderUserMenuButtonClicked();
 
                     // remove local listeners
-                    this.ELEMENT.DRAGGER.unbind(this.EVENT.CLICK);
+                    this.ELEMENT.DRAGGER.hammer.destroy();
                 }
             }
 

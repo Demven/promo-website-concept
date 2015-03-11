@@ -34,7 +34,7 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, extendService
                 };
 
                 this.EVENT = {
-                    CLICK: "click"
+                    TAP: "tap"
                 };
 
                 this.STATE = {
@@ -61,9 +61,10 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, extendService
                     offLeftDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_CLOSE, angular.bind(this, this._onLeftDrawerClose));
 
                     // local listeners
-                    this.ELEMENT.USER_MENU_BUTTON.bind(this.EVENT.CLICK, function(){
-                        $rootScope.$broadcast(IR.EVENT.HEADER_USER_MENU_BUTTON_CLICKED);
-                    });
+                    this.ELEMENT.USER_MENU_BUTTON.hammer = new Hammer(this.ELEMENT.USER_MENU_BUTTON[0])
+                            .on(this.EVENT.TAP, function(){
+                                $rootScope.$broadcast(IR.EVENT.HEADER_USER_MENU_BUTTON_CLICKED);
+                            })
                 };
 
                 this._resize = function(vw, vh){
@@ -95,7 +96,7 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, extendService
                     offLeftDrawerClose();
 
                     // remove local listeners
-                    this.ELEMENT.USER_MENU_BUTTON.unbind(this.EVENT.CLICK);
+                    this.ELEMENT.USER_MENU_BUTTON.hammer.destroy();
                 };
             }
 
