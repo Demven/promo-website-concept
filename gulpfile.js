@@ -188,12 +188,12 @@ gulp.task("html:build", ["css:build:compile", "js:build:compile"], function () {
 //********** Copy tasks ***********
 //*********************************
 // Copy static resources
-gulp.task("copy:static", function () {
+gulp.task("copy:fonts", function () {
     // Read sources
-    return gulp.src("assets/static/**")
-        .pipe(gulp.dest("public"))
+    return gulp.src(["assets/fonts/**"])
+        .pipe(gulp.dest("public/fonts"))
         .pipe(plugins.pako.gzip())
-        .pipe(gulp.dest("public"));
+        .pipe(gulp.dest("public/fonts"));
 });
 //*********************************
 //********* Images tasks **********
@@ -249,7 +249,6 @@ gulp.task("watch", function () {
     gulp.watch("assets/js/{,**/}*.js", function () {
         runSequence("js:build", "html:build", "clear:revisions");
     });
-    gulp.watch("assets/static/**", ["copy:static"]);
 });
 
 //*********************************
@@ -302,7 +301,7 @@ gulp.task("tests", function () {
 
 gulp.task("default", function () {
     runSequence("clean:previous:build",
-        ["html:build", "copy:static", "images:build"],
+        ["html:build", "copy:fonts", "images:build"],
         ["clear:revisions", "connect:static", "server:api", "js:server:hint"], ["watch", "tests"]);
 });
 
