@@ -46,7 +46,6 @@ IR.MODULE = new (function(){
     // main module
     this.INSPIRR = angular.module(IR.MODULE_NAME.APP_NAME, [
         'ui.router',
-        'angular-gestures',
         IR.MODULE_NAME.HEADER,
         IR.MODULE_NAME.LEFT_DRAWER,
         IR.MODULE_NAME.RIGHT_DRAWER,

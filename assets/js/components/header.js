@@ -70,7 +70,7 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, extendService
                 this._resize = function(vw, vh){
                     if (vw > deviceInfoService.mobileWidth) {
                         // for desktop and tablet
-                        var fontSize = Math.min(vw / deviceInfoService.desktopBaseWidth, 1);
+                        var fontSize = Math.min(parseFloat((vw / deviceInfoService.desktopBaseWidth).toFixed(2)), 1);
                         wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
                     } else {
                         wrapper.css(this.ATTR.FONT_SIZE, this.VAL.AUTO)
