@@ -1,18 +1,18 @@
 /**
- * Created by Dzmitry_Salnikau on 3/2/2015.
- * Component LeftDrawer - left pull user-menu
+ * Created by Dzmitry_Salnikau on 3/14/2015.
+ * Component RightDrawer - right pull notifications-menu
  */
-IR.MODULE.LEFT_DRAWER.directive('irLeftDrawer', function($rootScope, $window, irExtendService, irDeviceInfoService, irLog) {
+IR.MODULE.RIGHT_DRAWER.directive('irRightDrawer', function($rootScope, $window, irExtendService, irDeviceInfoService, irLog) {
     return {
         restrict: 'E',
-        templateUrl: 'templates/components/left-drawer.html',
+        templateUrl: 'templates/components/right-drawer.html',
         link: function(scope, wrapper, iAttrs, controller, transcludeFn) {
 
-            function LeftDrawerElementComponent() {
+            function RightDrawerElementComponent() {
                 // call of the parent constructor
-                LeftDrawerElementComponent.superclass.constructor.call(this);
+                RightDrawerElementComponent.superclass.constructor.call(this);
 
-                this.NAME = "LeftDrawer";
+                this.NAME = "RightDrawer";
                 this.isDestroyOnPageChange = false;
                 this.isTriggerResize = true;
 
@@ -48,9 +48,9 @@ IR.MODULE.LEFT_DRAWER.directive('irLeftDrawer', function($rootScope, $window, ir
                 };
 
                 // global listeners
-                var offHeaderUserMenuButtonClicked = new Function(),
-                    offRightDrawerOpen = new Function(),
-                    offRightDrawerClose = new Function();
+                var offHeaderNotificationsButtonClicked = new Function(),
+                    offLeftDrawerOpen = new Function(),
+                    offLeftDrawerClose = new Function();
 
                 var currentState = this.STATE.CLOSE,
                     mobileFontDecreaseValue = 0.06,
@@ -67,16 +67,16 @@ IR.MODULE.LEFT_DRAWER.directive('irLeftDrawer', function($rootScope, $window, ir
 
                 this._postCreate = function(){
                     // global listeners
-                    offHeaderUserMenuButtonClicked = $rootScope.$on(IR.EVENT.OCCURRED.HEADER_USER_MENU_BUTTON_CLICKED, angular.bind(this, this.toggle));
+                    offHeaderNotificationsButtonClicked = $rootScope.$on(IR.EVENT.OCCURRED.HEADER_NOTIFICATIONS_BUTTON_CLICKED, angular.bind(this, this.toggle));
 
-                    offRightDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_OPEN, angular.bind(this, this._onRightDrawerOpen));
-                    offRightDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_CLOSE, angular.bind(this, this._onRightDrawerClose));
+                    offLeftDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_OPEN, angular.bind(this, this._onLeftDrawerOpen));
+                    offLeftDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_CLOSE, angular.bind(this, this._onLeftDrawerClose));
 
                     // local listeners
                     this.ELEMENT.DRAGGER.hammer = new Hammer(this.ELEMENT.DRAGGER[0])
                         .on(this.EVENT.TAP, angular.bind(this, this.toggle))
-                        .on(this.EVENT.SWIPE_RIGHT, angular.bind(this, this.open))
-                        .on(this.EVENT.SWIPE_LEFT, angular.bind(this, this.close));
+                        .on(this.EVENT.SWIPE_RIGHT, angular.bind(this, this.close))
+                        .on(this.EVENT.SWIPE_LEFT, angular.bind(this, this.open));
                 };
 
                 this._resize = function(vw, vh){
@@ -100,7 +100,9 @@ IR.MODULE.LEFT_DRAWER.directive('irLeftDrawer', function($rootScope, $window, ir
 
                 this._destroy = function(){
                     // remove global listeners
-                    offHeaderUserMenuButtonClicked();
+                    offHeaderNotificationsButtonClicked();
+                    offLeftDrawerOpen();
+                    offLeftDrawerClose();
 
                     // remove local listeners
                     this.ELEMENT.DRAGGER.hammer.destroy();
@@ -119,7 +121,7 @@ IR.MODULE.LEFT_DRAWER.directive('irLeftDrawer', function($rootScope, $window, ir
                     irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": open");
                     wrapper.addClass(this.CLASS.OPEN);
                     currentState = this.STATE.OPEN;
-                    $rootScope.$broadcast(IR.EVENT.OCCURRED.LEFT_DRAWER_OPEN);
+                    $rootScope.$broadcast(IR.EVENT.OCCURRED.RIGHT_DRAWER_OPEN);
                 };
 
                 this.close = function(){
@@ -127,29 +129,29 @@ IR.MODULE.LEFT_DRAWER.directive('irLeftDrawer', function($rootScope, $window, ir
                     if(wrapper.hasClass(this.CLASS.OPEN)){
                         wrapper.removeClass(this.CLASS.OPEN);
                         currentState = this.STATE.CLOSE;
-                        $rootScope.$broadcast(IR.EVENT.OCCURRED.LEFT_DRAWER_CLOSE);
+                        $rootScope.$broadcast(IR.EVENT.OCCURRED.RIGHT_DRAWER_CLOSE);
                     }
                 };
 
-                this._onRightDrawerOpen = function(){
+                this._onLeftDrawerOpen = function(){
                     this.close();
                     wrapper.addClass(this.CLASS.OPPOSITE_DRAWER_OPEN);
                 };
 
-                this._onRightDrawerClose = function(){
+                this._onLeftDrawerClose = function(){
                     wrapper.removeClass(this.CLASS.OPPOSITE_DRAWER_OPEN);
                 };
             }
 
-            irExtendService.extend(LeftDrawerElementComponent, irExtendService.BaseElementComponent);
+            irExtendService.extend(RightDrawerElementComponent, irExtendService.BaseElementComponent);
 
-            if(IR.UIC.LEFT_DRAWER){
+            if(IR.UIC.RIGHT_DRAWER){
                 // no need to create a second component
-                IR.UIC.LEFT_DRAWER.destroy();
+                IR.UIC.RIGHT_DRAWER.destroy();
             }
-            IR.UIC.LEFT_DRAWER = new LeftDrawerElementComponent().build().render();
+            IR.UIC.RIGHT_DRAWER = new RightDrawerElementComponent().build().render();
 
-            return IR.UIC.LEFT_DRAWER;
+            return IR.UIC.RIGHT_DRAWER;
         }
     };
 });

@@ -111,11 +111,23 @@ header
     position: relative
     cursor: pointer
     header-action-icon-after("http://fotohost.by/images/2015/02/18/bell.png")
+    &:after
+      transform: scale(1)
+      opacity: 1
+      transition: transform $drawer-open-anim-dur, opacity $drawer-open-anim-dur
+    &.collapsed
+      width: ($header-height/3.5)
+      cursor: auto
+      &:after
+        transform: scale(0)
+        opacity: 0
 
 /* ANIMATIONS */
 header
   &.slide-right
     margin-left: $header-height
+  &.slide-left
+    margin-right: $header-height
 
 
 /* MOBILE STYLES */
@@ -170,6 +182,9 @@ header
     &.slide-right
       margin-left: 0
       transform: translateX($drawer-mobile-width)
+    &.slide-left
+      margin-right: 0
+      transform: translateX(-($drawer-mobile-width))
 
 
 

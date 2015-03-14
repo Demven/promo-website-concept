@@ -10,7 +10,7 @@
  * @service
  * @return Object{extend, BaseJsonService, BaseListJsonService, BaseElementComponent}
  */
-IR.MODULE.UTIL.factory("extendService", function(){
+IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
     return (function(){
         /**
          * Function that provides extending parent's object
@@ -31,7 +31,7 @@ IR.MODULE.UTIL.factory("extendService", function(){
 
         /**
          * Used as abstract service for creating angular services that works with JSON data objects
-         * You should at least override 'DATA_URL' and 'ROOTSCOPE' before use.
+         * You should at least override 'DATA_URL' before use.
          * If you want to use prepared JSON - override 'dataJSON' with your JSON object, set 'isUsingFakeData' to 'true' and
          * do not override 'DATA_URL'
          * @constructor
@@ -39,7 +39,6 @@ IR.MODULE.UTIL.factory("extendService", function(){
         var BaseJsonService = function(){
             /** (String) should be overridden to the proper URL in the descendant object */
             this.DATA_URL = null;
-            this.ROOTSCOPE = null;
             /** (ms) default timeout */
             this.TIMEOUT_TO_UPDATE = 60000;
 
@@ -109,9 +108,9 @@ IR.MODULE.UTIL.factory("extendService", function(){
              * @private
              */
             this.postCreate = function(){
-                if(this.ROOTSCOPE && this.isDestroyOnPageChange) {
+                if(this.isDestroyOnPageChange) {
                     // destroy service if page has just changed
-                    offListenerPageChanged = this.ROOTSCOPE.$on(IR.EVENT.OCCURRED.PAGE_CHANGED, function () {
+                    offListenerPageChanged = $rootScope.$on(IR.EVENT.OCCURRED.PAGE_CHANGED, function () {
                         self.destroy();
                     });
                 }
@@ -129,7 +128,7 @@ IR.MODULE.UTIL.factory("extendService", function(){
              * Then calls method 'informListenersAboutUpdate()' if updating was successful.
              */
             this.update = function(){
-                this.ROOTSCOPE.$broadcast(IR.EVENT.OCCURRED.LOAD_DATA_START);
+                $rootScope.$broadcast(IR.EVENT.OCCURRED.LOAD_DATA_START);
                 this.beforeUpdate();
                 if(isTracking){
                     var newData;
@@ -147,9 +146,8 @@ IR.MODULE.UTIL.factory("extendService", function(){
                 }
 
                 // TODO: should be in callback after success load (timeout just to see spinner at least 2 seconds)
-                var rootScope = this.ROOTSCOPE;
                 setTimeout(function(){
-                    rootScope.$broadcast(IR.EVENT.OCCURRED.LOAD_DATA_FINISHED);
+                    $rootScope.$broadcast(IR.EVENT.OCCURRED.LOAD_DATA_FINISHED);
                 }, 2000);
 
             };
@@ -233,7 +231,6 @@ IR.MODULE.UTIL.factory("extendService", function(){
         /**
          * Used as abstract service for creating angular services that works with lists of JSON data objects
          * (contains some methods for convenience working with lists and collections)
-         * You should at least to override 'DATA_URL' and 'ROOTSCOPE' before use.
          * If you want to use prepared JSON - override 'dataJSON' with your JSON object, set 'isUsingFakeData' to 'true' and
          * do not override 'DATA_URL'
          * @constructor
@@ -327,16 +324,9 @@ IR.MODULE.UTIL.factory("extendService", function(){
         // Components
         /**
          * Used as abstract component for creating angular directives that replace elements
-         * You should at least override 'WINDOW' and 'ROOTSCOPE' before use.
          * @constructor
          */
         var BaseElementComponent = function() {
-            /**
-             * Please do not forget to init this field with an instance of $rootScope
-             * @type {$rootScope}
-             */
-            this.ROOTSCOPE = null;
-            this.WINDOW = null;
             /**
              * Init this with the name of component for right logging
              * @type {string}
@@ -397,7 +387,7 @@ IR.MODULE.UTIL.factory("extendService", function(){
              * @return {BaseElementComponent}
              */
             this.init = function () {
-                console.log(this.NAME + ": init");
+                irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": init");
                 this._init();
                 return this;
             };
@@ -415,7 +405,7 @@ IR.MODULE.UTIL.factory("extendService", function(){
              * @return {BaseElementComponent}
              */
             this.create = function () {
-                console.log(this.NAME + ": create");
+                irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": create");
                 this._create();
                 isCreated = true;
                 return this;
@@ -434,20 +424,19 @@ IR.MODULE.UTIL.factory("extendService", function(){
              * @return {BaseElementComponent}
              */
             this.postCreate = function () {
-                console.log(this.NAME + ": postCreate");
-                if(this.ROOTSCOPE) {
-                    if(this.isDestroyOnPageChange){
-                        // destroy component if page has just changed
-                        offListenerPageChanged = this.ROOTSCOPE.$on(IR.EVENT.OCCURRED.PAGE_CHANGED, function () {
-                            self.destroy();
-                        });
-                    }
+                irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": postCreate");
 
-                    if(this.isTriggerResize){
-                        offListenerWindowResize = this.ROOTSCOPE.$on(IR.EVENT.OCCURRED.WINDOW_RESIZE, function (ev, data) {
-                            self.resize(data.vw, data.vh);
-                        });
-                    }
+                if(this.isDestroyOnPageChange){
+                    // destroy component if page has just changed
+                    offListenerPageChanged = $rootScope.$on(IR.EVENT.OCCURRED.PAGE_CHANGED, function () {
+                        self.destroy();
+                    });
+                }
+
+                if(this.isTriggerResize){
+                    offListenerWindowResize = $rootScope.$on(IR.EVENT.OCCURRED.WINDOW_RESIZE, function (ev, data) {
+                        self.resize(data.vw, data.vh);
+                    });
                 }
 
                 this._postCreate();
@@ -468,17 +457,19 @@ IR.MODULE.UTIL.factory("extendService", function(){
              * @return {BaseElementComponent}
              */
             this.render = function () {
-                console.log(this.NAME + ": render");
+                irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": render");
                 if(isBuilt){
                     this._render();
 
                     if(this.isTriggerResize){
-                        this.resize(this.WINDOW.outerWidth, this.WINDOW.outerHeight);
+                        this.resize($window.outerWidth, $window.outerHeight);
                     }
 
                     isRendered = true;
                 } else{
-                    throw new Error("UI component " + this.NAME + " should be built before render! Use 'build() method.'");
+                    var errorMsg = "UI component " + this.NAME + " should be built before render! Use 'build() method.'";
+                    irLog.writeAs(irLog.LOG_LEVEL.ERROR, errorMsg);
+                    throw new Error(errorMsg);
                 }
 
                 return this;
@@ -495,7 +486,7 @@ IR.MODULE.UTIL.factory("extendService", function(){
 
             /** Resize the component */
             this.resize = function (vw, vh) {
-                console.log(this.NAME + ": resize");
+                irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": resize");
 
                 this._resize(vw, vh);
             };
@@ -509,6 +500,7 @@ IR.MODULE.UTIL.factory("extendService", function(){
 
             /** Destroys the component */
             this.destroy = function () {
+                irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": destroy");
                 // remove global listeners
                 if(offListenerPageChanged) {
                     offListenerPageChanged();
@@ -519,7 +511,7 @@ IR.MODULE.UTIL.factory("extendService", function(){
 
                 this._destroy();
 
-                console.log(this.NAME + " component DESTROYED");
+                irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": DESTROYED");
             };
 
             /** For override
@@ -544,7 +536,7 @@ IR.MODULE.UTIL.factory("extendService", function(){
  * Also knows about device dimensions
  * @service
  */
-IR.MODULE.UTIL.provider("deviceInfoService", function(){
+IR.MODULE.UTIL.provider("irDeviceInfoService", function(){
     this.MOBILE_WIDTH = 690;
     this.TABLET_WIDTH = 995;
     this.DESKTOP_WIDTH = 1440;
@@ -646,6 +638,72 @@ IR.MODULE.UTIL.provider("deviceInfoService", function(){
             os : os,
             osVersion : osversion,
             bit: bit
+        }
+    }
+});
+
+/**
+ * Service, that provides handy logging
+ * You can set default log level in the angular's config method
+ * @service
+ */
+IR.MODULE.UTIL.provider("irLog", function(){
+    this.LOG_LEVEL = {
+        ALL: "ALL",
+        INFO: "INFO",
+        WARN: "WARN",
+        ERROR: "ERROR",
+        FATAL: "FATAL",
+        OFF: "OFF"
+    };
+
+    var LEVEL_PRIORITY = {
+        ALL: 0,
+        INFO: 1,
+        WARN: 2,
+        ERROR: 3,
+        FATAL: 4,
+        OFF: 5
+    };
+
+    var colon = ": ",
+        currentLogLevel = this.LOG_LEVEL.ALL; // default level
+
+    /**
+     * Set log level
+     * @param logLevel - one value from the this.LOG_LEVEL
+     */
+    this.setLogLevel = function(logLevel){
+        currentLogLevel = logLevel;
+    };
+
+    /**
+     * Write log message without any level
+     * @param msg - String
+     */
+    var write = function(msg){
+        if(LEVEL_PRIORITY[currentLogLevel] !== LEVEL_PRIORITY.OFF){
+            window.console.log(msg);
+        }
+    };
+
+    /**
+     * Write log message using passing log level
+     * @param logLevel - one value from the this.LOG_LEVEL
+     * @param msg - String
+     */
+    var writeAs = function(logLevel, msg){
+        if(LEVEL_PRIORITY[currentLogLevel] <= LEVEL_PRIORITY[logLevel]){
+            window.console.log(logLevel + colon + msg);
+        }
+    };
+
+    this.$get = function(){
+        return {
+            LOG_LEVEL: this.LOG_LEVEL,
+            setLogLevel: this.setLogLevel,
+            writeAs: writeAs,
+            write: write
         }
     }
 });

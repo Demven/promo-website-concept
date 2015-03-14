@@ -68,12 +68,15 @@ IR.EVENT = {
         LOAD_DATA_FINISHED: "OCCURRED_LOAD_DATA_FINISHED",
         LEFT_DRAWER_OPEN: "OCCURRED_LEFT_DRAWER_OPEN",
         LEFT_DRAWER_CLOSE: "OCCURRED_LEFT_DRAWER_CLOSE",
-        HEADER_USER_MENU_BUTTON_CLICKED: "HEADER_USER_MENU_BUTTON_CLICKED"
+        RIGHT_DRAWER_OPEN: "OCCURRED_RIGHT_DRAWER_OPEN",
+        RIGHT_DRAWER_CLOSE: "OCCURRED_RIGHT_DRAWER_CLOSE",
+        HEADER_USER_MENU_BUTTON_CLICKED: "HEADER_USER_MENU_BUTTON_CLICKED",
+        HEADER_NOTIFICATIONS_BUTTON_CLICKED: "HEADER_NOTIFICATIONS_BUTTON_CLICKED"
     }
 };
 
 IR.MODULE.INSPIRR
-    .config(function($stateProvider, $urlRouterProvider) {
+    .config(function($stateProvider, $urlRouterProvider, irLogProvider) {
         // router config
         $urlRouterProvider.otherwise("/main");
         $stateProvider
@@ -101,8 +104,11 @@ IR.MODULE.INSPIRR
                     "settingsContent":{templateUrl: "templates/pages/settings/settingsProfile.html"}
                 }
             });
+
+        // log config
+        irLogProvider.setLogLevel(irLogProvider.LOG_LEVEL.ALL);
     })
-    .run(function($rootScope, $window /*, $state, authService*/){
+    .run(function($rootScope, $window, irLog /*, $state, authService*/){
         // TODO: Authentication checkout
         /*$rootScope.$on('$stateChangeStart',
             function(event, toState, toParams, fromState, fromParams){
@@ -114,7 +120,7 @@ IR.MODULE.INSPIRR
             });*/
         $rootScope.$on('$stateChangeSuccess',
             function(event, toState, toParams, fromState, fromParams){
-                console.log("STATE CHANGED from " + fromState.name + " to " + toState.name);
+                irLog.writeAs(irLog.LOG_LEVEL.INFO, "STATE CHANGED from " + fromState.name + " to " + toState.name);
                 var fromParentState = fromState.name.split(".")[0],
                     toParentState = toState.name.split(".")[0];
 
@@ -125,7 +131,7 @@ IR.MODULE.INSPIRR
             });
 
         window.addEventListener("resize", function(){
-            window.console.log("--- resize ---");
+            irLog.writeAs(irLog.LOG_LEVEL.INFO, "--- window resize ---");
             $rootScope.$broadcast(IR.EVENT.OCCURRED.WINDOW_RESIZE, {vw: $window.outerWidth, vh: $window.outerHeight});
         });
     });

@@ -2,7 +2,7 @@
  * Created by Dzmitry_Salnikau on 2/17/2015.
  */
 
-IR.MODULE.HEADER.directive('header', function($rootScope, $window, extendService, deviceInfoService) {
+IR.MODULE.HEADER.directive('header', function($rootScope, $window, irExtendService, irDeviceInfoService) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/header.html',
@@ -12,8 +12,6 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, extendService
                 // call of the parent constructor
                 HeaderElementComponent.superclass.constructor.call(this);
 
-                this.ROOTSCOPE = $rootScope;
-                this.WINDOW = $window;
                 this.NAME = "Header";
                 this.isDestroyOnPageChange = false;
                 this.isTriggerResize = true;
@@ -44,7 +42,8 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, extendService
                 };
 
                 this.ELEMENT = {
-                    USER_MENU_BUTTON: angular.element(wrapper[0].querySelector(".user-menu-button"))
+                    USER_MENU_BUTTON: angular.element(wrapper[0].querySelector(".user-menu-button")),
+                    NOTIFICATIONS_BUTTON: angular.element(wrapper[0].querySelector(".notifications-button"))
                     //CENTER_BOX: angular.element(wrapper[0].querySelector(".center-box")),
                     //TITLE_BOX: angular.element(wrapper[0].querySelector(".title-box")),
                     //ACTIONS_BOX: angular.element(wrapper[0].querySelector(".actions-box"))
@@ -52,7 +51,9 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, extendService
 
                 // global listeners
                 var offLeftDrawerOpen = new Function(),
-                    offLeftDrawerClose = new Function();
+                    offLeftDrawerClose = new Function(),
+                    offRightDrawerOpen = new Function(),
+                    offRightDrawerClose = new Function();
 
                 var currentState = this.STATE.NORMAL;
 
@@ -60,17 +61,25 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, extendService
                     offLeftDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_OPEN, angular.bind(this, this._onLeftDrawerOpen));
                     offLeftDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_CLOSE, angular.bind(this, this._onLeftDrawerClose));
 
+                    offRightDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_OPEN, angular.bind(this, this._onRightDrawerOpen));
+                    offRightDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_CLOSE, angular.bind(this, this._onRightDrawerClose));
+
                     // local listeners
                     this.ELEMENT.USER_MENU_BUTTON.hammer = new Hammer(this.ELEMENT.USER_MENU_BUTTON[0])
                             .on(this.EVENT.TAP, function(){
-                                $rootScope.$broadcast(IR.EVENT.HEADER_USER_MENU_BUTTON_CLICKED);
-                            })
+                                $rootScope.$broadcast(IR.EVENT.OCCURRED.HEADER_USER_MENU_BUTTON_CLICKED);
+                            });
+                    window.console.log(this.ELEMENT.NOTIFICATIONS_BUTTON[0]);
+                    this.ELEMENT.NOTIFICATIONS_BUTTON.hammer = new Hammer(this.ELEMENT.NOTIFICATIONS_BUTTON[0])
+                            .on(this.EVENT.TAP, function(){
+                                $rootScope.$broadcast(IR.EVENT.OCCURRED.HEADER_NOTIFICATIONS_BUTTON_CLICKED);
+                            });
                 };
 
                 this._resize = function(vw, vh){
-                    if (vw > deviceInfoService.mobileWidth) {
+                    if (vw > irDeviceInfoService.mobileWidth) {
                         // for desktop and tablet
-                        var fontSize = Math.min(parseFloat((vw / deviceInfoService.desktopBaseWidth).toFixed(2)), 1);
+                        var fontSize = Math.min(parseFloat((vw / irDeviceInfoService.desktopBaseWidth).toFixed(2)), 1);
                         wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
                     } else {
                         wrapper.css(this.ATTR.FONT_SIZE, this.VAL.AUTO)
@@ -78,6 +87,8 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, extendService
                 };
 
                 this._onLeftDrawerOpen = function(){
+                    this._onRightDrawerClose();
+
                     wrapper.addClass(this.CLASS.SLIDE_RIGHT);
                     this.ELEMENT.USER_MENU_BUTTON.addClass(this.CLASS.COLLAPSED);
                     currentState = this.STATE.SLIDE_RIGHT;
@@ -90,6 +101,21 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, extendService
                     }
                 };
 
+                this._onRightDrawerOpen = function(){
+                    this._onLeftDrawerClose();
+
+                    wrapper.addClass(this.CLASS.SLIDE_LEFT);
+                    this.ELEMENT.NOTIFICATIONS_BUTTON.addClass(this.CLASS.COLLAPSED);
+                    currentState = this.STATE.SLIDE_LEFT;
+                };
+
+                this._onRightDrawerClose = function(){
+                    if(currentState === this.STATE.SLIDE_LEFT){
+                        wrapper.removeClass(this.CLASS.SLIDE_LEFT);
+                        this.ELEMENT.NOTIFICATIONS_BUTTON.removeClass(this.CLASS.COLLAPSED);
+                    }
+                };
+
                 this._destroy = function(){
                     // remove global listeners
                     offLeftDrawerOpen();
@@ -97,11 +123,12 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, extendService
 
                     // remove local listeners
                     this.ELEMENT.USER_MENU_BUTTON.hammer.destroy();
+                    this.ELEMENT.NOTIFICATIONS_BUTTON.hammer.destroy();
                 };
             }
 
 
-            extendService.extend(HeaderElementComponent, extendService.BaseElementComponent);
+            irExtendService.extend(HeaderElementComponent, irExtendService.BaseElementComponent);
 
             if(IR.UIC.HEADER){
                 // no need to do a second header component

@@ -17,6 +17,7 @@ $left-drawer-dragger-width = 1.4em
 $left-drawer-dragger-dot-size = 0.5em
 
 $left-drawer-dragger-color = #9a9a9a
+$left-drawer-dragger-hover-color = #888
 
 ir-left-drawer
   width: $left-drawer-tile-size
@@ -120,9 +121,9 @@ ir-left-drawer
       height: $left-drawer-dragger-dot-size
       margin: $left-drawer-dragger-dot-size*2 0 0 $left-drawer-dragger-dot-size
       background: #fff
-      border-radius: $left-drawer-dragger-dot-size
+      border-radius: $left-drawer-dragger-dot-size/2
     &:hover
-      background: #888
+      background: $left-drawer-dragger-hover-color
     &:after
       content: ''
       width: $left-drawer-dragger-width + 3.6em
@@ -144,6 +145,8 @@ ir-left-drawer
           &:before
             transform: rotate(360deg)
 
+  &.opposite-drawer-open
+    transform: translateX(-($left-drawer-tile-size*2))
 
 /* MOBILE STYLES */
 @media $mobile
