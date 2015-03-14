@@ -19,7 +19,7 @@ header
   align-items: center
   flex-wrap: nowrap
   margin-left: 0
-  transition: margin $drawer-open-anim-dur
+  transition: margin $drawer-open-anim-dur, transform $drawer-open-anim-dur
 
   header-action-icon-after(url, border-radius = 0)
     &:after
@@ -166,6 +166,10 @@ header
 
     .notifications-button
       header-mobile-action-icon-after()
+
+    &.slide-right
+      margin-left: 0
+      transform: translateX($drawer-mobile-width)
 
 
 

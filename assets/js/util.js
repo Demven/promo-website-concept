@@ -348,7 +348,7 @@ IR.MODULE.UTIL.factory("extendService", function(){
              *  while user can go around the app
              */
             this.isDestroyOnPageChange = true;
-            /** Flag indicates whether to resize this component on the changing of vieport dimensions
+            /** Flag indicates whether to resize this component on the changing of viewport dimensions
              *  Default value is false, but you can set it true to allow component resize itself
              */
             this.isTriggerResize = false;

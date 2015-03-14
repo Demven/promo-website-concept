@@ -125,7 +125,7 @@ IR.MODULE.INSPIRR
             });
 
         window.addEventListener("resize", function(){
+            window.console.log("--- resize ---");
             $rootScope.$broadcast(IR.EVENT.OCCURRED.WINDOW_RESIZE, {vw: $window.outerWidth, vh: $window.outerHeight});
-            console.log("resize");
         });
     });
