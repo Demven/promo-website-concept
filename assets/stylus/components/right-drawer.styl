@@ -8,15 +8,26 @@
 $right-drawer-base-font-size = 1rem // Desktop
 $right-drawer-tile-size = 12.6em
 $right-drawer-tile-delay = 80ms
+$right-drawer-tile-icon-font-size = 4.0em
+$right-drawer-tile-bell-font-size = 6.4em
 $right-drawer-tile-bell-icon-size = 9.0em
-$right-drawer-tile-text-icon-size = 6.4em
-$right-drawer-tile-text-icon-shift-up = 0.5em
+$right-drawer-tile-font-icon-size = 1em
+$right-drawer-tile-normal-shift-up = 0.1em
+$right-drawer-tile-medium-shift-up = 0.3em
+$right-drawer-tile-high-shift-up = 0.5em
 $right-drawer-dragger-height = 8em
 $right-drawer-dragger-width = 1.4em
 $right-drawer-dragger-dot-size = 0.5em
 
+$right-drawer-title-from-font-size = 1.0em
+$right-drawer-title-summary-font-size = 0.86em
+
+$right-drawer-tile-color = #cdcdcd
+$right-drawer-tile-hover-color = #eee
 $right-drawer-dragger-color = #9a9a9a
 $right-drawer-dragger-hover-color = #888
+
+$right-drawer-color-anim-dur = 0.3s
 
 ir-right-drawer
   width: $right-drawer-tile-size
@@ -37,19 +48,22 @@ ir-right-drawer
     flex-direction: column
     box-shadow: 8px 0 10px -3px #000 inset
 
-    nav-tile-icon-before(url, size, shiftUp = 0)
+    nav-tile-font-icon-before(iconCode = '', size = 1em, fontSize = $right-drawer-tile-icon-font-size, shiftUp = 0)
       &:before
-        content: ''
+        content: iconCode
         width: size
         height: size
         position: absolute
         top: 50%
-        right: 50%
+        left: 50%
         margin-top: -(size/2) - shiftUp
-        margin-right: -(size/2)
+        margin-left: -(size/2)
         display: block
-        background: url(url) no-repeat
-        background-size: size size
+        font-family: $font-icon
+        font-size: fontSize
+        text-align: center
+        color: $right-drawer-tile-color
+        transition: color $right-drawer-color-anim-dur
 
     figure.tile
       width: $right-drawer-tile-size
@@ -61,37 +75,58 @@ ir-right-drawer
         width: 100%
         position: absolute
         bottom: 1em
+        padding: 0 0.6em
+        display: flex
+        flex-direction: column
         font-family: $font-base
         font-size: 1.3em
-        color: #cdcdcd
+        color: $right-drawer-tile-color
         text-transform: uppercase
         text-align: center
+        user-select: none;
         opacity: 0
         transition: opacity $drawer-open-anim-dur*2
         transition-delay: $drawer-open-anim-dur
+        box-sizing: border-box
+        .from
+          font-family: $font-base
+          font-size: $right-drawer-title-from-font-size
+          font-weight: bold
+          color: $right-drawer-tile-color
+          text-transform: uppercase
+        .summary
+          margin-top: 0.3em
+          font-family: $font-base
+          font-size: $right-drawer-title-summary-font-size
+          color: $right-drawer-tile-color
+          text-transform: none
+      &.bell
+        transition-delay: $right-drawer-tile-delay
+        nav-tile-font-icon-before("\e60b", $right-drawer-tile-font-icon-size, $right-drawer-tile-bell-font-size, $right-drawer-tile-normal-shift-up)
+      &.views
+        transition-delay: $right-drawer-tile-delay
+        nav-tile-font-icon-before("\e9ce", $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-font-size, $right-drawer-tile-medium-shift-up)
+        figcaption
+          bottom: 1.6em
+          .from
+            font-size: $right-drawer-title-from-font-size + 0.2em
+      &.message
+        transition-delay: $right-drawer-tile-delay * 2
+        nav-tile-font-icon-before("\e60a", $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-font-size, $right-drawer-tile-high-shift-up)
+      &.info
+        transition-delay: $right-drawer-tile-delay * 3
+        nav-tile-font-icon-before("\e600", $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-font-size, $right-drawer-tile-high-shift-up)
+      // tile:hover
       &:hover
         cursor: pointer
         figcaption
-          color: #fff;
-      &.avatar
-        nav-tile-icon-before("http://fotohost.by/images/2015/03/04/avatar-orange-hair.png", $right-drawer-tile-bell-icon-size)
+          color: $right-drawer-tile-hover-color
+          .from
+            color: $right-drawer-tile-hover-color
+          .summary
+            color: $right-drawer-tile-hover-color
         &:before
-          border-radius: 0.8em
-          box-shadow: 0 0 2px 0 #000
-        &:hover
-          &:before
-            box-shadow: 0 0 6px 0 #000
-        figcaption
-          display: none
-      &.gallery
-        transition-delay: $right-drawer-tile-delay
-        nav-tile-icon-before("http://fotohost.by/images/2015/03/04/gallery.png", $right-drawer-tile-text-icon-size, $right-drawer-tile-text-icon-shift-up)
-      &.people
-        transition-delay: $right-drawer-tile-delay * 2
-        nav-tile-icon-before("http://fotohost.by/images/2015/03/04/people.png", $right-drawer-tile-text-icon-size, $right-drawer-tile-text-icon-shift-up)
-      &.analytics
-        transition-delay: $right-drawer-tile-delay * 3
-        nav-tile-icon-before("http://fotohost.by/images/2015/03/04/analytics.png", $right-drawer-tile-text-icon-size, $right-drawer-tile-text-icon-shift-up)
+          color: $right-drawer-tile-hover-color
 
   .dragger
     height: $right-drawer-dragger-height
@@ -112,7 +147,7 @@ ir-right-drawer
       height: $right-drawer-dragger-dot-size
       margin: $right-drawer-dragger-dot-size*2 0 0 $right-drawer-dragger-dot-size
       background: #fff
-      border-radius: $right-drawer-dragger-dot-size/2
+      border-radius: ($right-drawer-dragger-dot-size/2)
     &:hover
       background: $right-drawer-dragger-hover-color
     &:after

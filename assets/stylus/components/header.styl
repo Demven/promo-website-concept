@@ -11,6 +11,13 @@ $header-height = 12.6em
 $header-action-size = 4em
 $header-mobile-action-size = 7em
 $header-logo-height = 7em
+$header-font-icon-size = 1em
+
+$header-title-box-color = #8e8e8e
+$header-font-icon-color = #b0b0b0
+$header-font-icon-hover-color = #999999
+
+$header-color-anim-dur = 0.3s
 
 header
   height: $header-height
@@ -37,6 +44,23 @@ header
       if border-radius
         border-radius: border-radius
 
+  header-action-font-icon-after(iconCode = '', size = 1em, fontSize = 4em)
+    &:after
+      content: iconCode
+      width: size
+      height: size
+      position: absolute
+      top: 50%
+      left: 50%
+      margin-top: -(size/2)
+      margin-left: -(size/2)
+      display: block
+      font-family: $font-icon
+      font-size: fontSize
+      text-align: center
+      color: $header-font-icon-color
+      transition: color $header-color-anim-dur
+
   .user-menu-button
     width: $header-height
     height: 100%
@@ -54,6 +78,9 @@ header
       &:after
         transform: scale(0)
         opacity: 0
+    &:hover
+      &:after
+        box-shadow: 0 0 1px 0 #000
 
   figure.logo
     height: $header-logo-height
@@ -85,7 +112,7 @@ header
       padding-left: 2em
       font-family: $font-base
       font-weight: normal
-      color: #8e8e8e
+      color: $header-title-box-color
       text-transform: uppercase
       white-space: nowrap
       .title
@@ -103,31 +130,36 @@ header
         cursor: pointer
         position: relative
         &.search
-          header-action-icon-after("http://fotohost.by/images/2015/02/18/search.png")
+          header-action-font-icon-after("\e606", $header-font-icon-size, $header-action-size)
+        &:hover
+          &:after
+            color: $header-font-icon-hover-color
 
   .notifications-button
     width: $header-height
     height: $header-height
     position: relative
     cursor: pointer
-    header-action-icon-after("http://fotohost.by/images/2015/02/18/bell.png")
+    header-action-font-icon-after("\e60b", $header-font-icon-size, ($header-action-size + 0.4em))
     &:after
       transform: scale(1)
       opacity: 1
       transition: transform $drawer-open-anim-dur, opacity $drawer-open-anim-dur
     &.collapsed
-      width: ($header-height/3.5)
       cursor: auto
       &:after
         transform: scale(0)
         opacity: 0
+    &:hover
+      &:after
+        color: $header-font-icon-hover-color
 
 /* ANIMATIONS */
 header
   &.slide-right
     margin-left: $header-height
   &.slide-left
-    margin-right: $header-height
+    margin-right: ($header-height/3.5)
 
 
 /* MOBILE STYLES */
@@ -142,7 +174,6 @@ header
 
   header
     font-size: 0.44 * $header-base-font-size !important
-    /* background: rgba(65, 170, 255, 0.1) */
     .user-menu-button
       header-mobile-action-icon-after()
 

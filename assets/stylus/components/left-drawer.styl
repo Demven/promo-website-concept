@@ -8,16 +8,21 @@
 $left-drawer-base-font-size = 1rem // Desktop
 $left-drawer-tile-size = 12.6em
 $left-drawer-tile-delay = 80ms
+$left-drawer-tile-icon-font-size = 6.4em
 $left-drawer-tile-avatar-icon-size = 9.0em
-$left-drawer-tile-text-icon-size = 6.4em
+$left-drawer-tile-font-icon-size = 1em
 $left-drawer-tile-settings-icon-size = 7.9em
-$left-drawer-tile-text-icon-shift-up = 0.5em
+$left-drawer-tile-font-icon-shift-up = 0.1em
 $left-drawer-dragger-height = 8em
 $left-drawer-dragger-width = 1.4em
 $left-drawer-dragger-dot-size = 0.5em
 
+$left-drawer-tile-color = #cdcdcd
+$left-drawer-tile-hover-color = #eee
 $left-drawer-dragger-color = #9a9a9a
 $left-drawer-dragger-hover-color = #888
+
+$left-drawer-color-anim-dur = 0.3s
 
 ir-left-drawer
   width: $left-drawer-tile-size
@@ -52,6 +57,23 @@ ir-left-drawer
         background: url(url) no-repeat
         background-size: size size
 
+    nav-tile-font-icon-before(iconCode = '', size = 1em, shiftUp = 0)
+      &:before
+        content: iconCode
+        width: size
+        height: size
+        position: absolute
+        top: 50%
+        left: 50%
+        margin-top: -(size/2) - shiftUp
+        margin-left: -(size/2)
+        display: block
+        font-family: $font-icon
+        font-size: $left-drawer-tile-icon-font-size
+        text-align: center
+        color: $left-drawer-tile-color
+        transition: color $left-drawer-color-anim-dur
+
     figure.tile
       width: $left-drawer-tile-size
       height: $left-drawer-tile-size
@@ -64,16 +86,12 @@ ir-left-drawer
         bottom: 1em
         font-family: $font-base
         font-size: 1.3em
-        color: #cdcdcd
+        color: $left-drawer-tile-color
         text-transform: uppercase
         text-align: center
+        user-select: none;
         opacity: 0
-        transition: opacity $drawer-open-anim-dur*2
-        transition-delay: $drawer-open-anim-dur
-      &:hover
-        cursor: pointer
-        figcaption
-          color: #fff;
+        transition: opacity $drawer-open-anim-dur*2 $drawer-open-anim-dur, color $left-drawer-color-anim-dur
       &.avatar
         nav-tile-icon-before("http://fotohost.by/images/2015/03/04/avatar-orange-hair.png", $left-drawer-tile-avatar-icon-size)
         &:before
@@ -86,22 +104,29 @@ ir-left-drawer
           display: none
       &.gallery
         transition-delay: $left-drawer-tile-delay
-        nav-tile-icon-before("http://fotohost.by/images/2015/03/04/gallery.png", $left-drawer-tile-text-icon-size, $left-drawer-tile-text-icon-shift-up)
+        nav-tile-font-icon-before("\e605", $left-drawer-tile-font-icon-size, $left-drawer-tile-font-icon-shift-up)
       &.people
         transition-delay: $left-drawer-tile-delay * 2
-        nav-tile-icon-before("http://fotohost.by/images/2015/03/04/people.png", $left-drawer-tile-text-icon-size, $left-drawer-tile-text-icon-shift-up)
+        nav-tile-font-icon-before("\e602", $left-drawer-tile-font-icon-size, $left-drawer-tile-font-icon-shift-up)
       &.analytics
         transition-delay: $left-drawer-tile-delay * 3
-        nav-tile-icon-before("http://fotohost.by/images/2015/03/04/analytics.png", $left-drawer-tile-text-icon-size, $left-drawer-tile-text-icon-shift-up)
+        nav-tile-font-icon-before("\e609", $left-drawer-tile-font-icon-size, $left-drawer-tile-font-icon-shift-up)
       &.settings
         position: absolute
         bottom: -0.4em
-        nav-tile-icon-before("http://fotohost.by/images/2015/03/05/settings-new6df21.png", $left-drawer-tile-settings-icon-size)
+        nav-tile-icon-before($url-icons + "settings.png", $left-drawer-tile-settings-icon-size)
         &:before
           transform: rotate(0deg);
           transition: transform 1.4s;
         figcaption
           display: none
+      // tile:hover
+      &:hover
+        cursor: pointer
+        figcaption
+          color: $left-drawer-tile-hover-color
+        &:before
+          color: $left-drawer-tile-hover-color
 
   .dragger
     height: $left-drawer-dragger-height
@@ -121,7 +146,7 @@ ir-left-drawer
       height: $left-drawer-dragger-dot-size
       margin: $left-drawer-dragger-dot-size*2 0 0 $left-drawer-dragger-dot-size
       background: #fff
-      border-radius: $left-drawer-dragger-dot-size/2
+      border-radius: ($left-drawer-dragger-dot-size/2)
     &:hover
       background: $left-drawer-dragger-hover-color
     &:after

@@ -69,7 +69,6 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, irExtendServi
                             .on(this.EVENT.TAP, function(){
                                 $rootScope.$broadcast(IR.EVENT.OCCURRED.HEADER_USER_MENU_BUTTON_CLICKED);
                             });
-                    window.console.log(this.ELEMENT.NOTIFICATIONS_BUTTON[0]);
                     this.ELEMENT.NOTIFICATIONS_BUTTON.hammer = new Hammer(this.ELEMENT.NOTIFICATIONS_BUTTON[0])
                             .on(this.EVENT.TAP, function(){
                                 $rootScope.$broadcast(IR.EVENT.OCCURRED.HEADER_NOTIFICATIONS_BUTTON_CLICKED);
