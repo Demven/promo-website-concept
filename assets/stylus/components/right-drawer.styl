@@ -18,15 +18,19 @@ $right-drawer-tile-high-shift-up = 0.5em
 $right-drawer-dragger-height = 8em
 $right-drawer-dragger-width = 1.4em
 $right-drawer-dragger-dot-size = 0.5em
-
 $right-drawer-title-from-font-size = 1.0em
 $right-drawer-title-summary-font-size = 0.86em
 
+// mobile
+$right-drawer-mobile-tile-icon-font-size = 6.4em
+
+// colors
 $right-drawer-tile-color = #cdcdcd
 $right-drawer-tile-hover-color = #eee
 $right-drawer-dragger-color = #9a9a9a
 $right-drawer-dragger-hover-color = #888
 
+// time
 $right-drawer-color-anim-dur = 0.3s
 
 ir-right-drawer
@@ -80,6 +84,7 @@ ir-right-drawer
         flex-direction: column
         font-family: $font-base
         font-size: 1.3em
+        font-weight: bold
         color: $right-drawer-tile-color
         text-transform: uppercase
         text-align: center
@@ -91,13 +96,13 @@ ir-right-drawer
         .from
           font-family: $font-base
           font-size: $right-drawer-title-from-font-size
-          font-weight: bold
           color: $right-drawer-tile-color
           text-transform: uppercase
         .summary
           margin-top: 0.3em
           font-family: $font-base
           font-size: $right-drawer-title-summary-font-size
+          font-weight: 300
           color: $right-drawer-tile-color
           text-transform: none
       &.bell
@@ -173,23 +178,40 @@ ir-right-drawer
 @media $mobile
   ir-right-drawer
     .dragger
+      left: -100%
       opacity: 0
       transition: opacity $drawer-open-anim-dur
     &.open
       width: $drawer-mobile-width
       font-size: $right-drawer-base-font-size
       nav
+        nav-mobile-tile-font-icon-before(size = 1em, fontSize = $right-drawer-mobile-tile-icon-font-size)
+          &:before
+            margin-top: -(size/2)
+            margin-left: -(size/2)
+            font-size: fontSize
         figure.tile
+          align-self: flex-end
           figcaption
-            width: 120%
-            top: 1em
+            width: 140%
+            height: 100%
+            top: 0
             right: 6.3em
+            padding: 0
             text-align: right
             line-height: 1.1em
             font-size: 2em
             display: flex !important
             flex-direction: column
             justify-content: center
+          &.bell
+            nav-mobile-tile-font-icon-before($right-drawer-tile-font-icon-size, $right-drawer-mobile-tile-icon-font-size)
+          &.views
+            nav-mobile-tile-font-icon-before($right-drawer-tile-font-icon-size, $right-drawer-mobile-tile-icon-font-size)
+          &.message
+            nav-mobile-tile-font-icon-before($right-drawer-tile-font-icon-size, $right-drawer-mobile-tile-icon-font-size)
+          &.info
+            nav-mobile-tile-font-icon-before($right-drawer-tile-font-icon-size, $right-drawer-mobile-tile-icon-font-size)
 
       .dragger
         width: 100%
