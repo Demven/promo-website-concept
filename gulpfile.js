@@ -77,21 +77,23 @@ gulp.task("css:build:compile", function () {
         // Write to distributive folder
         .pipe(gulp.dest("public/css"))
         .pipe(plugins.filter("*.css"))
+            /*
         // Add versions
         .pipe(plugins.revAll({
             transformFilename: transformRevFilename
-        }))
+        }))*/
         // add versions to urls
         .pipe(plugins.cssUrlVersioner())
         // File size of files
         .pipe(plugins.filesize())
+        .pipe(plugins.plumber.stop())
         // Write to destination
-        .pipe(gulp.dest("public/css"))
-        // Save revision
+        .pipe(gulp.dest("public/css"));
+        /*// Save revision
         .pipe(plugins.revAll.manifest({fileName: "CSSManifest.json"}))
         // Revert plumber
-        .pipe(plugins.plumber.stop())
-        .pipe(gulp.dest("revisions"));
+
+        .pipe(gulp.dest("revisions"));*/
 });
 // Create gzipped files to not load server with dynamic gzip generation
 gulp.task("css:build:gzip", function () {
@@ -129,17 +131,18 @@ gulp.task("js:build:compile", function () {
     return JSSourcesStream.pipe(gulp.dest("public/js"))
         // Show filesize of generated files
         .pipe(plugins.filesize())
-        // Add versions
+       /* // Add versions
         .pipe(plugins.revAll({
             transformFilename: transformRevFilename
-        }))
+        }))*/
         // Write to destination
-        .pipe(gulp.dest("public/js"))
-        // Save revision
+        .pipe(plugins.plumber.stop())
+        .pipe(gulp.dest("public/js"));
+/*        // Save revision
         .pipe(plugins.revAll.manifest({fileName: "JSManifest.json"}))
         // Revert pipes
         .pipe(plugins.plumber.stop())
-        .pipe(gulp.dest("revisions"));
+        .pipe(gulp.dest("revisions"));*/
 });
 // Generate gzip packages
 gulp.task("js:build:gzip", function () {
@@ -162,10 +165,10 @@ gulp.task("html:build", ["css:build:compile", "js:build:compile"], function () {
     var HTMLSourcesStream = gulp.src(["revisions/*.json", "assets/html/{,**/}*.html"]);
     HTMLSourcesStream = HTMLSourcesStream
         // Replace revisions due to manifiest
-        .pipe(plugins.revCollector({
+       /* .pipe(plugins.revCollector({
             replaceReved: true,
             revSuffix: "-[0-9a-f]{10}-?"
-        }))
+        }))*/
         .pipe(plugins.filter("{,**/}*.html"));
     // Production version
     if (argv.production) {
