@@ -8,9 +8,8 @@
 $right-drawer-base-font-size = 1rem // Desktop
 $right-drawer-tile-size = 12.6em
 $right-drawer-tile-delay = 80ms
-$right-drawer-tile-icon-font-size = 4.0em
-$right-drawer-tile-bell-font-size = 6.4em
-$right-drawer-tile-bell-icon-size = 9.0em
+$right-drawer-tile-icon-small-font-size = 4.0em
+$right-drawer-tile-icon-normal-font-size = 6.4em
 $right-drawer-tile-font-icon-size = 1em
 $right-drawer-tile-normal-shift-up = 0.1em
 $right-drawer-tile-medium-shift-up = 0.3em
@@ -52,7 +51,7 @@ ir-right-drawer
     flex-direction: column
     box-shadow: 8px 0 10px -3px #000 inset
 
-    nav-tile-font-icon-before(iconCode = '', size = 1em, fontSize = $right-drawer-tile-icon-font-size, shiftUp = 0)
+    nav-tile-font-icon-before(iconCode = '', size = 1em, fontSize = $right-drawer-tile-icon-small-font-size, shiftUp = 0)
       &:before
         content: iconCode
         width: size
@@ -105,22 +104,29 @@ ir-right-drawer
           font-weight: 300
           color: $right-drawer-tile-color
           text-transform: none
-      &.bell
-        transition-delay: $right-drawer-tile-delay
-        nav-tile-font-icon-before("\e60b", $right-drawer-tile-font-icon-size, $right-drawer-tile-bell-font-size, $right-drawer-tile-normal-shift-up)
       &.views
         transition-delay: $right-drawer-tile-delay
-        nav-tile-font-icon-before("\e9ce", $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-font-size, $right-drawer-tile-medium-shift-up)
+        nav-tile-font-icon-before($eye-icon-code, $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-small-font-size, $right-drawer-tile-medium-shift-up)
         figcaption
           bottom: 1.6em
           .from
             font-size: $right-drawer-title-from-font-size + 0.2em
       &.message
         transition-delay: $right-drawer-tile-delay * 2
-        nav-tile-font-icon-before("\e60a", $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-font-size, $right-drawer-tile-high-shift-up)
+        nav-tile-font-icon-before($message-icon-code, $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-small-font-size, $right-drawer-tile-high-shift-up)
       &.info
         transition-delay: $right-drawer-tile-delay * 3
-        nav-tile-font-icon-before("\e600", $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-font-size, $right-drawer-tile-high-shift-up)
+        nav-tile-font-icon-before($info-icon-code, $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-small-font-size, $right-drawer-tile-high-shift-up)
+      &.feedback
+        position: absolute
+        bottom: -0.4em
+        transform: translateY($right-drawer-tile-size)
+        transition: transform $drawer-open-anim-dur
+        transition-delay: $drawer-open-anim-dur
+        figcaption
+          .summary
+            display: none
+        nav-tile-font-icon-before($feedback-icon-code, $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-normal-font-size, $right-drawer-tile-normal-shift-up)
       // tile:hover
       &:hover
         cursor: pointer
@@ -170,6 +176,8 @@ ir-right-drawer
         transform: translateX(0)
         figcaption
           opacity: 1
+        &.feedback
+          transform: translateY(0)
 
   &.opposite-drawer-open
     transform: translateX($right-drawer-tile-size*2)
@@ -193,7 +201,7 @@ ir-right-drawer
         figure.tile
           align-self: flex-end
           figcaption
-            width: 140%
+            width: 130%
             height: 100%
             top: 0
             right: 6.3em
@@ -204,13 +212,17 @@ ir-right-drawer
             display: flex !important
             flex-direction: column
             justify-content: center
-          &.bell
-            nav-mobile-tile-font-icon-before($right-drawer-tile-font-icon-size, $right-drawer-mobile-tile-icon-font-size)
           &.views
             nav-mobile-tile-font-icon-before($right-drawer-tile-font-icon-size, $right-drawer-mobile-tile-icon-font-size)
           &.message
             nav-mobile-tile-font-icon-before($right-drawer-tile-font-icon-size, $right-drawer-mobile-tile-icon-font-size)
           &.info
+            nav-mobile-tile-font-icon-before($right-drawer-tile-font-icon-size, $right-drawer-mobile-tile-icon-font-size)
+          &.feedback
+            right: 0
+            figcaption
+              .summary
+                display: block
             nav-mobile-tile-font-icon-before($right-drawer-tile-font-icon-size, $right-drawer-mobile-tile-icon-font-size)
 
       .dragger

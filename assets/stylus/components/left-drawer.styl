@@ -104,13 +104,13 @@ ir-left-drawer
           display: none
       &.gallery
         transition-delay: $left-drawer-tile-delay
-        nav-tile-font-icon-before("\e605", $left-drawer-tile-font-icon-size, $left-drawer-tile-font-icon-shift-up)
+        nav-tile-font-icon-before($gallery-icon-code, $left-drawer-tile-font-icon-size, $left-drawer-tile-font-icon-shift-up)
       &.people
         transition-delay: $left-drawer-tile-delay * 2
-        nav-tile-font-icon-before("\e602", $left-drawer-tile-font-icon-size, $left-drawer-tile-font-icon-shift-up)
+        nav-tile-font-icon-before($people-icon-code, $left-drawer-tile-font-icon-size, $left-drawer-tile-font-icon-shift-up)
       &.analytics
         transition-delay: $left-drawer-tile-delay * 3
-        nav-tile-font-icon-before("\e609", $left-drawer-tile-font-icon-size, $left-drawer-tile-font-icon-shift-up)
+        nav-tile-font-icon-before($analytics-icon-code, $left-drawer-tile-font-icon-size, $left-drawer-tile-font-icon-shift-up)
       &.settings
         position: absolute
         bottom: -0.4em

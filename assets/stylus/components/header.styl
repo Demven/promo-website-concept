@@ -12,12 +12,17 @@ $header-action-size = 4em
 $header-mobile-action-size = 7em
 $header-logo-height = 7em
 $header-font-icon-size = 1em
+$header-logo-bird-left-part-width = 4.2em
+$header-logo-bird-left-part-height = 1.7em
+$header-logo-bird-right-part-width = 4.6em
+$header-logo-bird-right-part-height = 3.6em
 
 $header-title-box-color = #8e8e8e
 $header-font-icon-color = #b0b0b0
 $header-font-icon-hover-color = #999999
 
 $header-color-anim-dur = 0.3s
+$header-logo-bird-anim-dur = 0.8s
 
 header
   height: $header-height
@@ -86,15 +91,47 @@ header
     height: $header-logo-height
     display: flex
     align-items: flex-start
-    img
+    cursor: pointer
+    .bird
       order: 2
       width: 8.1em
+      height: $header-logo-bird-right-part-height
+      position: relative
+      margin-left: 0.5em
+      &:before
+        content: ''
+        width: $header-logo-bird-left-part-width
+        height: $header-logo-bird-left-part-height
+        position: absolute
+        bottom: 0
+        left: 0
+        display: block
+        background: url(($url-icons + "bird-left-part.png")) no-repeat
+        background-size: $header-logo-bird-left-part-width $header-logo-bird-left-part-height
+        transition: transform $header-logo-bird-anim-dur
+      &:after
+        content: ''
+        width: $header-logo-bird-right-part-width
+        height: $header-logo-bird-right-part-height
+        position: absolute
+        top: -0.1em
+        left: 3.6em
+        display: block
+        background: url(($url-icons + "bird-right-part.png")) no-repeat
+        background-size: $header-logo-bird-right-part-width $header-logo-bird-right-part-height
+        transition: transform $header-logo-bird-anim-dur
     figcaption
       font-family: $font-base
       font-weight: 700
       font-size: 6.6em
       color: $color-base
       order: 1
+    &:hover
+      .bird
+        &:before
+          transform: rotate(18deg) scale(1.2)
+        &:after
+          transform: rotate(-9deg) scale(1.1)
 
   .center-box
     height: 80%
@@ -130,7 +167,7 @@ header
         cursor: pointer
         position: relative
         &.search
-          header-action-font-icon-after("\e606", $header-font-icon-size, $header-action-size)
+          header-action-font-icon-after($search-icon-code, $header-font-icon-size, $header-action-size)
         &:hover
           &:after
             color: $header-font-icon-hover-color
@@ -140,7 +177,7 @@ header
     height: $header-height
     position: relative
     cursor: pointer
-    header-action-font-icon-after("\e60b", $header-font-icon-size, ($header-action-size + 0.4em))
+    header-action-font-icon-after($bell-icon-code, $header-font-icon-size, ($header-action-size + 0.4em))
     &:after
       transform: scale(1)
       opacity: 1
@@ -179,8 +216,8 @@ header
 
     figure.logo
       height: 8.6em
-      img
-        width: 11em
+      .bird
+        font-size: 136%
       figcaption
         font-size: 8.2em
 
