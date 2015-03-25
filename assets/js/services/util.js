@@ -10,7 +10,7 @@
  * @service
  * @return Object{extend, BaseJsonService, BaseListJsonService, BaseElementComponent}
  */
-IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
+IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLog){
     return (function(){
         /**
          * Function that provides extending parent's object
@@ -37,10 +37,13 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
          * @constructor
          */
         var BaseJsonService = function(){
+            this.NAME = "";
             /** (String) should be overridden to the proper URL in the descendant object */
             this.DATA_URL = null;
-            /** (ms) default timeout */
-            this.TIMEOUT_TO_UPDATE = 60000;
+            /** (ms) default timeout
+             * if 0 - no tracking
+             */
+            this.TIMEOUT_TO_UPDATE = 0;
 
             /** (Object JSON) should be overridden only if you set 'isUsingFakeData' to 'true'*/
             this.dataJSON = null;
@@ -54,6 +57,12 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
              *  If so - override this flag to true and initialize a variable with the name "dataJSON" by your fake data
              */
             this.isUsingFakeData = false;
+
+            /**
+             * Contains configuration parameters for data requests
+             * @type Object
+             */
+            this.CONFIG = {};
 
             /** json that will be returned by server */
             var data = null,
@@ -78,11 +87,16 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
              * If service is already working - triggers update of the data
              * Contains logic of the service's lifecycle
              */
-            this.load = function(){
+            this.load = function(callback){
                 if(!isCreated || !isTracking){
                     this.create();
                     this.postCreate();
-                    this.update();
+                    this.update()
+                            .then(function(success){
+                                if(typeof callback === "function"){
+                                    callback(success);
+                                }
+                            });
                 } else{
                     if(data && isNewListener){
                         // we have a new client, so do not update, but simply call it's callback
@@ -98,9 +112,21 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
              * Method that starts service
              */
             this.create = function(){
+                irLog.info(this.NAME + ": create");
+
                 this.startTracking();
+                this._create();
 
                 isCreated = true;
+                return this;
+            };
+
+            /**
+             * For override
+             * @return {BaseJsonService}
+             */
+            this._create = function(){
+                return this;
             };
 
             /**
@@ -108,48 +134,110 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
              * @private
              */
             this.postCreate = function(){
+                irLog.info(this.NAME + ": postCreate");
                 if(this.isDestroyOnPageChange) {
                     // destroy service if page has just changed
                     offListenerPageChanged = $rootScope.$on(IR.EVENT.OCCURRED.PAGE_CHANGED, function () {
                         self.destroy();
                     });
                 }
+                this._postCreate();
+                return this;
+            };
+
+            /**
+             * For override
+             * @return {BaseJsonService}
+             */
+            this._postCreate = function(){
+                return this;
+            };
+
+            /**
+             * Load data from backend using AJAX request to DATA_URL or use dataJSON if you set isUsingFakeData to true
+             * @return promise
+             */
+            this.loadData = function(){
+                irLog.info(this.NAME + ": load");
+                var deferred = $q.defer(),
+                    newData;
+                if(isTracking || !data){
+                    // load data at first time or update them if we are tracking data changes
+                    if(this.isUsingFakeData && this.dataJSON) {
+                        window.setTimeout(angular.bind(this, (function(){
+                            newData = angular.copy(this.dataJSON);
+                            deferred.resolve(newData);
+                        })), 2000);
+                    } else {
+                        // TODO: need send request to server
+                    }
+                }
+                return deferred.promise;
+            };
+
+            this.afterLoad = function(promise){
+                promise
+                    .then(angular.bind(this, function(newData) {
+                        irLog.info(this.NAME + ": load SUCCESS");
+                        if(isTracking && _isDataChanged(newData)){
+                            data = newData;
+                            _informListenersAboutUpdate();
+                        } else{
+                            data = newData;
+                        }
+                    }), angular.bind(this, function(failure) {
+                        irLog.warn(this.NAME + ": load FAILED - " + failure);
+                    }));
+                return promise;
             };
 
             /**
              * Called before update()
-             * You can override this method to add some logic before updating
+             * For override
+             * @return {BaseJsonService}
              */
-            this.beforeUpdate = function(){
+            this._beforeUpdate = function(){
+                return this;
             };
 
             /**
              * Asynchronously updates data by AJAX request to DATA_URL or use dataJSON if you set isUsingFakeData to true
              * Then calls method 'informListenersAboutUpdate()' if updating was successful.
+             * @return promise
              */
             this.update = function(){
                 $rootScope.$broadcast(IR.EVENT.OCCURRED.LOAD_DATA_START);
-                this.beforeUpdate();
-                if(isTracking){
-                    var newData;
+                irLog.info(this.NAME + ": beforeUpdate");
+                this._beforeUpdate();
 
-                    if(this.isUsingFakeData && this.dataJSON) {
-                        newData = angular.copy(this.dataJSON);
-                    } else {
-                        // TODO: need send request to server
-                    }
+                irLog.info(this.NAME + ": update");
 
-                    if(_isDataChanged(newData)){
-                        data = newData;
-                        _informListenersAboutUpdate();
-                    }
-                }
+                var promise = this.loadData();
 
-                // TODO: should be in callback after success load (timeout just to see spinner at least 2 seconds)
-                setTimeout(function(){
-                    $rootScope.$broadcast(IR.EVENT.OCCURRED.LOAD_DATA_FINISHED);
-                }, 2000);
+                this.afterLoad(promise);
 
+                promise
+                    .then(angular.bind(this, function(newData) {
+                        irLog.info(this.NAME + ": update SUCCESS");
+                        irLog.info(this.NAME + ": afterUpdate");
+                        this._afterUpdate();
+                    }), angular.bind(this, function(failure) {
+                        irLog.warn(this.NAME + ": update FAILED - " + failure);
+                    }))
+                    .finally(function(){
+                        $rootScope.$broadcast(IR.EVENT.OCCURRED.LOAD_DATA_FINISHED);
+                    });
+
+                return promise;
+            };
+
+            /**
+             * Called after successful update()
+             * For override
+             * @return {BaseJsonService}
+             */
+            this._afterUpdate = function(){
+                return this;
             };
 
             /**
@@ -157,17 +245,34 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
              * Tries to trigger update data at a specified timeout.
              */
             this.startTracking = function(){
-                isTracking = true;
-                trackingId = setInterval(function(){
-                    self.update();
-                }, this.TIMEOUT_TO_UPDATE);
+                irLog.info(this.NAME + ": startTracking");
+                if(this.TIMEOUT_TO_UPDATE > 0){
+                    isTracking = true;
+                    trackingId = setInterval(function(){
+                        self.update();
+                    }, this.TIMEOUT_TO_UPDATE);
+                }
             };
 
             this.stopTracking = function(){
+                irLog.info(this.NAME + ": stopTracking");
                 if(isTracking){
                     isTracking = false;
                     clearInterval(trackingId);
                 }
+            };
+
+            this.isTracking = function(){
+                return isTracking;
+            };
+
+            /**
+             * Set the current cache of data
+             */
+            this.set = function(newData){
+                irLog.info(this.NAME + ": set cache");
+
+                data = newData;
             };
 
             /**
@@ -183,6 +288,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
             };
 
             this.save = function(newData){
+                irLog.info(this.NAME + ": save");
                 if(this.isUsingFakeData && this.dataJSON) {
                     this.dataJSON = newData;
                 } else {
@@ -193,6 +299,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
             };
 
             this.destroy = function(){
+                irLog.info(this.NAME + ": destroy");
                 data = null;
                 isCreated = false;
                 trackingId = 0;
@@ -204,6 +311,18 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
                 if(offListenerPageChanged) {
                     offListenerPageChanged();
                 }
+
+                this._destroy();
+
+                irLog.info(this.NAME + ": DESTROYED");
+            };
+
+            /**
+             * For override
+             * @return {BaseJsonService}
+             */
+            this._destroy = function(){
+                return this;
             };
 
             /** Iterate through over array of listeners and call each to inform about update */
@@ -239,6 +358,75 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
             // call of the parent constructor
             BaseListJsonService.superclass.constructor.call(this);
 
+            /**
+             * Declares how many list items will be loaded at each request
+             * @type {number}
+             */
+            this.CONFIG.PORTION_SIZE = 10;
+
+            var lastLoadFrom = 0,
+                lastLoadTo = 0;
+
+            /**
+             * ! Overrides method from BaseJsonService
+             * Load data from backend using AJAX request to DATA_URL or use dataJSON if you set isUsingFakeData to true
+             * @return promise
+             */
+            this.loadData = function(portion){
+                irLog.info(this.NAME + ": load");
+                var deferred = $q.defer(),
+                    newData,
+                    portionNumber = portion || 1,
+                    portionSize = this.CONFIG.PORTION_SIZE,
+                    from = (portionNumber - 1) * portionSize,
+                    to = from + portionSize; // not included last
+                if(this.isTracking || !this.get()){
+                    // load data at first time or update them if we are tracking data changes
+                    if(this.isUsingFakeData && this.dataJSON) {
+                        window.setTimeout(angular.bind(this, (function(){
+                            newData = angular.copy(this.dataJSON.slice(from, to));
+                            lastLoadFrom = from;
+                            lastLoadTo = to;
+                            deferred.resolve(newData);
+                        })), 2000);
+                    } else {
+                        // TODO: need send request to server
+                    }
+                }
+
+                return deferred.promise;
+            };
+
+            /**
+             * ! Overrides method from BaseJsonService
+             * @return promise
+             */
+            this.afterLoad = function(promise){
+                promise
+                    .then(angular.bind(this, function(newData) {
+                        irLog.info(this.NAME + ": load SUCCESS");
+
+                        if(newData){
+                            // add this portion to the existing data cache
+                            var data = this.get() || [],
+                                len = newData.length,
+                                d = lastLoadFrom,
+                                n = 0;
+
+                            for( ; n < len; n++, d++){
+                                data[d] = newData[n];
+                            }
+
+                            // update cache
+                            this.set(data);
+                        }
+
+                    }), angular.bind(this, function(failure) {
+                        irLog.warn(this.NAME + ": load FAILED - " + failure);
+                    }));
+                return promise;
+            };
+
             this.getById = function(id){
                 var data = this.get(),
                     i = data.length;
@@ -261,24 +449,40 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
 
             /**
              * Returns array-portion of the list objects
-             * @param portionSize - quantity of objects in a portion
              * @param portionNumber - number of the portion from 1
+             * @param callback - function that will be called when portion will be loaded
              */
-            this.getPortion = function(portionSize, portionNumber){
-                var portion = [];
-                if(this.isUsingFakeData && this.dataJSON) {
-                    var data = this.get(),
-                        from = (portionNumber - 1) * portionSize,
-                        to = from + portionSize; // not included last
+            this.getPortion = function(portionNumber, callback){
+                var portion = [],
+                    portionSize = this.CONFIG.PORTION_SIZE,
+                    quantity = portionSize * portionNumber,
+                    data = this.get(),
+                    availQuantity = data.length,
+                    from = (portionNumber - 1) * portionSize,
+                    to = from + portionSize; // not included last;
+                if(availQuantity >= quantity) {
                     portion = data.slice(from, to);
-                } else {
-                    // TODO: send request to backend to get this portion
+                    if(typeof callback === "function"){
+                        callback(portion);
+                    }
+                } else{
+                    // not enough data in cache to return a portion
+                    // load needed data
+                    var promise = this.loadData(portionNumber);
+                    this.afterLoad(promise);
+                    promise.then(function(newData) {
+                        portion = newData;
+                        if(typeof callback === "function"){
+                            callback(portion);
+                        }
+                    });
                 }
 
                 return portion;
             };
 
             this.add = function(item){
+                irLog.info(this.NAME + ": add");
                 if(this.isUsingFakeData && this.dataJSON) {
                     this.dataJSON.push(item);
                 } else {
@@ -289,6 +493,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
             };
 
             this.change = function(item){
+                irLog.info(this.NAME + ": change");
                 if(this.isUsingFakeData && this.dataJSON) {
                     var index = this.getIndexById(item.id);
                     this.dataJSON[index] = item;
@@ -303,14 +508,15 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
              * Send request to server to remove this data list item
              * @param itemId - id of the item to remove
              */
-            this.delete = function(itemId){
+            this.remove = function(itemId){
+                irLog.info(this.NAME + ": delete with id = " + itemId);
                 if(this.isUsingFakeData && this.dataJSON) {
                     var index = this.getIndexById(itemId);
                     if(index >=0){
                         this.dataJSON.splice(index, 1);
                     }
                 } else {
-                    // TODO: send request to backend to delete this list item
+                    // TODO: send request to backend to remove this list item
                 }
 
                 this.update();
@@ -319,7 +525,6 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
 
         // BaseListJsonService is a extension of the BaseJsonService
         extend(BaseListJsonService, BaseJsonService);
-
 
         // Components
         /**
@@ -387,7 +592,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
              * @return {BaseElementComponent}
              */
             this.init = function () {
-                irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": init");
+                irLog.info(this.NAME + ": init");
                 this._init();
                 return this;
             };
@@ -405,7 +610,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
              * @return {BaseElementComponent}
              */
             this.create = function () {
-                irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": create");
+                irLog.info(this.NAME + ": create");
                 this._create();
                 isCreated = true;
                 return this;
@@ -424,7 +629,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
              * @return {BaseElementComponent}
              */
             this.postCreate = function () {
-                irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": postCreate");
+                irLog.info(this.NAME + ": postCreate");
 
                 if(this.isDestroyOnPageChange){
                     // destroy component if page has just changed
@@ -457,7 +662,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
              * @return {BaseElementComponent}
              */
             this.render = function () {
-                irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": render");
+                irLog.info(this.NAME + ": render");
                 if(isBuilt){
                     this._render();
 
@@ -468,7 +673,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
                     isRendered = true;
                 } else{
                     var errorMsg = "UI component " + this.NAME + " should be built before render! Use 'build() method.'";
-                    irLog.writeAs(irLog.LOG_LEVEL.ERROR, errorMsg);
+                    irLog.error(errorMsg);
                     throw new Error(errorMsg);
                 }
 
@@ -486,7 +691,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
 
             /** Resize the component */
             this.resize = function (vw, vh) {
-                irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": resize");
+                irLog.info(this.NAME + ": resize");
 
                 this._resize(vw, vh);
             };
@@ -500,7 +705,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
 
             /** Destroys the component */
             this.destroy = function () {
-                irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": destroy");
+                irLog.info(this.NAME + ": destroy");
                 // remove global listeners
                 if(offListenerPageChanged) {
                     offListenerPageChanged();
@@ -511,7 +716,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, irLog){
 
                 this._destroy();
 
-                irLog.writeAs(irLog.LOG_LEVEL.INFO, this.NAME + ": DESTROYED");
+                irLog.info(this.NAME + ": DESTROYED");
             };
 
             /** For override
@@ -648,6 +853,7 @@ IR.MODULE.UTIL.provider("irDeviceInfoService", function(){
  * @service
  */
 IR.MODULE.UTIL.provider("irLog", function(){
+    "use strict";
     this.LOG_LEVEL = {
         ALL: "ALL",
         INFO: "INFO",
@@ -681,7 +887,7 @@ IR.MODULE.UTIL.provider("irLog", function(){
      * Write log message without any level
      * @param msg - String
      */
-    var write = function(msg){
+    this.write = function(msg){
         if(LEVEL_PRIORITY[currentLogLevel] !== LEVEL_PRIORITY.OFF){
             window.console.log(msg);
         }
@@ -692,47 +898,42 @@ IR.MODULE.UTIL.provider("irLog", function(){
      * @param logLevel - one value from the this.LOG_LEVEL
      * @param msg - String
      */
-    var writeAs = function(logLevel, msg){
+    this.writeAs = function(logLevel, msg){
         if(LEVEL_PRIORITY[currentLogLevel] <= LEVEL_PRIORITY[logLevel]){
             window.console.log(logLevel + colon + msg);
         }
+    };
+
+    this.all = function(msg){
+        this.writeAs(this.LOG_LEVEL.ALL, msg);
+    };
+
+    this.info = function(msg){
+        this.writeAs(this.LOG_LEVEL.INFO, msg);
+    };
+
+    this.warn = function(msg){
+        this.writeAs(this.LOG_LEVEL.WARN, msg);
+    };
+
+    this.error = function(msg){
+        this.writeAs(this.LOG_LEVEL.ERROR, msg);
+    };
+
+    this.fatal = function(msg){
+        this.writeAs(this.LOG_LEVEL.FATAL, msg);
     };
 
     this.$get = function(){
         return {
             LOG_LEVEL: this.LOG_LEVEL,
             setLogLevel: this.setLogLevel,
-            writeAs: writeAs,
-            write: write
-        }
+            writeAs: this.writeAs,
+            write: this.write,
+            all: this.all,
+            info: this.info,
+            warn: this.warn,
+            fatal: this.fatal
+        };
     }
 });
-
-// Supported gestures events
-// just for easy access and to be at hand
-/**
- hmDoubleTap : 'doubletap',
- hmDragstart : 'dragstart',
- hmDrag : 'drag',
- hmDragUp : 'dragup',
- hmDragDown : 'dragdown',
- hmDragLeft : 'dragleft',
- hmDragRight : 'dragright',
- hmDragend : 'dragend',
- hmHold : 'hold',
- hmPinch : 'pinch',
- hmPinchIn : 'pinchin',
- hmPinchOut : 'pinchout',
- hmRelease : 'release',
- hmRotate : 'rotate',
- hmSwipe : 'swipe',
- hmSwipeUp : 'swipeup',
- hmSwipeDown : 'swipedown',
- hmSwipeLeft : 'swipeleft',
- hmSwipeRight : 'swiperight',
- hmTap : 'tap',
- hmTouch : 'touch',
- hmTransformstart : 'transformstart',
- hmTransform : 'transform',
- hmTransformend : 'transformend'
- */

@@ -10,6 +10,14 @@ IR.UIC = new (function(){
     this.HEADER = null;
     this.LEFT_DRAWER = null;
     this.RIGHT_DRAWER = null;
+    this.CARD_CONTAINER = null;
+})();
+
+/**
+ * Namespace for Service (SRV) instances
+ */
+IR.SRV = new (function(){
+    this.ART = null;
 })();
 
 IR.MODULE_NAME = new (function(){
