@@ -24,24 +24,19 @@ var transformRevFilename = function (file, hash) {
 //*********************************
 //********* Clean tasks ***********
 //*********************************
+var del = require("del");
 // Clean previous build
-gulp.task("build:clean", function () {
-    // Get sources without reading and remove it
-    return gulp.src(["public"], {read: false})
-        // Clean
-        .pipe(plugins.rimraf({force: true}));
+gulp.task("build:clean", function (cb) {
+    return del(["public"], cb);
 });
 // Clean folder with revisions information
-gulp.task("revisions:clean", function () {
-    // Get sources without reading and remove it
-    return gulp.src(["revisions"], {read: false})
-        .pipe(plugins.rimraf({force: true}));
+gulp.task("revisions:clean", function (cb) {
+    return del(["revisions"], cb);
 });
 // Clean docs folders
-gulp.task("docs:clean", function () {
+gulp.task("docs:clean", function (cb) {
     // Read sources
-    return gulp.src(["docs"], {read: false})
-        .pipe(plugins.rimraf({force: true}));
+    return del(["docs"], cb);
 });
 
 //*********************************
@@ -92,12 +87,6 @@ gulp.task("build:js", function () {
     // Read sources
     var src = gulp.src(["assets/js/**/*", "!assets/js/vendor/**"]);
 
-    // Production version
-    if (argv.production) {
-        src = src.pipe(plugins.ngAnnotate())
-            .pipe(plugins.uglify());
-    }
-
     // Write to distributive folder
     src = src.pipe(gulp.dest("public/js"))
         // Filter *.js
@@ -122,12 +111,12 @@ gulp.task("build:html", function () {
     // Read sources
     var src = gulp.src(["assets/html/**"]);
     // Production version
-    if (argv.production) {
+/*    if (argv.production) {
         src = src.pipe(plugins.cdnizer([
                 // matches all root angular files
                 "google:angular"
             ]));
-    }
+    }*/
     // Minify HTMl
     src = src.pipe(plugins.htmlmin({
             collapseWhitespace: true,
@@ -181,12 +170,11 @@ gulp.task("server:static", function () {
 gulp.task("server:api", function (done) {
     var runHint = (function (argv, runSequence) {
         if(!(argv["skip-validation"] || argv["skip-js-validation"])){
-            return runSequence("js:server:hint");
+            return function() { runSequence("js:server:hint") };
         } else {
             return _.noop;
         }
     }(argv, runSequence));
-
     // Done triggers only once
     plugins.nodemon({
         script: "server/server.js",
@@ -290,8 +278,8 @@ gulp.task("default", function (callback) {
     runSequence("build", ["server:static", "server:api", "watch"], callback);
 });
 
-gulp.task("production", function () {
-    runSequence("build");
+gulp.task("production", function (callback) {
+    runSequence("build", "server:api", callback);
 });
 
 
