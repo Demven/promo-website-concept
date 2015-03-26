@@ -1,7 +1,6 @@
 /**
  * Created by Dakal Oleksandr on 1/12/15.
  */
-
 var gulp = require("gulp"),
     path = require("path"),
     argv = require("yargs").argv,
@@ -26,20 +25,20 @@ var transformRevFilename = function (file, hash) {
 //********* Clean tasks ***********
 //*********************************
 // Clean previous build
-gulp.task("clean:previous:build", ["clear:revisions"], function () {
+gulp.task("build:clean", function () {
     // Get sources without reading and remove it
     return gulp.src(["public"], {read: false})
         // Clean
         .pipe(plugins.rimraf({force: true}));
 });
 // Clean folder with revisions information
-gulp.task("clear:revisions", function () {
+gulp.task("revisions:clean", function () {
     // Get sources without reading and remove it
     return gulp.src(["revisions"], {read: false})
         .pipe(plugins.rimraf({force: true}));
 });
 // Clean docs folders
-gulp.task("clean:docs", function () {
+gulp.task("docs:clean", function () {
     // Read sources
     return gulp.src(["docs"], {read: false})
         .pipe(plugins.rimraf({force: true}));
@@ -49,61 +48,38 @@ gulp.task("clean:docs", function () {
 //*********** Build CSS ***********
 //*********************************
 // Build CSS files
-gulp.task("css:build:compile", function () {
+gulp.task("build:css", function () {
     // Read sources
-    return gulp.src("assets/stylus/*.styl")
-        // Plumber to track and fix pipes
-        .pipe(plugins.plumber())
-        // Generate stylus code
-        .pipe(plugins.stylus({
+    var src = gulp.src("assets/stylus/*.styl");
+    // Generate stylus code
+    src = src.pipe(plugins.stylus({
             compress: true,
             // Generate inline sources
             sourcemap: {
                 inline: true
             }
         }))
-        // Validate CSS
-        .pipe(plugins.csslint("csslintrc.json"))
-        .pipe(plugins.csslint.reporter())
-        // Compile stylus
         .pipe(plugins.sourcemaps.init({
             loadMaps: true
         }))
         // PostCSS process to add prefixes
-        .pipe(plugins.autoprefixer({
-            // Here will be specific versions of browser
-        }))
+        .pipe(plugins.autoprefixer())
+        .pipe(plugins.cssUrlVersioner())
+        // Source map write
         .pipe(plugins.sourcemaps.write("."))
         // Write to distributive folder
         .pipe(gulp.dest("public/css"))
         .pipe(plugins.filter("*.css"))
-            /*
-        // Add versions
-        .pipe(plugins.revAll({
-            transformFilename: transformRevFilename
-        }))*/
-        // add versions to urls
-        .pipe(plugins.cssUrlVersioner())
         // File size of files
-        .pipe(plugins.filesize())
-        .pipe(plugins.plumber.stop())
-        // Write to destination
-        .pipe(gulp.dest("public/css"));
-        /*// Save revision
-        .pipe(plugins.revAll.manifest({fileName: "CSSManifest.json"}))
-        // Revert plumber
+        .pipe(plugins.filesize());
 
-        .pipe(gulp.dest("revisions"));*/
-});
-// Create gzipped files to not load server with dynamic gzip generation
-gulp.task("css:build:gzip", function () {
-    return gulp.src("public/css/*.css")
-        .pipe(plugins.pako.gzip())
-        .pipe(gulp.dest("public/css"));
-});
-// Complex task to build css
-gulp.task("css:build", function () {
-    return runSequence("css:build:compile", "css:build:gzip");
+    // Validate CSS
+    if(!(argv["skip-validation"] || argv["skip-css-validation"])){
+        src = src.pipe(plugins.csslint("csslintrc.json"))
+            .pipe(plugins.csslint.reporter())
+    }
+
+    return src;
 });
 
 
@@ -112,47 +88,29 @@ gulp.task("css:build", function () {
 //*********************************
 
 // Build javascript
-gulp.task("js:build:compile", function () {
+gulp.task("build:js", function () {
     // Read sources
-    var JSSourcesStream = gulp.src(["assets/js/**/*"]);
-    // Validate JS
-    JSSourcesStream = JSSourcesStream
-        // Plumber to track and fix pipes
-        .pipe(plugins.plumber());
+    var src = gulp.src(["assets/js/**/*", "!assets/js/vendor/**"]);
 
     // Production version
     if (argv.production) {
-        JSSourcesStream = JSSourcesStream
-            .pipe(plugins.ngAnnotate())
+        src = src.pipe(plugins.ngAnnotate())
             .pipe(plugins.uglify());
     }
 
     // Write to distributive folder
-    return JSSourcesStream.pipe(gulp.dest("public/js"))
+    src = src.pipe(gulp.dest("public/js"))
+        // Filter *.js
+        .pipe(plugins.filter("**/*.js"))
         // Show filesize of generated files
-        .pipe(plugins.filesize())
-       /* // Add versions
-        .pipe(plugins.revAll({
-            transformFilename: transformRevFilename
-        }))*/
-        // Write to destination
-        .pipe(plugins.plumber.stop())
-        .pipe(gulp.dest("public/js"));
-/*        // Save revision
-        .pipe(plugins.revAll.manifest({fileName: "JSManifest.json"}))
-        // Revert pipes
-        .pipe(plugins.plumber.stop())
-        .pipe(gulp.dest("revisions"));*/
-});
-// Generate gzip packages
-gulp.task("js:build:gzip", function () {
-    return gulp.src("public/js/*.js")
-        .pipe(plugins.pako.gzip())
-        .pipe(gulp.dest("public/js"));
-});
-// Complex task to build JS
-gulp.task("js:build", function () {
-    return runSequence("js:build:compile", "js:build:gzip");
+        .pipe(plugins.filesize());
+
+    // Validate CSS
+    if(!(argv["skip-validation"] || argv["skip-js-validation"])){
+        src = src.pipe(plugins.jshint())
+            .pipe(plugins.jshint.reporter())
+    }
+    return src;
 });
 
 //*********************************
@@ -160,69 +118,80 @@ gulp.task("js:build", function () {
 //*********************************
 
 // Build HTML entry point
-gulp.task("html:build", ["css:build:compile", "js:build:compile"], function () {
+gulp.task("build:html", function () {
     // Read sources
-    var HTMLSourcesStream = gulp.src(["revisions/*.json", "assets/html/{,**/}*.html"]);
-    HTMLSourcesStream = HTMLSourcesStream
-        // Replace revisions due to manifiest
-       /* .pipe(plugins.revCollector({
-            replaceReved: true,
-            revSuffix: "-[0-9a-f]{10}-?"
-        }))*/
-        .pipe(plugins.filter("{,**/}*.html"));
+    var src = gulp.src(["assets/html/**"]);
     // Production version
     if (argv.production) {
-        HTMLSourcesStream = HTMLSourcesStream
-            .pipe(plugins.cdnizer([
+        src = src.pipe(plugins.cdnizer([
                 // matches all root angular files
                 "google:angular"
             ]));
     }
-    return HTMLSourcesStream
-        // Minify HTMl
-        .pipe(plugins.htmlmin({
+    // Minify HTMl
+    src = src.pipe(plugins.htmlmin({
             collapseWhitespace: true,
             removeComments: true
         }))
         .pipe(gulp.dest("public"));
+    return src;
 });
 
+
 //*********************************
-//********** Copy tasks ***********
+//********** Build fonts **********
 //*********************************
 // Copy static resources
-gulp.task("copy:fonts", function () {
+gulp.task("build:fonts", function () {
     // Read sources
     return gulp.src(["assets/fonts/**"])
-        .pipe(gulp.dest("public/fonts"))
-        .pipe(plugins.pako.gzip())
         .pipe(gulp.dest("public/fonts"));
 });
+gulp.task("build:vendors", function () {
+    // Read sources
+    return gulp.src(["assets/js/vendor/**"])
+        .pipe(gulp.dest("public/js/vendor"));
+});
 //*********************************
-//********* Images tasks **********
+//********* Build images **********
 //*********************************
-gulp.task("images:build", function () {
+gulp.task("build:images", function () {
     // Read sources
     return gulp.src("assets/images/**")
-        .pipe(gulp.dest("public/images"))
-        .pipe(plugins.pako.gzip())
         .pipe(gulp.dest("public/images"));
+});
+//*********************************
+//********** Build GZIP ***********
+//*********************************
+gulp.task("build:gzip", function () {
+    // Read sources
+    return gulp.src("public/**")
+        .pipe(plugins.pako())
+        .pipe(gulp.dest("public"));
 });
 //**********************************
 //********* Server tasks ***********
 //**********************************
-gulp.task("connect:static", function () {
+gulp.task("server:static", function () {
     plugins.connect.server({
         root: "public",
         port: 3002
     });
 });
 gulp.task("server:api", function (done) {
+    var runHint = (function (argv, runSequence) {
+        if(!(argv["skip-validation"] || argv["skip-js-validation"])){
+            return runSequence("js:server:hint");
+        } else {
+            return _.noop;
+        }
+    }(argv, runSequence));
+
     // Done triggers only once
     plugins.nodemon({
         script: "server/server.js",
         ext: "js json",
-        ignore: ["assets/**", "public/**", "node_modules/**"],
+        ignore: ["assets/**", "public/**", "node_modules/**", "tests/**"],
         env: {
             NODE_ENV: argv.production ? "production" : "development",
             PORT: 4002,
@@ -231,26 +200,34 @@ gulp.task("server:api", function (done) {
     })
     .on("start", _.once(function () {
         setTimeout(function () {
+            runHint();
             done();
         }, 1000);
     }))
     .on("change", function(){
-            runSequence("js:server:hint");
+            runHint();
         });
+});
+//*********************************
+//********** Revisions ************
+//*********************************
+// Build HTML entry point
+gulp.task("revisions:create", function () {
+
 });
 
 //*********************************
 //********* Watch tasks ***********
 //*********************************
 gulp.task("watch", function () {
-    gulp.watch("assets/html/{,**/}*.html", function () {
-        runSequence("html:build");
+    gulp.watch("assets/html/**", function () {
+        runSequence("build:html");
     });
-    gulp.watch("assets/stylus/{,**/}*.styl", function () {
-        runSequence("css:build", "html:build", "clear:revisions");
+    gulp.watch("assets/stylus/**", function () {
+        runSequence("build:css");
     });
-    gulp.watch("assets/js/{,**/}*.js", function () {
-        runSequence("js:build", "html:build", "clear:revisions");
+    gulp.watch("assets/js/**", function () {
+        runSequence("build:js");
     });
 });
 
@@ -266,7 +243,7 @@ gulp.task("js:server:hint", function () {
 //*********************************
 //********** Docs tasks ***********
 //*********************************
-gulp.task("api:docs", function (done) {
+gulp.task("docs:api", function (done) {
     var apidoc = require("apidoc");
     apidoc.createDoc({
         src: "server/",
@@ -275,7 +252,7 @@ gulp.task("api:docs", function (done) {
     done();
 });
 
-gulp.task("server:docs", function () {
+gulp.task("docs:server", function () {
     return gulp.src("server/{,**/}*.js")
         .pipe(plugins.yuidoc.parser({
             "paths": ["server/**/"],
@@ -302,12 +279,43 @@ gulp.task("tests", function () {
 //********** Complex tasks ***********
 //***********************************
 
-gulp.task("default", function () {
-    runSequence("clean:previous:build",
-        ["html:build", "copy:fonts", "images:build"],
-        ["clear:revisions", "connect:static", "server:api", "js:server:hint"], ["watch", "tests"]);
+gulp.task("build", function (callback) {
+    runSequence("build:clean",
+        ["build:css", "build:js"], ["build:fonts", "build:images", "build:vendors"],
+        "build:html", "build:gzip", callback);
 });
 
-gulp.task("docs", function () {
-    runSequence("clean:docs", ["api:docs", "server:docs"]);
+
+gulp.task("default", function (callback) {
+    runSequence("build", ["server:static", "server:api", "watch"], callback);
 });
+
+gulp.task("production", function () {
+    runSequence("build");
+});
+
+
+gulp.task("docs", function () {
+    runSequence("docs:clean", ["docs:api", "docs:server"]);
+});
+
+
+/*// Save revision
+ .pipe(plugins.revAll.manifest({fileName: "CSSManifest.json"}))
+ // Revert plumber
+
+ .pipe(gulp.dest("revisions"));*/
+/*
+ // Generate gzip
+ .pipe(plugins.pako.gzip())
+ // Add versions
+ .pipe(plugins.revAll({
+ transformFilename: transformRevFilename
+ }))
+
+ // Replace revisions due to manifiest
+ /* .pipe(plugins.revCollector({
+ replaceReved: true,
+ revSuffix: "-[0-9a-f]{10}-?"
+ }))*/
+

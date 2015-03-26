@@ -28,8 +28,13 @@ build/Release
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git-
 node_modules
 
+# IDEA files
 .idea
+# Generated public folder
 public
+# Revisions folder
 revisions
+# Documentation
 docs
-assets/static/vendor
+# Bower destination
+assets/js/vendor

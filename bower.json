@@ -1,17 +1,18 @@
 {
-  "name": "inspirr",
-  "version": "1.0.0",
-  "authors": [
-    "Dakal Oleksandr <dakal.oleksandr@gmail.com>"
-  ],
-  "license": "MIT",
-  "private": true,
-  "devDependencies": {
-    "angular": "~1.3.10",
-    "angular-ui-router": "~0.2.13",
-    "hammerjs": "~2.0.4"
-  },
-  "resolutions": {
-    "angular": ">= 1.0.8"
-  }
+    "name": "inspirr",
+    "version": "1.0.0",
+    "authors": [
+        "Dakal Oleksandr <dakal.oleksandr@gmail.com>"
+    ],
+    "license": "MIT",
+    "private": true,
+    "resolutions": {
+        "angular": ">= 1.0.8"
+    },
+    "dependencies": {
+        "angular-gestures": "~0.3.0",
+        "angular": "~1.3.10",
+        "angular-ui-router": "~0.2.13",
+        "hammerjs": "~2.0.4"
+    }
 }
