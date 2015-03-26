@@ -51,7 +51,6 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, irE
                 };
             }
 
-
             irExtendService.extend(CardContainerComponent, irExtendService.BaseElementComponent);
 
             if(IR.UIC.CARD_CONTAINER){

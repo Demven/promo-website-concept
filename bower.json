@@ -10,7 +10,6 @@
         "angular": ">= 1.0.8"
     },
     "dependencies": {
-        "angular-gestures": "~0.3.0",
         "angular": "~1.3.10",
         "angular-ui-router": "~0.2.13",
         "hammerjs": "~2.0.4"
