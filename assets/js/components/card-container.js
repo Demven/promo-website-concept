@@ -1,7 +1,7 @@
 /**
  * Created by Dzmitry_Salnikau on 3/23/2015.
  */
-IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, irExtendService, irArtService, irDeviceInfoService) {
+IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, irExtendService, irArtService, irCardFactory, irDeviceInfoService) {
     return {
         restrict: 'E',
         link: function(scope, wrapper, iAttrs, controller, transcludeFn) {
@@ -39,6 +39,9 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, irE
                         window.console.log(" --- CARD_CONTAINER --- SUCCESS");
                         window.console.log(success);
                     });
+                    irCardFactory.createCard(irCardFactory.CARD_TYPE.IMAGE);
+                    irCardFactory.createCard(irCardFactory.CARD_TYPE.VIDEO);
+                    irCardFactory.createCard(irCardFactory.CARD_TYPE.AUDIO);
                 };
 
                 this._render = function(){

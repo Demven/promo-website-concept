@@ -872,6 +872,8 @@ IR.MODULE.UTIL.provider("irLog", function(){
         OFF: 5
     };
 
+    var WRITE_WAY = ["log", "info", "warn", "error", "error"];
+
     var colon = ": ",
         currentLogLevel = this.LOG_LEVEL.ALL; // default level
 
@@ -899,8 +901,9 @@ IR.MODULE.UTIL.provider("irLog", function(){
      * @param msg - String
      */
     this.writeAs = function(logLevel, msg){
-        if(LEVEL_PRIORITY[currentLogLevel] <= LEVEL_PRIORITY[logLevel]){
-            window.console.log(logLevel + colon + msg);
+        var requestedPriority = LEVEL_PRIORITY[logLevel];
+        if(LEVEL_PRIORITY[currentLogLevel] <= requestedPriority){
+            window.console[WRITE_WAY[requestedPriority]](logLevel + colon + msg);
         }
     };
 

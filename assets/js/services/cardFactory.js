@@ -1,17 +1,54 @@
 /**
  * Created by Dzmitry_Salnikau on 3/26/2015.
  */
-IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, irExtendService, irLog){
+IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, irExtendService, irTemplateService, irLog){
     return (function(){
+
+        var CARD_TYPE = {
+            IMAGE: "image",
+            VIDEO: "video",
+            AUDIO: "audio"
+        };
+
+        var imageTemplate,
+            videoTemplate,
+            audioTemplate;
+
+        (function initTemplates(){
+            irTemplateService
+                .getTemplate(irTemplateService.COMPONENTS_URL + "image-card.html")
+                .then(function(content){
+                    imageTemplate = content;
+                    window.console.log(content);
+                });
+            irTemplateService
+                .getTemplate(irTemplateService.COMPONENTS_URL + "video-card.html")
+                .then(function(content){
+                    videoTemplate = content;
+                    window.console.log(content);
+                });
+            irTemplateService
+                .getTemplate(irTemplateService.COMPONENTS_URL + "audio-card.html")
+                .then(function(content){
+                    audioTemplate = content;
+                    window.console.log(content);
+                });
+        })();
+
         /**
          * Abstract class for Card component
          * Used as parent object for implementation of Card (Image, Video, etc)
          * @extends BaseElementComponent
          * @constructor
          */
-        var BaseCard = function(){
+        var BaseCard = function(data){
             // call of the parent constructor
             BaseCard.superclass.constructor.call(this);
+
+            // settings of the BaseElementComponent
+            this.isTriggerResize = true;
+            this.isDestroyOnPageChange = true;
+
             /**
              * Title for the card content
              * @type {string}
@@ -80,7 +117,24 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, irExten
                 LIMITED_COMMERCE: "limited_commerce", // can be used for commerce only by permit of the owner
                 ONLY_PRIVATE: "only_private", // only for private use, commercial use restricted by owner
                 LIMITED_PRIVATE: "limited_private" // can be used only for private and exclusively by permit of the owner
-            }
+            };
+
+            // Lifecycle
+            this._init = function(){
+                this.title = data.title;
+                this.category = data.category;
+                this.description = data.description;
+                this.author = data.author;
+                this.pubDate = new Date(data.pubDate);
+                this.contentSrc = data.contentSrc;
+                this.distributionType = data.distributionType;
+                this.contentType = data.contentType;
+                this.licenseType = data.licenseType;
+            };
+
+            this._create = function(){
+
+            };
         };
 
         irExtendService.extend(BaseCard, irExtendService.BaseElementComponent);
@@ -90,9 +144,9 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, irExten
          * @extends BaseCard
          * @constructor
          */
-        var ImageCard = function(){
+        var ImageCard = function(data){
             // call of the parent constructor
-            ImageCard.superclass.constructor.call(this);
+            ImageCard.superclass.constructor.call(this, data);
 
             this.contentType = this.CONTENT_TYPE.IMAGE;
         };
@@ -105,9 +159,9 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, irExten
          * @extends BaseCard
          * @constructor
          */
-        var VideoCard = function(){
+        var VideoCard = function(data){
             // call of the parent constructor
-            VideoCard.superclass.constructor.call(this);
+            VideoCard.superclass.constructor.call(this, data);
 
             this.contentType = this.CONTENT_TYPE.VIDEO;
         };
@@ -119,19 +173,38 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, irExten
          * @extends BaseCard
          * @constructor
          */
-        var AudioCard = function(){
+        var AudioCard = function(data){
             // call of the parent constructor
-            AudioCard.superclass.constructor.call(this);
+            AudioCard.superclass.constructor.call(this, data);
 
             this.contentType = this.CONTENT_TYPE.AUDIO;
         };
 
         irExtendService.extend(AudioCard, BaseCard);
 
+        /**
+         * Fabric method that creates and returns card instance with requested type
+         * @param type - (String) type of the card (image, video, audio)
+         * @param data - data from backend to initialize card with
+         * @return Object - Card component
+         */
+        var createCard = function(type, data){
+            switch (type){
+                case CARD_TYPE.IMAGE:
+                    return new ImageCard(data);
+                    break;
+                case CARD_TYPE.VIDEO:
+                    return new VideoCard(data);
+                    break;
+                case CARD_TYPE.AUDIO:
+                    return new AudioCard(data);
+                    break;
+            }
+        };
+
         return {
-            ImageCard: ImageCard,
-            VideoCard: VideoCard,
-            AudioCard: AudioCard
+            CARD_TYPE: CARD_TYPE,
+            createCard: createCard
         };
     })();
 });
