@@ -2,8 +2,10 @@
   * @author Dmitry Salnikov
   * @since 2/16/2015
  */
+@require './components/header'
+
 main.main-page
   width: 100%
-  height: calc(100vh - 126px)
+  height: auto
+  min-height: "calc(100vh - %s)" % $header-height
   background: rgba(219, 219, 219, 0.17)
-

@@ -1,0 +1,31 @@
+/** CARD CONTAINER COMPONENT
+  * @author Dmitry Salnikov
+  * @since 3/30/2015
+ */
+@require './base/util'
+@require './base/devices'
+
+$card-container-card-width = 40em
+
+ir-card-container
+  height: 100%
+  width:100%
+  display: flex
+  flex-wrap: wrap
+  justify-content: flex-start
+  font-size: 1rem
+  padding-bottom: 6em
+  card
+    margin: 6em 0 0 6em
+    &.image
+      height: 46em
+      width: $card-container-card-width
+      background: #c3c3c3
+    &.video
+      height: 35em
+      width: $card-container-card-width
+      background: #D7AD86
+    &.audio
+      height: 18em
+      width: $card-container-card-width
+      background: $color-base

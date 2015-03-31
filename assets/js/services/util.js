@@ -538,6 +538,13 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              */
             this.NAME = "";
 
+            /**
+             * Override this by a special prmise object and set flag this.isDefferedBuild to true
+             * Build method will continue work only when this promise is resolved
+             * @type {Promise}
+             */
+            this.defferedBuildPromise = null;
+
             /** Flag indicates whether to destroy this component on the changing of a page
              *  Default value is true, but you can set it false to allow component working in the background
              *  while user can go around the app
@@ -547,6 +554,12 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              *  Default value is false, but you can set it true to allow component resize itself
              */
             this.isTriggerResize = false;
+            /**
+             * Flag that indicates whether is lifecycle's build method should be postponed by a specified promise
+             * @see this.defferedBuildPromise
+             * @type {boolean}
+             */
+            this.isDefferedBuild = false;
 
             /** Object with css classes, that are used by this component */
             this.CLASS = {};
@@ -577,12 +590,32 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * Should be called before render() method
              * @return {BaseElementComponent}
              */
-            this.build = function () {
-                this.init()
-                    .create()
-                    .postCreate();
+            this.build = function (buildCallback) {
+                if(this.isDefferedBuild && this.defferedBuildPromise){
+                    this.init();
+                    this.defferedBuildPromise.then(angular.bind(this, function(result){
+                        if(result){
+                            this.create(result)
+                                .postCreate();
 
-                isBuilt = true;
+                            isBuilt = true;
+
+                            if(typeof buildCallback === "function"){
+                                buildCallback();
+                            }
+                        }
+                    }));
+                } else{
+                    this.init()
+                        .create()
+                        .postCreate();
+
+                    isBuilt = true;
+
+                    if(typeof buildCallback === "function"){
+                        buildCallback();
+                    }
+                }
 
                 return this;
             };
@@ -609,9 +642,9 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * Create all dom elements if there is no template provided
              * @return {BaseElementComponent}
              */
-            this.create = function () {
+            this.create = function (buildResult) {
                 irLog.info(this.NAME + ": create");
-                this._create();
+                this._create(buildResult);
                 isCreated = true;
                 return this;
             };
@@ -620,7 +653,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * For override
              * @return {BaseElementComponent}
              */
-            this._create = function () {
+            this._create = function (buildResult) {
                 return this;
             };
 
@@ -661,20 +694,26 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * @throw Error - if component is not built before render
              * @return {BaseElementComponent}
              */
-            this.render = function () {
-                irLog.info(this.NAME + ": render");
-                if(isBuilt){
-                    this._render();
+            this.render = function (data) {
+                if(!isRendered){
+                    // only for the first call
+                    irLog.info(this.NAME + ": render");
+                    if(isBuilt){
+                        this._render(data);
 
-                    if(this.isTriggerResize){
-                        this.resize($window.outerWidth, $window.outerHeight);
+                        if(this.isTriggerResize){
+                            this.resize($window.outerWidth, $window.outerHeight);
+                        }
+
+                        isRendered = true;
+                    } else{
+                        var errorMsg = "UI component " + this.NAME + " should be built before render! Use 'build() method.'";
+                        irLog.error(errorMsg);
+                        throw new Error(errorMsg);
                     }
-
-                    isRendered = true;
                 } else{
-                    var errorMsg = "UI component " + this.NAME + " should be built before render! Use 'build() method.'";
-                    irLog.error(errorMsg);
-                    throw new Error(errorMsg);
+                    // for subsequent calls
+                    this._render(data);
                 }
 
                 return this;
@@ -685,7 +724,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * @return {BaseElementComponent}
              * @private
              */
-            this._render = function () {
+            this._render = function (data) {
                 return this;
             };
 

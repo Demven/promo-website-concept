@@ -1,7 +1,7 @@
 /**
  * Created by Dzmitry_Salnikau on 3/26/2015.
  */
-IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, irExtendService, irTemplateService, irLog){
+IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irExtendService, irTemplateService, irLog){
     return (function(){
 
         var CARD_TYPE = {
@@ -10,28 +10,34 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, irExten
             AUDIO: "audio"
         };
 
-        var imageTemplate,
-            videoTemplate,
-            audioTemplate;
+        var imageTemplatePromise,
+            videoTemplatePromise,
+            audioTemplatePromise;
 
+        /**
+         * Load templates for all card types and create promises for them
+         */
         (function initTemplates(){
+            var imageDeffered = $q.defer(),
+                videoDeffered = $q.defer(),
+                audioDeffered = $q.defer();
+            imageTemplatePromise = imageDeffered.promise;
+            videoTemplatePromise = videoDeffered.promise;
+            audioTemplatePromise = audioDeffered.promise;
             irTemplateService
                 .getTemplate(irTemplateService.COMPONENTS_URL + "image-card.html")
-                .then(function(content){
-                    imageTemplate = content;
-                    window.console.log(content);
+                .then(function(template){
+                    imageDeffered.resolve(template);
                 });
             irTemplateService
                 .getTemplate(irTemplateService.COMPONENTS_URL + "video-card.html")
-                .then(function(content){
-                    videoTemplate = content;
-                    window.console.log(content);
+                .then(function(template){
+                    videoDeffered.resolve(template);
                 });
             irTemplateService
                 .getTemplate(irTemplateService.COMPONENTS_URL + "audio-card.html")
-                .then(function(content){
-                    audioTemplate = content;
-                    window.console.log(content);
+                .then(function(template){
+                    audioDeffered.resolve(template);
                 });
         })();
 
@@ -41,13 +47,15 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, irExten
          * @extends BaseElementComponent
          * @constructor
          */
-        var BaseCard = function(data){
+        var BaseCard = function(data, templatePromise){
             // call of the parent constructor
             BaseCard.superclass.constructor.call(this);
 
             // settings of the BaseElementComponent
             this.isTriggerResize = true;
             this.isDestroyOnPageChange = true;
+            this.isDefferedBuild = true;
+            this.defferedBuildPromise = templatePromise;
 
             /**
              * Title for the card content
@@ -119,6 +127,8 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, irExten
                 LIMITED_PRIVATE: "limited_private" // can be used only for private and exclusively by permit of the owner
             };
 
+            var wrapper;
+
             // Lifecycle
             this._init = function(){
                 this.title = data.title;
@@ -132,8 +142,12 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, irExten
                 this.licenseType = data.licenseType;
             };
 
-            this._create = function(){
+            this._create = function(template){
+                wrapper = angular.element(template);
+            };
 
+            this.getWrapper = function(){
+                return wrapper;
             };
         };
 
@@ -144,11 +158,15 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, irExten
          * @extends BaseCard
          * @constructor
          */
-        var ImageCard = function(data){
+        var ImageCard = function(data, templatePromise){
             // call of the parent constructor
-            ImageCard.superclass.constructor.call(this, data);
+            ImageCard.superclass.constructor.call(this, data, templatePromise);
 
             this.contentType = this.CONTENT_TYPE.IMAGE;
+
+            this._render = function(){
+                //this.getWrapper().addClass("image");
+            };
         };
 
         irExtendService.extend(ImageCard, BaseCard);
@@ -159,11 +177,15 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, irExten
          * @extends BaseCard
          * @constructor
          */
-        var VideoCard = function(data){
+        var VideoCard = function(data, templatePromise){
             // call of the parent constructor
-            VideoCard.superclass.constructor.call(this, data);
+            VideoCard.superclass.constructor.call(this, data, templatePromise);
 
             this.contentType = this.CONTENT_TYPE.VIDEO;
+
+            this._render = function(){
+                //this.getWrapper().addClass("video");
+            };
         };
 
         irExtendService.extend(VideoCard, BaseCard);
@@ -173,31 +195,34 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, irExten
          * @extends BaseCard
          * @constructor
          */
-        var AudioCard = function(data){
+        var AudioCard = function(data, templatePromise){
             // call of the parent constructor
-            AudioCard.superclass.constructor.call(this, data);
+            AudioCard.superclass.constructor.call(this, data, templatePromise);
 
             this.contentType = this.CONTENT_TYPE.AUDIO;
+
+            this._render = function(){
+                //this.getWrapper().addClass("audio");
+            };
         };
 
         irExtendService.extend(AudioCard, BaseCard);
 
         /**
          * Fabric method that creates and returns card instance with requested type
-         * @param type - (String) type of the card (image, video, audio)
          * @param data - data from backend to initialize card with
          * @return Object - Card component
          */
-        var createCard = function(type, data){
-            switch (type){
+        var createCard = function(data){
+            switch (data.contentType){
                 case CARD_TYPE.IMAGE:
-                    return new ImageCard(data);
+                    return new ImageCard(data, imageTemplatePromise);
                     break;
                 case CARD_TYPE.VIDEO:
-                    return new VideoCard(data);
+                    return new VideoCard(data, videoTemplatePromise);
                     break;
                 case CARD_TYPE.AUDIO:
-                    return new AudioCard(data);
+                    return new AudioCard(data, audioTemplatePromise);
                     break;
             }
         };
