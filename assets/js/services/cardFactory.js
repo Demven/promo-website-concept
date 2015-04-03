@@ -52,11 +52,16 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
             BaseCard.superclass.constructor.call(this);
 
             // settings of the BaseElementComponent
-            this.isTriggerResize = true;
+            this.isTriggerResize = false;
             this.isDestroyOnPageChange = true;
             this.isDefferedBuild = true;
             this.defferedBuildPromise = templatePromise;
 
+            /**
+             * Id of the card
+             * @type {string}
+             */
+            this.id = "",
             /**
              * Title for the card content
              * @type {string}
@@ -127,10 +132,14 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
                 LIMITED_PRIVATE: "limited_private" // can be used only for private and exclusively by permit of the owner
             };
 
-            var wrapper;
+            var wrapper, // jqlite object
+                wrapperEl, // HTMLElement
+                height,
+                width;
 
             // Lifecycle
             this._init = function(){
+                this.id = data.id;
                 this.title = data.title;
                 this.category = data.category;
                 this.description = data.description;
@@ -144,10 +153,27 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
 
             this._create = function(template){
                 wrapper = angular.element(template);
+                wrapperEl = wrapper[0];
+            };
+
+            /**
+             * Calculates width and height of the card and update values
+             */
+            this.updateBounds = function(){
+                height = wrapperEl.offsetHeight;
+                width = wrapperEl.offsetWidth;
             };
 
             this.getWrapper = function(){
                 return wrapper;
+            };
+
+            this.getWidth = function(){
+                return width;
+            };
+
+            this.getHeight = function(){
+                return height;
             };
         };
 
@@ -165,7 +191,7 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
             this.contentType = this.CONTENT_TYPE.IMAGE;
 
             this._render = function(){
-                //this.getWrapper().addClass("image");
+                this.updateBounds();
             };
         };
 
@@ -184,7 +210,7 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
             this.contentType = this.CONTENT_TYPE.VIDEO;
 
             this._render = function(){
-                //this.getWrapper().addClass("video");
+                this.updateBounds();
             };
         };
 
@@ -202,7 +228,7 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
             this.contentType = this.CONTENT_TYPE.AUDIO;
 
             this._render = function(){
-                //this.getWrapper().addClass("audio");
+                this.updateBounds();
             };
         };
 
