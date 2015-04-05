@@ -40,14 +40,16 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     cardPortionsCache = [], // cache for Card objects' portions (array of arrays) [[portion1], [portion2], ...]
                     firstCard, // Card object that is the first in stack
                     rowsMatrix, // matrix of rows (array of arrays) [[row1],[row2],...]
-                    columnsMatrix; // matrix of columns (array of arrays) [[column1],[column2],...]
+                    columnsMatrix, // matrix of columns (array of arrays) [[column1],[column2],...]
+                    rowsHeights = []; // array of rows' heights (height of the row = height of the highest card in a row)
 
                 var width,
                     padding = 8, // em
                     pxInRem = 10, // px
                     fontSize = 1, // rem
-                    columnGap = 3, // em
-                    columnsNumber = 0;
+                    cardMargin = 1.6, // em
+                    columnsNumber = 0,
+                    cardWidth = 0;
 
                 this._init = function(){
                     wrapperEl = wrapper[0];
@@ -102,11 +104,16 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     }
                 };
 
-                this._resize = function(vw, vh){
-                    var paddingPx = convertEmToPx(padding);
-                    width = wrapperEl.offsetWidth - (paddingPx + paddingPx); // available width for cards
-                    var cardWidth = firstCard.getWidth() + convertEmToPx(columnGap),
-                        newColumnsNumber = Math.floor(width/cardWidth);
+                this._resize = function(/* vw, vh */){
+                    window.console.log("resize cards!");
+                    resizeCards();
+
+                    width = wrapperEl.offsetWidth - convertEmToPx(padding + padding); // available width for cards
+                    cardWidth = firstCard.getWidth() + convertEmToPx(cardMargin + cardMargin);
+
+                    var newColumnsNumber = Math.floor(width/cardWidth);
+
+                    window.console.log("width: " + width + " card-width: " + cardWidth);
 
                     if(newColumnsNumber !== columnsNumber){
                         columnsNumber = newColumnsNumber;
@@ -115,12 +122,84 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                         // number of columns changed - recalculate matrix
                         calculateMatrix();
                     }
+
+                    // shift cards up to hide empty spaces
+                    shiftCards();
                 };
 
                 this._destroy = function(){
                     cardPortionsCache = null;
                     rowsMatrix = null;
                     columnsMatrix = null;
+                };
+
+                var resizeCards = function(){
+                    var p = 0, // portion index
+                        c = 0, // card index,
+                        portionsQuantity = cardPortionsCache.length,
+                        cardQuantity = 0,
+                        portion;
+
+                    for( ; p < portionsQuantity; p++){
+                        portion = cardPortionsCache[p];
+                        // for each portion
+                        cardQuantity = portion.length;
+                        for (c = 0; c < cardQuantity; c++){
+                            portion[c]._resize();
+                        }
+                    }
+                };
+
+                /**
+                 * Shifts up if necessary cards to hide empty spaces in rows
+                 */
+                var shiftCards = function(){
+                    var i = 0,
+                        c = 1, // start from the second card in each column
+                        column,
+                        card,
+                        prevCard,
+                        cardsInColumn = 0,
+                        cardHeight = 0,
+                        prevCardHeight = 0,
+                        prevCardShift = 0,
+                        prevRowHeight = 0,
+                        shiftValue = 0;
+
+                    // vertical shift
+                    for( ; i < columnsNumber; i++){
+                        // for each column
+                        column = columnsMatrix[i];
+                        for(c = 1, cardsInColumn = column.length; c < cardsInColumn; c++){
+                            // for each card
+                            card = column[c];
+                            prevCard = column[c-1];
+                            cardHeight = card.getHeight();
+                            prevCardHeight = prevCard.getHeight();
+                            prevCardShift = convertEmToPx(prevCard.getShiftUp());
+                            prevRowHeight = rowsHeights[c-1]; // height of the previous row
+                            shiftValue = convertPxToEm(prevRowHeight - prevCardHeight + prevCardShift);
+
+                            if(shiftValue > 0){
+                                card.shiftUp(shiftValue);
+                            } else{
+                                card.shiftUp(0);
+                            }
+                        }
+                    }
+
+                    // horizontal shift (for the last row if it is incomplete)
+                    var lastRow = rowsMatrix[rowsMatrix.length-1],
+                        lastRowLength = lastRow.length;
+                    if(lastRowLength < columnsNumber){
+                        // incomplete row
+                        shiftValue = convertPxToEm(cardWidth*(columnsNumber-lastRowLength)/2);
+                        for(c = 0; c < lastRowLength; c++){
+                            // shift to left each card
+                            card = lastRow[c];
+                            card.shiftLeft(shiftValue);
+                        }
+                    }
                 };
 
                 /**
@@ -140,9 +219,12 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                         portionsQuantity = cardPortionsCache.length,
                         cardQuantity = 0,
                         portion,
-                        row = [];
+                        row = [],
+                        currentHeight = 0,
+                        rowHeight = 0;
 
                     rowsMatrix = [];
+                    rowsHeights = [];
 
                     for( ; p < portionsQuantity; p++){
                         portion = cardPortionsCache[p];
@@ -160,10 +242,16 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
 
                     window.console.log("rows");
                     window.console.log(rowsMatrix);
+                    window.console.log("heights");
+                    window.console.log(rowsHeights);
 
                     function cardToMatrix(card){
                         if(row.length < rowCapacity){
                             row.push(card);
+                            currentHeight = card.getHeight();
+                            if(currentHeight > rowHeight){
+                                rowHeight = currentHeight;
+                            }
                         } else {
                             rowToMatrix();
                             // recursively call to add card again (in the newly created row)
@@ -173,7 +261,9 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
 
                     function rowToMatrix(){
                         rowsMatrix.push(row);
+                        rowsHeights.push(rowHeight);
                         row = [];
+                        rowHeight = 0;
                     }
                 };
 
@@ -210,6 +300,10 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
 
                 var convertEmToPx = function(em){
                     return em*fontSize*pxInRem;
+                };
+
+                var convertPxToEm = function(px){
+                    return px*fontSize/pxInRem;
                 };
             }
 

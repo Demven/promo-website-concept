@@ -57,11 +57,16 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
             this.isDefferedBuild = true;
             this.defferedBuildPromise = templatePromise;
 
+            this.ATTR = {
+                TRANSFORM: "transform",
+                _WEBKIT_TRANSFORM: "-webkit-transform"
+            };
+
             /**
              * Id of the card
              * @type {string}
              */
-            this.id = "",
+            this.id = "";
             /**
              * Title for the card content
              * @type {string}
@@ -135,7 +140,8 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
             var wrapper, // jqlite object
                 wrapperEl, // HTMLElement
                 height,
-                width;
+                width,
+                shiftUp = 0;
 
             // Lifecycle
             this._init = function(){
@@ -156,6 +162,24 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
                 wrapperEl = wrapper[0];
             };
 
+            this._resize = function(){
+                this.updateBounds();
+            };
+
+            this.shiftUp = function(shiftValue){
+                var cssValue = "translateY(-" + shiftValue + "em)";
+                shiftUp = shiftValue;
+                wrapper.css(this.ATTR._WEBKIT_TRANSFORM, cssValue);
+                wrapper.css(this.ATTR.TRANSFORM, cssValue);
+
+            };
+
+            this.shiftLeft = function(shiftValue){
+                var cssValue = "translate(-" + shiftValue + "em, -" + shiftUp + "em)";
+                wrapper.css(this.ATTR._WEBKIT_TRANSFORM, cssValue);
+                wrapper.css(this.ATTR.TRANSFORM, cssValue);
+            };
+
             /**
              * Calculates width and height of the card and update values
              */
@@ -174,6 +198,10 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
 
             this.getHeight = function(){
                 return height;
+            };
+
+            this.getShiftUp = function(){
+                return shiftUp;
             };
         };
 
