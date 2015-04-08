@@ -4,12 +4,18 @@
  */
 $mobile-screen = 690px
 $tablet-screen = 995px
+$tablet-wide-screen = 1024px
 $desktop-screen = 1440px
 
 $screen = "only screen"
 $mobile = "only screen and (max-width: " + $mobile-screen + ")"
-$tablet = "only screen and (min-width: " + $mobile-screen + ") and (max-width: " + $tablet-screen + ")"
-$desktop = "only screen and (min-width: " + $tablet-screen + ")"
+$tablet = "only screen and (min-width: " + ($mobile-screen + 1px) + ") and (max-width: " + $tablet-screen + ")"
+$tablet-wide = "only screen and (min-width: " + ($tablet-screen + 1px) + ") and (max-width: " + $tablet-wide-screen + ")"
+$tablet-any = "only screen and (min-width: " + ($mobile-screen + 1px) + ") and (max-width: " + $tablet-wide-screen + ")"
+$desktop = "only screen and (min-width: " + ($tablet-wide-screen + 1px) + ") and (max-width: " + $desktop-screen + ")"
+$desktop-wide = "only screen and (min-width: " + ($desktop-screen + 1px) + ")"
+$desktop-any = "only screen and (min-width: " + ($tablet-wide-screen + 1px) + ")"
+$desktop-and-tablet-wide = "only screen and (min-width: " + ($tablet-screen + 1px) + ")"
 $landscape = "only screen and (orientation: landscape)"
 $portrait = "only screen and (orientation: portrait)"
 

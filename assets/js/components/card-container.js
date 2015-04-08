@@ -1,7 +1,7 @@
 /**
  * Created by Dzmitry_Salnikau on 3/23/2015.
  */
-IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q, irExtendService, irArtService, irCardFactory, irLog) {
+IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q, irExtendService, irArtService, irCardFactory, irDeviceInfo, irLog) {
     return {
         restrict: 'E',
         link: function(scope, wrapper) {
@@ -15,10 +15,6 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                 this.isTriggerResize = true;
 
                 this.CLASS = {
-                    COLUMN_1: "column-1",
-                    COLUMN_2: "column-2",
-                    COLUMN_3: "column-3",
-                    COLUMN_4: "column-4"
                 };
 
                 this.ATTR = {
@@ -43,13 +39,33 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     columnsMatrix, // matrix of columns (array of arrays) [[column1],[column2],...]
                     rowsHeights = []; // array of rows' heights (height of the row = height of the highest card in a row)
 
+                var PADDING = {
+                    MOBILE: 1,
+                    TABLET: 2,
+                    TABLET_WIDE: 2,
+                    DESKTOP: 4,
+                    DESKTOP_WIDE: 4
+                };
+
+                var COLUMNS = {
+                    MOBILE: 1,
+                    TABLET: 2,
+                    TABLET_WIDE: 2,
+                    DESKTOP: 3,
+                    DESKTOP_WIDE: 4
+                };
+
                 var width,
-                    padding = 8, // em
+                    padding = PADDING.DESKTOP, // em
+                    columnsByDevice = COLUMNS.DESKTOP,
                     pxInRem = 10, // px
-                    fontSize = 1, // rem
-                    cardMargin = 1.6, // em
+                    baseFontSize = 1, // rem
+                    currentFontSize = 1, // rem
                     columnsNumber = 0,
-                    cardWidth = 0;
+                    baseCardWidth = 432,// px (40em + 2*1.6em = 43.2em)
+                    cardWidth = 0,
+                    deviceState,
+                    isDeviceStateChanged = false;
 
                 this._init = function(){
                     wrapperEl = wrapper[0];
@@ -104,27 +120,40 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     }
                 };
 
-                this._resize = function(/* vw, vh */){
-                    window.console.log("resize cards!");
+                this._resize = function(vw, vh){
+                    updateDeviceInfo();
+
+                    window.console.log("columnsByDevice: " + columnsByDevice + " vw=" + vw + " padding = " + padding);
+
+                    // set a proper font-size
+                    this.scaleContainer();
+
+                    if(isDeviceStateChanged){
+                        // scale again, because padding has changed and so did available width after setting new font-size,
+                        // so we need to adjust font-size again
+                        this.scaleContainer();
+                    }
+                    // fire resize for each card
                     resizeCards();
 
-                    width = wrapperEl.offsetWidth - convertEmToPx(padding + padding); // available width for cards
-                    cardWidth = firstCard.getWidth() + convertEmToPx(cardMargin + cardMargin);
-
-                    var newColumnsNumber = Math.floor(width/cardWidth);
-
+                    // available width for cards
+                    width = wrapperEl.offsetWidth - convertEmToPx(padding + padding);
+                    // get a result card's width
+                    cardWidth = (baseCardWidth*currentFontSize).toFixed(2);
                     window.console.log("width: " + width + " card-width: " + cardWidth);
 
-                    if(newColumnsNumber !== columnsNumber){
-                        columnsNumber = newColumnsNumber;
+                    // calculate number of columns and check whether it has changed
+                    //var newColumnsNumber = Math.floor(width/cardWidth);
+                    if(columnsByDevice !== columnsNumber){
+                        columnsNumber = columnsByDevice;
                         irLog.all(this.NAME + ": columns number = " + columnsNumber);
 
                         // number of columns changed - recalculate matrix
                         calculateMatrix();
-                    }
 
-                    // shift cards up to hide empty spaces
-                    shiftCards();
+                        // shift cards up to hide empty spaces
+                        shiftCards();
+                    }
                 };
 
                 this._destroy = function(){
@@ -133,7 +162,63 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     columnsMatrix = null;
                 };
 
+                /**
+                 * Set a proper padding and columns number according of the device state (tablet, mobile, etc...)
+                 */
+                var updateDeviceInfo = function(){
+                    var currentDeviceState = irDeviceInfo.currentDeviceState,
+                        DEVICE_STATE = irDeviceInfo.DEVICE_STATE;
+                    // init padding and minimum number of columns according to a device state
+                    window.console.log("DEVICE_STATE = " + currentDeviceState);
+                    switch(currentDeviceState){
+                        case DEVICE_STATE.DESKTOP_WIDE:
+                            padding = PADDING.DESKTOP_WIDE;
+                            columnsByDevice = COLUMNS.DESKTOP_WIDE;
+                            break;
+                        case DEVICE_STATE.DESKTOP:
+                            padding = PADDING.DESKTOP;
+                            columnsByDevice = COLUMNS.DESKTOP;
+                            break;
+                        case DEVICE_STATE.TABLET_WIDE:
+                            padding = PADDING.TABLET_WIDE;
+                            columnsByDevice = COLUMNS.TABLET_WIDE;
+                            break;
+                        case DEVICE_STATE.TABLET:
+                            padding = PADDING.TABLET;
+                            columnsByDevice = COLUMNS.TABLET;
+                            break;
+                        case DEVICE_STATE.MOBILE:
+                            padding = PADDING.MOBILE;
+                            columnsByDevice = COLUMNS.MOBILE;
+                            break;
+                    }
+
+                    if(currentDeviceState !== deviceState){
+                        deviceState = currentDeviceState;
+                        isDeviceStateChanged = true;
+                    } else{
+                        isDeviceStateChanged = false;
+                    }
+                };
+
+                /**
+                 * Calculates and applies needed font size of the card container
+                 */
+                this.scaleContainer = function(){
+                    var containerWidth = wrapperEl.offsetWidth - convertEmToPx(padding + padding),
+                        neededCardWidth = containerWidth/columnsByDevice,
+                        neededFontSize = (neededCardWidth*baseFontSize/baseCardWidth).toFixed(2) - 0.01;
+
+                    currentFontSize = neededFontSize;
+                    wrapper.css(this.ATTR.FONT_SIZE, neededFontSize + this.VAL.REM);
+                    window.console.log("scale container: neededFontSize=" + neededFontSize + " containerWidth= " + containerWidth + " cardWidth = " + neededCardWidth);
+                };
+
+                /**
+                 * Fire resize method on all of the cards in stack
+                 */
                 var resizeCards = function(){
+                    window.console.log("resize cards!");
                     var p = 0, // portion index
                         c = 0, // card index,
                         portionsQuantity = cardPortionsCache.length,
@@ -299,11 +384,11 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                 };
 
                 var convertEmToPx = function(em){
-                    return em*fontSize*pxInRem;
+                    return em*currentFontSize*pxInRem;
                 };
 
                 var convertPxToEm = function(px){
-                    return px*fontSize/pxInRem;
+                    return px/(currentFontSize*pxInRem);
                 };
             }
 

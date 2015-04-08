@@ -2,7 +2,7 @@
  * Created by Dzmitry_Salnikau on 2/17/2015.
  */
 
-IR.MODULE.HEADER.directive('header', function($rootScope, $window, irExtendService, irDeviceInfoService) {
+IR.MODULE.HEADER.directive('header', function($rootScope, $window, irExtendService, irDeviceInfo) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/header.html',
@@ -76,9 +76,9 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, irExtendServi
                 };
 
                 this._resize = function(vw, vh){
-                    if (vw > irDeviceInfoService.mobileWidth) {
+                    if (vw > irDeviceInfo.mobileWidth) {
                         // for desktop and tablet
-                        var fontSize = Math.min(parseFloat((vw / irDeviceInfoService.desktopBaseWidth).toFixed(2)), 1);
+                        var fontSize = Math.min(parseFloat((vw / irDeviceInfo.desktopBaseWidth).toFixed(2)), 1);
                         wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
                     } else {
                         wrapper.css(this.ATTR.FONT_SIZE, this.VAL.AUTO)

@@ -10,7 +10,7 @@
  * @service
  * @return Object{extend, BaseJsonService, BaseListJsonService, BaseElementComponent}
  */
-IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLog){
+IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLog, irDeviceInfo){
     return (function(){
         /**
          * Function that provides extending parent's object
@@ -702,7 +702,8 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
                         this._render(data);
 
                         if(this.isTriggerResize){
-                            this.resize($window.outerWidth, $window.outerHeight);
+                            var viewport = irDeviceInfo.getViewport();
+                            this.resize(viewport.vw, viewport.vh);
                         }
 
                         isRendered = true;
@@ -780,9 +781,10 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
  * Also knows about device dimensions
  * @service
  */
-IR.MODULE.UTIL.provider("irDeviceInfoService", function(){
+IR.MODULE.UTIL.provider("irDeviceInfo", function(){
     this.MOBILE_WIDTH = 690;
     this.TABLET_WIDTH = 995;
+    this.TABLET_WIDE_WIDTH = 1024; // iPad, generic notebook
     this.DESKTOP_WIDTH = 1440;
 
     this.DESKTOP_BASE_WIDTH = 1280; // for 19' monitors
@@ -790,10 +792,14 @@ IR.MODULE.UTIL.provider("irDeviceInfoService", function(){
     this.DEVICE_STATE = {
         MOBILE: "mobile",
         TABLET: "tablet",
-        DESKTOP: "desktop"
+        TABLET_WIDE: "tabletWide",
+        DESKTOP: "desktop",
+        DESKTOP_WIDE: "desktopWide"
     };
 
     this.currentDeviceState = this.DEVICE_STATE.DESKTOP; // default state TODO: change states
+
+    var NAME = "DeviceInfo";
 
     // The code below is taken from https://github.com/benbscholz/detect
     var browser,
@@ -803,7 +809,10 @@ IR.MODULE.UTIL.provider("irDeviceInfoService", function(){
         osversion,
         bit,
         ua = window.navigator.userAgent,
-        platform = window.navigator.platform;
+        platform = window.navigator.platform,
+        viewport;
+
+    var irLogRef; // reference to a irLog service
 
     if ( /MSIE/.test(ua) ) {
         browser = 'Internet Explorer';
@@ -869,12 +878,64 @@ IR.MODULE.UTIL.provider("irDeviceInfoService", function(){
         os = 'Windows';
     }
 
-    this.$get = function(){
+    /**
+     * Recalculates size of the viewport and set a proper device state
+     * @warn You must fire this method on each resize of window manually
+     */
+    this.resize = function(){
+        var vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
+            vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+        viewport = {vw: vw, vh: vh};
+
+        irLogRef.info(NAME + ": window resize to vw=" + vw + ", vh=" + vh);
+
+        // update device state
+        var newState;
+        if(vw > this.DESKTOP_WIDTH){
+            newState = this.DEVICE_STATE.DESKTOP_WIDE;
+        } else if(vw > this.TABLET_WIDE_WIDTH){
+            newState = this.DEVICE_STATE.DESKTOP;
+        } else if(vw > this.TABLET_WIDTH){
+            newState = this.DEVICE_STATE.TABLET_WIDE;
+        } else if(vw > this.MOBILE_WIDTH){
+            newState = this.DEVICE_STATE.TABLET;
+        } else {
+            newState = this.DEVICE_STATE.MOBILE;
+        }
+
+        if(newState !== this.currentDeviceState){
+            this.currentDeviceState = newState;
+            irLogRef.info(NAME + ": device state changed to " + newState);
+        }
+    };
+
+    /**
+     * Returs object with width and height of the viewport
+     * @return {vw, vh}
+     */
+    this.getViewport = function(){
+        if(!viewport){
+            this.resize();
+        }
+        return viewport;
+    };
+
+    this.$get = function(irLog){
+        irLogRef = irLog;
+
         return {
-            mobileWidth: this.MOBILE_WIDTH,
-            tabletWidth: this.TABLET_WIDTH,
-            desktopWidth: this.DESKTOP_WIDTH,
-            desktopBaseWidth: this.DESKTOP_BASE_WIDTH,
+            MOBILE_WIDTH: this.MOBILE_WIDTH,
+            TABLET_WIDTH: this.TABLET_WIDTH,
+            TABLET_WIDE_WIDTH: this.TABLET_WIDE_WIDTH,
+            DESKTOP_WIDTH: this.DESKTOP_WIDTH,
+            DESKTOP_BASE_WIDTH: this.DESKTOP_BASE_WIDTH,
+
+            DEVICE_STATE: this.DEVICE_STATE,
+            currentDeviceState: this.currentDeviceState,
+
+            resize: this.resize,
+            getViewport: this.getViewport,
 
             browser : browser,
             version : version,

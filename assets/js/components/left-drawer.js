@@ -2,7 +2,7 @@
  * Created by Dzmitry_Salnikau on 3/2/2015.
  * Component LeftDrawer - left pull user-menu
  */
-IR.MODULE.LEFT_DRAWER.directive('irLeftDrawer', function($rootScope, $window, irExtendService, irDeviceInfoService, irLog) {
+IR.MODULE.LEFT_DRAWER.directive('irLeftDrawer', function($rootScope, $window, irExtendService, irDeviceInfo, irLog) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/left-drawer.html',
@@ -82,9 +82,9 @@ IR.MODULE.LEFT_DRAWER.directive('irLeftDrawer', function($rootScope, $window, ir
                 this._resize = function(vw, vh){
                     var fontSize = 0.00;
                     // adjust by width
-                    if (vw > irDeviceInfoService.mobileWidth) {
+                    if (vw > irDeviceInfo.mobileWidth) {
                         // for desktop and tablet
-                        fontSize = Math.min(parseFloat((vw / irDeviceInfoService.desktopBaseWidth).toFixed(2)), 1);
+                        fontSize = Math.min(parseFloat((vw / irDeviceInfo.desktopBaseWidth).toFixed(2)), 1);
                         wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
                     } else {
                         // adjust by height for mobiles

@@ -116,7 +116,10 @@ IR.MODULE.INSPIRR
         // log config
         irLogProvider.setLogLevel(irLogProvider.LOG_LEVEL.ALL);
     })
-    .run(function($rootScope, $window, irLog /*, $state, authService*/){
+    .run(function($rootScope, irLog, irDeviceInfo /*, $state, authService*/){
+
+        irDeviceInfo.resize();
+
         // TODO: Authentication checkout
         /*$rootScope.$on('$stateChangeStart',
             function(event, toState, toParams, fromState, fromParams){
@@ -139,7 +142,7 @@ IR.MODULE.INSPIRR
             });
 
         window.addEventListener("resize", function(){
-            irLog.writeAs(irLog.LOG_LEVEL.INFO, "--- window resize ---");
-            $rootScope.$broadcast(IR.EVENT.OCCURRED.WINDOW_RESIZE, {vw: $window.outerWidth, vh: $window.outerHeight});
+            irDeviceInfo.resize();
+            $rootScope.$broadcast(IR.EVENT.OCCURRED.WINDOW_RESIZE, irDeviceInfo.getViewport());
         });
     });
