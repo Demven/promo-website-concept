@@ -1040,3 +1040,25 @@ IR.MODULE.UTIL.provider("irLog", function(){
         };
     }
 });
+
+/**
+ * Service, that provides useful methods for DOM elements (analog of jQuery)
+ * @service
+ */
+IR.MODULE.UTIL.service("irElement", function Element(){
+
+    /**
+     * Returns top and left offset of element
+     * @param el - DOM element
+     * @return {{top: number, left: number}}
+     */
+    this.getOffset = function(el){
+        var de = document.documentElement,
+            box = el.getBoundingClientRect();
+        return {
+            top: box.top + window.pageYOffset - de.clientTop,
+            left: box.left + window.pageXOffset - de.clientLeft
+        };
+    };
+
+});

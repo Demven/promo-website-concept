@@ -76,9 +76,9 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, irExtendServi
                 };
 
                 this._resize = function(vw, vh){
-                    if (vw > irDeviceInfo.mobileWidth) {
+                    if (vw > irDeviceInfo.MOBILE_WIDTH) {
                         // for desktop and tablet
-                        var fontSize = Math.min(parseFloat((vw / irDeviceInfo.desktopBaseWidth).toFixed(2)), 1);
+                        var fontSize = Math.min(parseFloat((vw / irDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
                         wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
                     } else {
                         wrapper.css(this.ATTR.FONT_SIZE, this.VAL.AUTO)

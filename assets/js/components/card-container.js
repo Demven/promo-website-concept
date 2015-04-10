@@ -1,7 +1,7 @@
 /**
  * Created by Dzmitry_Salnikau on 3/23/2015.
  */
-IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q, irExtendService, irArtService, irCardFactory, irDeviceInfo, irLog) {
+IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q, irExtendService, irArtService, irCardFactory, irElement, irDeviceInfo, irLog) {
     return {
         restrict: 'E',
         link: function(scope, wrapper) {
@@ -37,7 +37,9 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     firstCard, // Card object that is the first in stack
                     rowsMatrix, // matrix of rows (array of arrays) [[row1],[row2],...]
                     columnsMatrix, // matrix of columns (array of arrays) [[column1],[column2],...]
-                    rowsHeights = []; // array of rows' heights (height of the row = height of the highest card in a row)
+                    rowsHeights = [], // array of rows' heights (height of the row = height of the highest card in a row)
+                    columnsHeights = [], // array of columns' heights (height of the column = sum of heights of the all cards in a column)
+                    maxColumnHeight; // px
 
                 var PADDING = {
                     MOBILE: 1,
@@ -62,6 +64,7 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     baseFontSize = 1, // rem
                     currentFontSize = 1, // rem
                     columnsNumber = 0,
+                    cardMargin = 1.6, // em (if you chane this - see baseCardWidth below)
                     baseCardWidth = 432,// px (40em + 2*1.6em = 43.2em)
                     cardWidth = 0,
                     deviceState,
@@ -76,7 +79,7 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     });
                 };
 
-                this._create = function(artArray){
+                this._create = function(artArray, afterRenderCallback){
                     if(artArray){
                         // create card-objects for all of this data items
                         var self = this,
@@ -93,8 +96,15 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                                 if(buildCounter === len){
                                     cardPortionsCache.push(cardPortion); // save portion to cache
                                     lastRenderedPortion = lastRenderedPortion + 1;
-                                    firstCard = card; // save first card to variable
-                                    self.render(cardPortion);
+                                    if(cardPortionsCache.length > 1){
+                                        // not the first portion
+                                        self._render(cardPortion, afterRenderCallback);
+                                    } else {
+                                        // first portion
+                                        firstCard = card; // save first card to variable
+                                        // use parent render method
+                                        self.render(cardPortion, afterRenderCallback);
+                                    }
                                 }
                             });
                         }
@@ -109,7 +119,31 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     }
                 };
 
-                this._render = function(cardPortion){
+                this._postCreate = function(){
+                    var offset = irElement.getOffset(wrapperEl),
+                        containerBottom = 0,
+                        vh = 0,
+                        canTrackScroll = true;
+                    window.addEventListener("scroll", function(){
+                        if(canTrackScroll){
+                            containerBottom = offset.top + maxColumnHeight;
+                            vh = irDeviceInfo.getViewport().vh;
+                            var threshold = vh + window.scrollY;
+                            window.console.log(window.scrollY + " thres = " + threshold + " containerBottom=" + containerBottom);
+
+                            if(threshold > containerBottom){
+                                canTrackScroll = false;
+                                IR.UIC.CARD_CONTAINER.loadNextPortion();
+                                // wait till render
+                                window.setTimeout(function(){
+                                    canTrackScroll = true;
+                                }, 3000);
+                            }
+                        }
+                    });
+                };
+
+                this._render = function(cardPortion, afterRenderCallback){
                     var i = 0,
                         len = cardPortion.length,
                         card;
@@ -117,6 +151,10 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                         card = cardPortion[i];
                         wrapper.append(card.getWrapper());
                         card.render();
+                    }
+
+                    if(typeof afterRenderCallback === "function"){
+                        afterRenderCallback();
                     }
                 };
 
@@ -160,6 +198,22 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     cardPortionsCache = null;
                     rowsMatrix = null;
                     columnsMatrix = null;
+                };
+
+                this.loadNextPortion = function(){
+                    irArtService.getPortion(cardPortionsCache.length + 1, angular.bind(this, this.onPortionLoad));
+                };
+
+                this.onPortionLoad = function(artArray){
+                    window.console.log("--- onPortionLoad ---");
+                    window.console.log(artArray);
+
+                    this._create(artArray, function(){
+                        // number of rows changed - recalculate matrix
+                        calculateMatrix();
+                        // shift cards up to hide empty spaces
+                        shiftCards(); // TODO: shift only this portion
+                    });
                 };
 
                 /**
@@ -358,9 +412,11 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                         columnCapacity = rowsMatrix.length,
                         rowsQuantity = columnCapacity,
                         cardQuantity = 0,
-                        row;
+                        row,
+                        cardBothMarginsPx = Math.ceil(convertEmToPx(2*cardMargin));
 
                     columnsMatrix = [];
+                    columnsHeights = [];
 
                     for( ; r < rowsQuantity; r++){
                         row = rowsMatrix[r];
@@ -371,14 +427,24 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                         }
                     }
 
+                    // Calculate max column height
+                    maxColumnHeight = Math.max.apply(Math, columnsHeights);
+
                     window.console.log("columns");
                     window.console.log(columnsMatrix);
+                    window.console.log("col Height = " + maxColumnHeight);
+                    window.console.log(columnsHeights);
 
                     function cardToMatrix(card){
                         if(!columnsMatrix[c]){
                             // add new empty column
                             columnsMatrix[c] = [];
                         }
+                        if(!columnsHeights[c]){
+                            // add new zero value of column height
+                            columnsHeights[c] = 0;
+                        }
+                        columnsHeights[c] += (card.getHeight() + cardBothMarginsPx);
                         columnsMatrix[c].push(card);
                     }
                 };

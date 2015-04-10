@@ -82,9 +82,9 @@ IR.MODULE.LEFT_DRAWER.directive('irLeftDrawer', function($rootScope, $window, ir
                 this._resize = function(vw, vh){
                     var fontSize = 0.00;
                     // adjust by width
-                    if (vw > irDeviceInfo.mobileWidth) {
+                    if (vw > irDeviceInfo.MOBILE_WIDTH) {
                         // for desktop and tablet
-                        fontSize = Math.min(parseFloat((vw / irDeviceInfo.desktopBaseWidth).toFixed(2)), 1);
+                        fontSize = Math.min(parseFloat((vw / irDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
                         wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
                     } else {
                         // adjust by height for mobiles
