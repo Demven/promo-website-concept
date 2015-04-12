@@ -162,6 +162,17 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
                 wrapperEl = wrapper[0];
             };
 
+            this._render = function(data, animateShow){
+                if(animateShow === true){
+                    window.setTimeout(function(){
+                        wrapper.addClass("show");
+                    }, 1000);
+                } else {
+                    wrapper.addClass("show");
+                }
+                this.updateBounds();
+            };
+
             this._resize = function(){
                 this.updateBounds();
             };
@@ -171,7 +182,6 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
                 shiftUp = shiftValue;
                 wrapper.css(this.ATTR._WEBKIT_TRANSFORM, cssValue);
                 wrapper.css(this.ATTR.TRANSFORM, cssValue);
-
             };
 
             this.shiftLeft = function(shiftValue){
@@ -217,10 +227,6 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
             ImageCard.superclass.constructor.call(this, data, templatePromise);
 
             this.contentType = this.CONTENT_TYPE.IMAGE;
-
-            this._render = function(){
-                this.updateBounds();
-            };
         };
 
         irExtendService.extend(ImageCard, BaseCard);
@@ -236,10 +242,6 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
             VideoCard.superclass.constructor.call(this, data, templatePromise);
 
             this.contentType = this.CONTENT_TYPE.VIDEO;
-
-            this._render = function(){
-                this.updateBounds();
-            };
         };
 
         irExtendService.extend(VideoCard, BaseCard);
@@ -254,10 +256,6 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
             AudioCard.superclass.constructor.call(this, data, templatePromise);
 
             this.contentType = this.CONTENT_TYPE.AUDIO;
-
-            this._render = function(){
-                this.updateBounds();
-            };
         };
 
         irExtendService.extend(AudioCard, BaseCard);

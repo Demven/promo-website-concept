@@ -44,6 +44,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * if 0 - no tracking
              */
             this.TIMEOUT_TO_UPDATE = 0;
+            this.FAKE_DATA_DELAY = 500; // ms
 
             /** (Object JSON) should be overridden only if you set 'isUsingFakeData' to 'true'*/
             this.dataJSON = null;
@@ -167,7 +168,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
                         window.setTimeout(angular.bind(this, (function(){
                             newData = angular.copy(this.dataJSON);
                             deferred.resolve(newData);
-                        })), 2000);
+                        })), this.FAKE_DATA_DELAY);
                     } else {
                         // TODO: need send request to server
                     }
@@ -388,7 +389,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
                             lastLoadFrom = from;
                             lastLoadTo = to;
                             deferred.resolve(newData);
-                        })), 2000);
+                        })), this.FAKE_DATA_DELAY);
                     } else {
                         // TODO: need send request to server
                     }
@@ -691,15 +692,17 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
             };
 
             /** Render the component using created DOM-elements
+             * @param data - data to render
+             * @param animateShow - flag that indicates whether we need to animate appearance of the clement
              * @throw Error - if component is not built before render
              * @return {BaseElementComponent}
              */
-            this.render = function (data) {
+            this.render = function (data,animateShow) {
                 if(!isRendered){
                     // only for the first call
                     irLog.info(this.NAME + ": render");
                     if(isBuilt){
-                        this._render(data);
+                        this._render(data, animateShow);
 
                         if(this.isTriggerResize){
                             var viewport = irDeviceInfo.getViewport();
@@ -714,7 +717,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
                     }
                 } else{
                     // for subsequent calls
-                    this._render(data);
+                    this._render(data, animateShow);
                 }
 
                 return this;
@@ -722,10 +725,12 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
 
             /**
              * For override
+             * @param data - data to render
+             * @param animateShow - flag that indicates whether we need to animate appearance of the clement
              * @return {BaseElementComponent}
              * @private
              */
-            this._render = function (data) {
+            this._render = function (data, animateShow) {
                 return this;
             };
 

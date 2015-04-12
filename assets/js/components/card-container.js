@@ -15,6 +15,7 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                 this.isTriggerResize = true;
 
                 this.CLASS = {
+                    SHOW: "show"
                 };
 
                 this.ATTR = {
@@ -39,7 +40,9 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     columnsMatrix, // matrix of columns (array of arrays) [[column1],[column2],...]
                     rowsHeights = [], // array of rows' heights (height of the row = height of the highest card in a row)
                     columnsHeights = [], // array of columns' heights (height of the column = sum of heights of the all cards in a column)
-                    maxColumnHeight; // px
+                    minColumnHeight, // px
+                    maxColumnHeight, // px
+                    canTrackScroll = true; // flag that indicates whether we can track scroll
 
                 var PADDING = {
                     MOBILE: 1,
@@ -120,38 +123,22 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                 };
 
                 this._postCreate = function(){
-                    var offset = irElement.getOffset(wrapperEl),
-                        containerBottom = 0,
-                        vh = 0,
-                        canTrackScroll = true;
-                    window.addEventListener("scroll", function(){
-                        if(canTrackScroll){
-                            containerBottom = offset.top + maxColumnHeight;
-                            vh = irDeviceInfo.getViewport().vh;
-                            var threshold = vh + window.scrollY;
-                            window.console.log(window.scrollY + " thres = " + threshold + " containerBottom=" + containerBottom);
-
-                            if(threshold > containerBottom){
-                                canTrackScroll = false;
-                                IR.UIC.CARD_CONTAINER.loadNextPortion();
-                                // wait till render
-                                window.setTimeout(function(){
-                                    canTrackScroll = true;
-                                }, 3000);
-                            }
-                        }
-                    });
+                    window.addEventListener("scroll", scroll);
                 };
 
                 this._render = function(cardPortion, afterRenderCallback){
                     var i = 0,
                         len = cardPortion.length,
-                        card;
+                        card,
+                        needToShow = cardPortionsCache.length >= 2; // show only from the second portion
+
                     for( ; i < len; i++){
                         card = cardPortion[i];
                         wrapper.append(card.getWrapper());
-                        card.render();
+                        card.render(null, needToShow);
                     }
+
+                    wrapper.addClass(this.CLASS.SHOW);
 
                     if(typeof afterRenderCallback === "function"){
                         afterRenderCallback();
@@ -201,6 +188,7 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                 };
 
                 this.loadNextPortion = function(){
+                    canTrackScroll = false; // will become true after render portion
                     irArtService.getPortion(cardPortionsCache.length + 1, angular.bind(this, this.onPortionLoad));
                 };
 
@@ -208,12 +196,34 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     window.console.log("--- onPortionLoad ---");
                     window.console.log(artArray);
 
-                    this._create(artArray, function(){
-                        // number of rows changed - recalculate matrix
-                        calculateMatrix();
-                        // shift cards up to hide empty spaces
-                        shiftCards(); // TODO: shift only this portion
-                    });
+                    if(artArray.length){
+                        this._create(artArray, function(){
+                            // number of rows changed - recalculate matrix
+                            calculateMatrix();
+                            // shift cards up to hide empty spaces
+                            shiftCards(); // TODO: shift only this portion
+
+                            // cards are loaded and rendered - allow scroll tracking
+                            canTrackScroll = true;
+
+                            scroll(); // check scroll again
+                        });
+                    }
+                };
+
+                var scroll = function(){
+                    if(canTrackScroll){
+                        var offset = irElement.getOffset(wrapperEl),
+                            minColumnBottom = offset.top + minColumnHeight,
+                            threshold = 0.8*minColumnBottom,
+                            scrollBottom = irDeviceInfo.getViewport().vh + window.scrollY;
+
+                        window.console.log(window.scrollY + " scrollBottom = " + scrollBottom + " threshold=" + threshold);
+
+                        if(scrollBottom > threshold){
+                            IR.UIC.CARD_CONTAINER.loadNextPortion();
+                        }
+                    }
                 };
 
                 /**
@@ -429,6 +439,9 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
 
                     // Calculate max column height
                     maxColumnHeight = Math.max.apply(Math, columnsHeights);
+
+                    // Calculate min column height
+                    minColumnHeight = Math.min.apply(Math, columnsHeights);
 
                     window.console.log("columns");
                     window.console.log(columnsMatrix);

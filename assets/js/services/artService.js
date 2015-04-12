@@ -10,7 +10,8 @@ IR.MODULE.CONTENT.factory("irArtService", function($rootScope, irExtendService){
         this.NAME = "ArtService";
         this.isUsingFakeData = true;
         this.isDestroyOnPageChange = true;
-        this.TIMEOUT_TO_UPDATE = 0;
+        this.TIMEOUT_TO_UPDATE = 0; // ms
+        this.FAKE_DATA_DELAY = 500; // ms
         this.CONFIG.PORTION_SIZE = 10;
         this.dataJSON = [
             {id: "100", contentType: "image"},{id: "101", contentType: "image"},{id: "102", contentType: "video"},{id: "103", contentType: "image"},{id: "104", contentType: "audio"},{id: "105", contentType: "image"},{id: "106", contentType: "image"},{id: "107", contentType: "video"},{id: "108", contentType: "image"},{id: "109", contentType: "audio"},
