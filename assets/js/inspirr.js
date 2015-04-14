@@ -11,6 +11,13 @@ IR.UIC = new (function(){
     this.LEFT_DRAWER = null;
     this.RIGHT_DRAWER = null;
     this.CARD_CONTAINER = null;
+    // pages
+    this.PAGE = {
+        MAIN: null,
+        GALLERY: null,
+        PROFILE: null,
+        SETTINGS: null
+    };
 })();
 
 /**

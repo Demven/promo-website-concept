@@ -772,11 +772,93 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
             };
         };
 
+        /**
+         * Used as abstract page parent for all real pages
+         * @author Dmitry Salnikov
+         * @since 14.04.2015
+         * @constructor
+         */
+        var BasePage = function() {
+            // call of the parent constructor
+            BasePage.superclass.constructor.call(this);
+
+            var wrapper;
+
+            var STATE = {
+                NORMAL: "normal",
+                SLIDE_RIGHT: "slide_right",
+                SLIDE_LEFT: "slide_left"
+            };
+
+            var CLASS = {
+                SLIDE_RIGHT: "slide-right",
+                SLIDE_LEFT: "slide-left"
+            };
+
+            // global listeners
+            var offLeftDrawerOpen = new Function(),
+                offLeftDrawerClose = new Function(),
+                offRightDrawerOpen = new Function(),
+                offRightDrawerClose = new Function();
+
+            var currentState = STATE.NORMAL;
+
+            this._init = function(){
+                wrapper = angular.element(document.querySelector("div.page-content"));
+            };
+
+            this._postCreate = function(){
+                offLeftDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_OPEN, _onLeftDrawerOpen);
+                offLeftDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_CLOSE, _onLeftDrawerClose);
+
+                offRightDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_OPEN, _onRightDrawerOpen);
+                offRightDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_CLOSE, _onRightDrawerClose);
+            };
+
+            this._destroy = function(){
+                // remove global listeners
+                offLeftDrawerOpen();
+                offLeftDrawerClose();
+                offRightDrawerOpen();
+                offRightDrawerClose();
+            };
+
+            var _onLeftDrawerOpen = function(){
+                _onRightDrawerClose();
+
+                wrapper.addClass(CLASS.SLIDE_RIGHT);
+                currentState = STATE.SLIDE_RIGHT;
+            };
+
+            var _onLeftDrawerClose = function(){
+                if(currentState === STATE.SLIDE_RIGHT){
+                    wrapper.removeClass(CLASS.SLIDE_RIGHT);
+                }
+            };
+
+            var _onRightDrawerOpen = function(){
+                _onLeftDrawerClose();
+
+                wrapper.addClass(CLASS.SLIDE_LEFT);
+                currentState = STATE.SLIDE_LEFT;
+            };
+
+            var _onRightDrawerClose = function(){
+                if(currentState === STATE.SLIDE_LEFT){
+                    wrapper.removeClass(CLASS.SLIDE_LEFT);
+                }
+            };
+        };
+
+        // BasePage is a extension of the BaseElementComponent
+        extend(BasePage, BaseElementComponent);
+
         return {
             extend: extend,
             BaseJsonService: BaseJsonService,
             BaseListJsonService: BaseListJsonService,
-            BaseElementComponent: BaseElementComponent
+            BaseElementComponent: BaseElementComponent,
+            BasePage: BasePage
         };
     })();
 });

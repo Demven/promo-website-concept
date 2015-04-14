@@ -28,7 +28,8 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                 };
 
                 this.EVENT = {
-                    TAP: "tap"
+                    TAP: "tap",
+                    SCROLL: "scroll"
                 };
 
                 var wrapperEl, // HTMLElement object
@@ -123,7 +124,7 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                 };
 
                 this._postCreate = function(){
-                    window.addEventListener("scroll", scroll);
+                    window.addEventListener(this.EVENT.SCROLL, scroll, false);
                 };
 
                 this._render = function(cardPortion, afterRenderCallback){
@@ -142,6 +143,10 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
 
                     if(typeof afterRenderCallback === "function"){
                         afterRenderCallback();
+                    } else{
+                        // obviously it is the first render
+                        // fire this method to load next portion if it's necessary
+                        scroll();
                     }
                 };
 
@@ -185,6 +190,9 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     cardPortionsCache = null;
                     rowsMatrix = null;
                     columnsMatrix = null;
+
+                    // remove local listeners
+                    window.removeEventListener(this.EVENT.SCROLL, scroll, false);
                 };
 
                 this.loadNextPortion = function(){

@@ -1,7 +1,6 @@
 /**
  * Created by Dzmitry_Salnikau on 2/17/2015.
  */
-
 IR.MODULE.HEADER.directive('header', function($rootScope, $window, irExtendService, irDeviceInfo) {
     return {
         restrict: 'E',

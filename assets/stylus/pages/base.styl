@@ -1,0 +1,14 @@
+@require './base/util'
+@require './components/header'
+
+/** BASE PAGE (parent for all pages)
+  * @author Dmitry Salnikov
+  * @since 4/14/2015
+ */
+// ANIMATIONS
+.page-content
+  transition: transform $drawer-open-anim-dur
+  &.slide-right
+    transform: translateX($header-height)
+  &.slide-left
+    transform: translateX(-($header-height))
