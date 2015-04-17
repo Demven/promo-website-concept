@@ -62,6 +62,20 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
                 _WEBKIT_TRANSFORM: "-webkit-transform"
             };
 
+            this.CLASS = {
+                HAS_DESCRIPTION: "has-description",
+                TOP_LEFT: "top-left",
+                TOP_RIGHT: "top-right",
+                BOTTOM_RIGHT: "bottom-right",
+                BOTTOM_LEFT: "bottom-left"
+            };
+
+            this.VAL = {
+                SPACE: " "
+            };
+
+            this.baseWidth = 40;// em
+
             /**
              * Id of the card
              * @type {string}
@@ -98,6 +112,16 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
              */
             this.contentSrc = "";
             /**
+             * Float value with 2 digits after point that indicates interrelation of height to width of content
+             * @type {float}
+             */
+            this.aspectRatio = 0.00;
+            /**
+             * Position of the info-box on the card (value from 1 to 4 stands for the corner of the card clockwise)
+             * @type {integer}
+             */
+            this.infoPosition = 0;
+            /**
              * Type of the content's distribution (sale, free, etc)
              * @see this.DISTRIBUTION_TYPE
              * @type {string}
@@ -115,6 +139,13 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
              * @type {string}
              */
             this.licenseType = "";
+
+            this.INFO_POSITION = {
+                TOP_LEFT: 1,
+                TOP_RIGHT: 2,
+                BOTTOM_RIGHT: 3,
+                BOTTOM_LEFT: 4
+            };
 
             this.CONTENT_TYPE = {
                 IMAGE: "image",
@@ -152,6 +183,8 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
                 this.author = data.author;
                 this.pubDate = new Date(data.pubDate);
                 this.contentSrc = data.contentSrc;
+                this.aspectRatio = +data.aspectRatio;
+                this.infoPosition = data.infoPosition ? +data.infoPosition : this.INFO_POSITION.BOTTOM_RIGHT;
                 this.distributionType = data.distributionType;
                 this.contentType = data.contentType;
                 this.licenseType = data.licenseType;
@@ -162,7 +195,9 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
                 wrapperEl = wrapper[0];
             };
 
-            this._render = function(data, animateShow){
+            this._render = function(objectsToRender, animateShow){
+                this.populate(); // populate view with data
+
                 if(animateShow === true){
                     window.setTimeout(function(){
                         wrapper.addClass("show");
@@ -171,6 +206,13 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
                     wrapper.addClass("show");
                 }
                 this.updateBounds();
+            };
+
+            /**
+             * Populates view with data
+             * @warn should be overridden by child objects
+             */
+            this.populate = function(){
             };
 
             this._resize = function(){
@@ -198,8 +240,76 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
                 width = wrapperEl.offsetWidth;
             };
 
+            this.populateInfoBox = function(){
+                var infoBox = wrapperEl.querySelector(".info-box"),
+                    positionClass;
+
+                switch(this.infoPosition){
+                    case this.INFO_POSITION.TOP_LEFT:
+                        positionClass = this.CLASS.TOP_LEFT;
+                        break;
+                    case this.INFO_POSITION.TOP_RIGHT:
+                        positionClass = this.CLASS.TOP_RIGHT;
+                        break;
+                    case this.INFO_POSITION.BOTTOM_RIGHT:
+                        positionClass = this.CLASS.BOTTOM_RIGHT;
+                        break;
+                    case this.INFO_POSITION.BOTTOM_LEFT:
+                        positionClass = this.CLASS.BOTTOM_LEFT;
+                        break;
+                }
+
+                // set position of the info-box
+                angular.element(infoBox).addClass(positionClass);
+
+                if(this.title){
+                    var splittedTitle = this.splitTitle(this.title);
+                    infoBox.querySelector(".title .thin").innerHTML = splittedTitle.first;
+                    infoBox.querySelector(".title .bold").innerHTML = splittedTitle.second;
+                }
+                if(this.category){
+                    infoBox.querySelector(".credit .category").innerHTML = this.category;
+                }
+                if(this.author && this.author.firstName && this.author.lastName){
+                    infoBox.querySelector(".credit .author").innerHTML = this.author.firstName + " " + this.author.lastName;
+                }
+            };
+
+            this.populateDescription = function(){
+                if(this.description){
+                    wrapperEl.querySelector(".description").innerHTML = this.description;
+                    wrapper.addClass(this.CLASS.HAS_DESCRIPTION);
+                }
+            };
+
+            /**
+             * Split a received title to two string (first half and second half)
+             * @param title - string with title to split
+             * @return {{first: string, second: string}}
+             */
+            this.splitTitle = function(title){
+                var first, second = "",
+                    words = title.split(this.VAL.SPACE),
+                    len = words.length,
+                    middleIndex;
+
+                if(len > 1){
+                    middleIndex = Math.floor(len/2);
+                    first = words.slice(0, middleIndex).join(this.VAL.SPACE);
+                    second = words.slice(middleIndex, len).join(this.VAL.SPACE);
+                } else if (len === 1){
+                    second = title;
+                }
+
+                return {first: first, second: second};
+            };
+
             this.getWrapper = function(){
                 return wrapper;
+            };
+
+            this.getWrapperEl = function(){
+                return wrapperEl;
             };
 
             this.getWidth = function(){
@@ -217,6 +327,7 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
 
         irExtendService.extend(BaseCard, irExtendService.BaseElementComponent);
 
+
         /**
          * Card with image as a content
          * @extends BaseCard
@@ -227,6 +338,21 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
             ImageCard.superclass.constructor.call(this, data, templatePromise);
 
             this.contentType = this.CONTENT_TYPE.IMAGE;
+
+            this.populate = function(){
+                var wrapper = this.getWrapper(),
+                    wrapperEl = this.getWrapperEl(),
+                    img = wrapperEl.querySelector("img");
+                if(this.contentSrc && this.aspectRatio){
+                    var h = this.aspectRatio*this.baseWidth + "em";
+                    wrapper.css("height", h);
+                    img.src = this.contentSrc;
+                    if(this.description) img.alt = this.description;
+
+                    this.populateInfoBox();
+                    this.populateDescription();
+                }
+            };
         };
 
         irExtendService.extend(ImageCard, BaseCard);
@@ -242,9 +368,25 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
             VideoCard.superclass.constructor.call(this, data, templatePromise);
 
             this.contentType = this.CONTENT_TYPE.VIDEO;
+
+            this.populate = function(){
+                var wrapper = this.getWrapper(),
+                    wrapperEl = this.getWrapperEl(),
+                    img = wrapperEl.querySelector("img");
+                if(this.contentSrc && this.aspectRatio){
+                    var h = this.aspectRatio*this.baseWidth + "em";
+                    wrapper.css("height", h);
+                    img.src = this.contentSrc;
+                    if(this.description) img.alt = this.description;
+
+                    this.populateInfoBox();
+                    this.populateDescription();
+                }
+            };
         };
 
         irExtendService.extend(VideoCard, BaseCard);
+
 
         /**
          * Card with video as a content
@@ -256,9 +398,14 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
             AudioCard.superclass.constructor.call(this, data, templatePromise);
 
             this.contentType = this.CONTENT_TYPE.AUDIO;
+
+            this.populate = function(){
+                this.populateInfoBox();
+            };
         };
 
         irExtendService.extend(AudioCard, BaseCard);
+
 
         /**
          * Fabric method that creates and returns card instance with requested type

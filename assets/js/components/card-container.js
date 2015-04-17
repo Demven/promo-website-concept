@@ -72,7 +72,8 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     baseCardWidth = 432,// px (40em + 2*1.6em = 43.2em)
                     cardWidth = 0,
                     deviceState,
-                    isDeviceStateChanged = false;
+                    isDeviceStateChanged = false,
+                    needScrollAfterResize = false;
 
                 this._init = function(){
                     wrapperEl = wrapper[0];
@@ -145,8 +146,8 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                         afterRenderCallback();
                     } else{
                         // obviously it is the first render
-                        // fire this method to load next portion if it's necessary
-                        scroll();
+                        // check whether we need to load next portion - fire scroll after resize
+                        needScrollAfterResize = true;
                     }
                 };
 
@@ -183,6 +184,10 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
 
                         // shift cards up to hide empty spaces
                         shiftCards();
+                    }
+
+                    if(needScrollAfterResize){
+                        scroll();
                     }
                 };
 
