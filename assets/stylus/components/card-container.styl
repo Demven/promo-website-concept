@@ -65,10 +65,10 @@ ir-card-container
           width: 0
           height: 0.2em
           position: absolute
-          bottom: -1em
+          bottom: -0.7em
           background: #fff
           margin: 0 auto
-          transition: width 0.4s
+          transition: width 0.4s, top 0.4s
       &.top-left
         top: 0
         bottom: initial
@@ -77,6 +77,8 @@ ir-card-container
         .credit
           .divider
             left: 0
+        & + .description
+          text-align: left
       &.top-right
         top: 0
         bottom: initial
@@ -85,18 +87,24 @@ ir-card-container
         .credit
           .divider
             right: 0
+        & + .description
+          text-align: right
       &.bottom-right
         bottom: 0
         text-align: right
         .credit
           .divider
             right: 0
+        & + .description
+          text-align: right
       &.bottom-left
         bottom: 0
         text-align: left
         .credit
           .divider
             left: 0
+        & + .description
+          text-align: left
 
     &.image
       height: 46em
@@ -116,7 +124,18 @@ ir-card-container
       opacity: 1
     &.has-description
       .info-box
-        transition: padding 0.8s
+        transition: padding 0.4s
+        &.top-left,
+        &.top-right
+          .credit
+            position: initial
+            .divider
+              right: 5%
+              top: 1em
+              bottom: initial
+          & + .description
+            top: 0
+            padding: 1.33em 1.33em 3em
       .description
         height: 8em
         font-size: 1.5em
@@ -132,14 +151,21 @@ ir-card-container
       .info-box
         &.bottom-left,
         &.bottom-right
-          padding-bottom: 3em
-          transition: padding-bottom 0.4s
         .credit
           .divider
             width: 100%
       &.has-description
         .info-box
-          padding-bottom: 10em
+          &.bottom-left,
+          &.bottom-right
+            padding-bottom: 10em
+          &.top-left,
+          &.top-right
+            padding-top: 10em
+            .credit
+              .divider
+                width: 90%
+                top: 5.7em
         .description
           opacity: 1
           transition: opacity .8s .1s,bottom .4s
