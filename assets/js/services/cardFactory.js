@@ -122,6 +122,11 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
              */
             this.infoPosition = 0;
             /**
+             * Array of 24 values for segments (each value from 0 to 100) 0 - silence, 100 - max sound
+             * @type {Array}
+             */
+            this.soundgraph = [];
+            /**
              * Type of the content's distribution (sale, free, etc)
              * @see this.DISTRIBUTION_TYPE
              * @type {string}
@@ -185,6 +190,7 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
                 this.contentSrc = data.contentSrc;
                 this.aspectRatio = +data.aspectRatio;
                 this.infoPosition = data.infoPosition ? +data.infoPosition : this.INFO_POSITION.BOTTOM_RIGHT;
+                this.soundgraph = data.soundgraph;
                 this.distributionType = data.distributionType;
                 this.contentType = data.contentType;
                 this.licenseType = data.licenseType;
@@ -399,8 +405,25 @@ IR.MODULE.CONTENT.factory("irCardFactory", function($rootScope, $window, $q, irE
 
             this.contentType = this.CONTENT_TYPE.AUDIO;
 
+            var SEGMENTS_COUNT = 24;
+
             this.populate = function(){
                 this.populateInfoBox();
+                this.populateSoundgraph();
+            };
+
+            this.populateSoundgraph = function(){
+                var soundgraphEl = this.getWrapperEl().querySelector(".soundgraph");
+                if(this.soundgraph && this.soundgraph.length === SEGMENTS_COUNT){
+                    var segments = soundgraphEl.querySelectorAll(".segment"),
+                        p = "%",
+                        i = 0;
+                    for( ; i < SEGMENTS_COUNT; i++){
+                        segments[i].style.height = this.soundgraph[i] + p;
+                    }
+                } else{
+                    soundgraphEl.style.display = "none";
+                }
             };
         };
 

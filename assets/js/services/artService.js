@@ -20,7 +20,7 @@ IR.MODULE.CONTENT.factory("irArtService", function($rootScope, irExtendService){
             {id: "103", contentType: "image", title: "Hover cup", category: "handmade", description: "Cup, that blows out your brain. Astonishing product, amazing quality.", author: {firstName: "Frank", lastName: "Sinatra"}, contentSrc: "http://fotohost.by/images/2015/04/15/cup.jpg", aspectRatio: "1.22", infoPosition: "2"},
             {id: "104", contentType: "image", title: "Hover cup", category: "handmade", description: "Cup, that blows out your brain. Astonishing product, amazing quality.", author: {firstName: "Frank", lastName: "Sinatra"}, contentSrc: "http://fotohost.by/images/2015/04/15/cup.jpg", aspectRatio: "1.22", infoPosition: "2"},
             {id: "105", contentType: "video", title: "Jane & Alex", category: "wedding", author: {firstName: "Silvia", lastName: "Brown"}, contentSrc: "http://fotohost.by/images/2015/04/15/weddingdf984.jpg", aspectRatio: "1.29", infoPosition: "4"},
-            {id: "106", contentType: "audio", title: "Trying to love you", category: "music", author: {firstName: "Vera", lastName: "Gargantiua"}},
+            {id: "106", contentType: "audio", title: "Trying to love you", category: "music", author: {firstName: "Vera", lastName: "Gargantiua"}, soundgraph: [10,30,42,45,34,50,40,82,29,50,31,32,73,84,55,46,37,18,9,20,41,22,13,4]},
             {id: "107", contentType: "image", title: "Butterfly pendant", category: "photo", author: {firstName: "Alexander", lastName: "Gracham Bell"}, contentSrc: "http://fotohost.by/images/2015/04/15/butterfly.jpg", aspectRatio: "1.38", infoPosition: "4"},
             {id: "108", contentType: "video"},
             {id: "109", contentType: "audio"},

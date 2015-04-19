@@ -10,6 +10,15 @@ $card-container-hide-margin-top = 5em
 $card-container-show-margin-top = 0
 $card-container-card-margin = 1.6em
 
+$card-container-card-play-button-icon-after()
+  content: ''
+  width: 0
+  height: 0
+  border-top: 3em solid transparent
+  border-left: 5em solid #fff
+  border-bottom: 3em solid transparent
+  position: absolute
+
 ir-card-container
   height: 100%
   width:100%
@@ -112,6 +121,36 @@ ir-card-container
     &.video
       height: 35em
       background: #D7AD86
+      .play
+        width: 9em
+        height: 9em
+        position: absolute
+        left: 50%
+        top: 50%
+        transform: translate(-50%,-50%)
+        border: 0.5em solid #fff
+        border-radius: 50%
+        transition: border-color 0.8s, transform 0.8s
+        &:before
+          content: ""
+          width: 12em
+          height: 12em
+          position: absolute
+          top: -1.5em
+          left: -1.5em
+          opacity: 0.5
+          transition: opacity 0.8s
+          background: $background-radial-gradient-from-black
+        &:after
+          $card-container-card-play-button-icon-after()
+          top: 1.4em
+          left: 2.8em
+        &:hover
+          cursor: pointer
+          border-color: rgba(165, 182, 218, 0.3)
+          transform: scale(1.2) translate(-40%, -40%)
+          &:before
+            opacity: 0
     &.audio
       height: 0.41*$card-container-card-width
       background: linear-gradient(to top, #677fad, ($color-base))
@@ -120,6 +159,46 @@ ir-card-container
         .credit
           .category
             color: #a4c1ff
+      .play
+        width: 9em
+        height: 9em
+        position: absolute
+        left: 0
+        top: 0
+        transition: transform 0.8s
+        &:after
+          $card-container-card-play-button-icon-after()
+          top: 1.53em
+          left: 2.5em
+        &:hover
+          cursor: pointer
+          transform: scale(1.2)
+      .time
+        position: absolute
+        top: 1.55em
+        right: 0.95em
+        font-size: 2.2em
+      .soundgraph
+        position: absolute
+        height: 7em
+        width: 22em
+        top: 1em
+        left: 9em
+        display: flex
+        align-items: center
+        justify-content: space-between
+        &:before
+          content: ''
+          width: 100%
+          height: 0.25em
+          position: absolute
+          top: 50%
+          margin-top: -0.125em
+          background: #fff
+        .segment
+          height: 100%
+          width: 0.46em
+          background: #fff
     &.show
       opacity: 1
     &.has-description
@@ -148,6 +227,7 @@ ir-card-container
         padding: 3em 1.33em 1.33em
         text-align: right
     &:hover
+      box-shadow: 0 0 1em 0 rgba(0, 0, 0, 0.5)
       .info-box
         &.bottom-left,
         &.bottom-right
