@@ -154,16 +154,15 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                 this._resize = function(vw, vh){
                     updateDeviceInfo();
 
-                    window.console.log("columnsByDevice: " + columnsByDevice + " vw=" + vw + " padding = " + padding);
+                    window.console.log("columnsByDevice: " + columnsByDevice + " columnsNumber=" + columnsNumber + " padding = " + padding);
 
                     // set a proper font-size
                     this.scaleContainer();
 
-                    if(isDeviceStateChanged){
-                        // scale again, because padding has changed and so did available width after setting new font-size,
-                        // so we need to adjust font-size again
-                        this.scaleContainer();
-                    }
+                    //if(isDeviceStateChanged){
+
+                        //this.scaleContainer();
+                    //}
                     // fire resize for each card
                     resizeCards();
 
@@ -282,12 +281,24 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                  * Calculates and applies needed font size of the card container
                  */
                 this.scaleContainer = function(){
-                    var containerWidth = wrapperEl.offsetWidth - convertEmToPx(padding + padding),
-                        neededCardWidth = containerWidth/columnsByDevice,
+                    var containerWidth = 0,
+                        neededCardWidth = 0,
+                        neededFontSize = 0;
+
+                    __scale(this);
+                    // scale again, because padding has changed and so did available width after setting new font-size,
+                    // so we need to adjust font-size again
+                    __scale(this);
+
+                    function __scale(self){
+                        containerWidth = wrapperEl.offsetWidth - convertEmToPx(padding + padding);
+                        neededCardWidth = containerWidth/columnsByDevice;
                         neededFontSize = (neededCardWidth*baseFontSize/baseCardWidth).toFixed(2) - 0.01;
 
-                    currentFontSize = neededFontSize;
-                    wrapper.css(this.ATTR.FONT_SIZE, neededFontSize + this.VAL.REM);
+                        currentFontSize = neededFontSize;
+                        wrapper.css(self.ATTR.FONT_SIZE, neededFontSize + self.VAL.REM);
+                    }
+
                     window.console.log("scale container: neededFontSize=" + neededFontSize + " containerWidth= " + containerWidth + " cardWidth = " + neededCardWidth);
                 };
 
@@ -332,6 +343,7 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                     for( ; i < columnsNumber; i++){
                         // for each column
                         column = columnsMatrix[i];
+                        column[0].shiftUp(0); // shift to 0 the first ard in column
                         for(c = 1, cardsInColumn = column.length; c < cardsInColumn; c++){
                             // for each card
                             card = column[c];

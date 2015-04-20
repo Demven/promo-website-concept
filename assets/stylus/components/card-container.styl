@@ -10,6 +10,9 @@ $card-container-hide-margin-top = 5em
 $card-container-show-margin-top = 0
 $card-container-card-margin = 1.6em
 
+$card-container-card-anim-dur = 0.8s
+$card-container-card-anim-dur-half = ($card-container-card-anim-dur/2)
+
 $card-container-card-play-button-icon-after()
   content: ''
   width: 0
@@ -77,7 +80,7 @@ ir-card-container
           bottom: -0.7em
           background: #fff
           margin: 0 auto
-          transition: width 0.4s, top 0.4s
+          transition: width $card-container-card-anim-dur-half, top $card-container-card-anim-dur-half
       &.top-left
         top: 0
         bottom: initial
@@ -130,7 +133,7 @@ ir-card-container
         transform: translate(-50%,-50%)
         border: 0.5em solid #fff
         border-radius: 50%
-        transition: border-color 0.8s, transform 0.8s
+        transition: border-color $card-container-card-anim-dur, transform $card-container-card-anim-dur
         &:before
           content: ""
           width: 12em
@@ -139,8 +142,9 @@ ir-card-container
           top: -1.5em
           left: -1.5em
           opacity: 0.5
-          transition: opacity 0.8s
+          transition: opacity $card-container-card-anim-dur
           background: $background-radial-gradient-from-black
+          background-size: 12em 12em
         &:after
           $card-container-card-play-button-icon-after()
           top: 1.4em
@@ -165,7 +169,7 @@ ir-card-container
         position: absolute
         left: 0
         top: 0
-        transition: transform 0.8s
+        transition: transform $card-container-card-anim-dur
         &:after
           $card-container-card-play-button-icon-after()
           top: 1.53em
@@ -203,7 +207,7 @@ ir-card-container
       opacity: 1
     &.has-description
       .info-box
-        transition: padding 0.4s
+        transition: padding $card-container-card-anim-dur-half
         &.top-left,
         &.top-right
           .credit
@@ -248,7 +252,7 @@ ir-card-container
                 top: 5.7em
         .description
           opacity: 1
-          transition: opacity .8s .1s,bottom .4s
+          transition: opacity $card-container-card-anim-dur .1s,bottom $card-container-card-anim-dur-half
           bottom: 0
 
 /* TABLET STYLES */
