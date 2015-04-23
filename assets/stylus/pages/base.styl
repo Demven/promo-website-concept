@@ -12,3 +12,13 @@
     transform: translateX($header-height)
   &.slide-left
     transform: translateX(-($header-height))
+
+/* MOBILE STYLES */
+@media $mobile
+  .page-content
+    &.slide-right
+      margin-left: 0
+      transform: translateX($drawer-mobile-width)
+    &.slide-left
+      margin-right: 0
+      transform: translateX(-($drawer-mobile-width))

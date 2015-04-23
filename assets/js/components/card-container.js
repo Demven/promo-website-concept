@@ -228,9 +228,9 @@ IR.MODULE.CONTENT.directive('irCardContainer', function($rootScope, $window, $q,
                         var offset = irElement.getOffset(wrapperEl),
                             minColumnBottom = offset.top + minColumnHeight,
                             threshold = 0.8*minColumnBottom,
-                            scrollBottom = irDeviceInfo.getViewport().vh + window.scrollY;
+                            scrollBottom = irDeviceInfo.getViewport().vh + window.pageYOffset;
 
-                        window.console.log(window.scrollY + " scrollBottom = " + scrollBottom + " threshold=" + threshold);
+                        window.console.log(window.pageYOffset + " scrollBottom = " + scrollBottom + " threshold=" + threshold);
 
                         if(scrollBottom > threshold){
                             IR.UIC.CARD_CONTAINER.loadNextPortion();

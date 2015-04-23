@@ -899,6 +899,8 @@ IR.MODULE.UTIL.provider("irDeviceInfo", function(){
         platform = window.navigator.platform,
         viewport;
 
+    var _execResult;
+
     var irLogRef; // reference to a irLog service
 
     if ( /MSIE/.test(ua) ) {
@@ -906,14 +908,16 @@ IR.MODULE.UTIL.provider("irDeviceInfo", function(){
         if ( /IEMobile/.test(ua) ) {
             mobile = 1;
         }
-        version = /MSIE \d+[.]\d+/.exec(ua)[0].split(' ')[1];
+        _execResult = /MSIE \d+[.]\d+/.exec(ua);
+        version = _execResult ? _execResult[0].split(' ')[1] : null;
     } else if ( /Chrome/.test(ua) ) {
         // Platform override for Chromebooks
         if ( /CrOS/.test(ua) ) {
             platform = 'CrOS';
         }
         browser = 'Chrome';
-        version = /Chrome\/[\d\.]+/.exec(ua)[0].split('/')[1];
+        _execResult = /Chrome\/[\d\.]+/.exec(ua);
+        version = _execResult ? _execResult[0].split('/')[1] : null;
     } else if ( /Opera/.test(ua) ) {
         browser = 'Opera';
         if ( /mini/.test(ua) || /Mobile/.test(ua) ) {
@@ -928,7 +932,8 @@ IR.MODULE.UTIL.provider("irDeviceInfo", function(){
         if ( /Fennec/.test(ua) ) {
             mobile = 1;
         }
-        version = /Firefox\/[\.\d]+/.exec(ua)[0].split('/')[1];
+        _execResult = /Firefox\/[\.\d]+/.exec(ua);
+        version = _execResult ? _execResult[0].split('/')[1] : null;
     } else if ( /Safari/.test(ua) ) {
         browser = 'Safari';
         if ( (/iPhone/.test(ua)) || (/iPad/.test(ua)) || (/iPod/.test(ua)) ) {
@@ -942,7 +947,8 @@ IR.MODULE.UTIL.provider("irDeviceInfo", function(){
         if (version) {
             version = version[0].split('/')[1];
         } else {
-            version = /Opera\/[\.\d]+/.exec(ua)[0].split('/')[1];
+            _execResult = /Opera\/[\.\d]+/.exec(ua);
+            version = _execResult ? _execResult[0].split('/')[1] : null;
         }
     }
 

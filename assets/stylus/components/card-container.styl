@@ -14,12 +14,9 @@ $card-container-card-anim-dur = 0.8s
 $card-container-card-anim-dur-half = ($card-container-card-anim-dur/2)
 
 $card-container-card-play-button-icon-after()
-  content: ''
-  width: 0
-  height: 0
-  border-top: 3em solid transparent
-  border-left: 5em solid #fff
-  border-bottom: 3em solid transparent
+  content: $icon-code-play
+  font-family: $font-icon
+  font-size: 7.8em
   position: absolute
 
 ir-card-container
@@ -46,6 +43,7 @@ ir-card-container
     font-family: $font-base
     opacity: 0
     transition: opacity 1s
+    cursor: pointer
     cursor: zoom-in
     color: #fff
     img
@@ -83,7 +81,7 @@ ir-card-container
           transition: width $card-container-card-anim-dur-half, top $card-container-card-anim-dur-half
       &.top-left
         top: 0
-        bottom: initial
+        bottom: auto
         text-align: left
         background: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))
         .credit
@@ -93,7 +91,7 @@ ir-card-container
           text-align: left
       &.top-right
         top: 0
-        bottom: initial
+        bottom: auto
         text-align: right
         background: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))
         .credit
@@ -147,8 +145,8 @@ ir-card-container
           background-size: 12em 12em
         &:after
           $card-container-card-play-button-icon-after()
-          top: 1.4em
-          left: 2.8em
+          top: 0.06em
+          left: 0.16em
         &:hover
           cursor: pointer
           border-color: rgba(165, 182, 218, 0.3)
@@ -169,14 +167,15 @@ ir-card-container
         position: absolute
         left: 0
         top: 0
-        transition: transform $card-container-card-anim-dur
         &:after
           $card-container-card-play-button-icon-after()
-          top: 1.53em
-          left: 2.5em
+          top: 0.08em
+          left: 0.1em
+          transition: transform $card-container-card-anim-dur-half
         &:hover
           cursor: pointer
-          transform: scale(1.2)
+          &:after
+            transform: scale(1.2)
       .time
         position: absolute
         top: 1.55em
@@ -211,7 +210,7 @@ ir-card-container
         &.top-left,
         &.top-right
           .credit
-            position: initial
+            position: static
             .divider
               right: 5%
               top: 1em

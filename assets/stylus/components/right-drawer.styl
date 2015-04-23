@@ -107,17 +107,17 @@ ir-right-drawer
           text-transform: none
       &.views
         transition-delay: $right-drawer-tile-delay
-        nav-tile-font-icon-before($eye-icon-code, $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-small-font-size, $right-drawer-tile-medium-shift-up)
+        nav-tile-font-icon-before($icon-code-eye, $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-small-font-size, $right-drawer-tile-medium-shift-up)
         figcaption
           bottom: 1.6em
           .from
             font-size: $right-drawer-title-from-font-size + 0.2em
       &.message
         transition-delay: $right-drawer-tile-delay * 2
-        nav-tile-font-icon-before($message-icon-code, $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-small-font-size, $right-drawer-tile-high-shift-up)
+        nav-tile-font-icon-before($icon-code-message, $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-small-font-size, $right-drawer-tile-high-shift-up)
       &.info
         transition-delay: $right-drawer-tile-delay * 3
-        nav-tile-font-icon-before($info-icon-code, $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-small-font-size, $right-drawer-tile-high-shift-up)
+        nav-tile-font-icon-before($icon-code-info, $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-small-font-size, $right-drawer-tile-high-shift-up)
       &.feedback
         position: absolute
         bottom: -0.4em
@@ -127,7 +127,7 @@ ir-right-drawer
         figcaption
           .summary
             display: none
-        nav-tile-font-icon-before($feedback-icon-code, $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-normal-font-size, $right-drawer-tile-normal-shift-up)
+        nav-tile-font-icon-before($icon-code-feedback, $right-drawer-tile-font-icon-size, $right-drawer-tile-icon-normal-font-size, $right-drawer-tile-normal-shift-up)
       // tile:hover
       &:hover
         cursor: pointer
