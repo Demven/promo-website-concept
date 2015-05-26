@@ -281,7 +281,7 @@ gulp.task("default", function (callback) {
  * @see https://github.com/krry/heroku-buildpack-nodejs-gulp-bower
  */
 gulp.task("heroku:dev", function (callback) {
-    runSequence("build", ["server:static"/*, "server:api", "watch"*/], callback);
+    runSequence("build", ["server:static", "server:api"/*, "watch"*/], callback);
 });
 
 gulp.task("production", function (callback) {
