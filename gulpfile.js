@@ -273,8 +273,14 @@ gulp.task("build", function (callback) {
         "build:html", "build:gzip", callback);
 });
 
-
 gulp.task("default", function (callback) {
+    runSequence("build", ["server:static"/*, "server:api", "watch"*/], callback);
+});
+
+/** DEFAULT COPY
+ * @see https://github.com/krry/heroku-buildpack-nodejs-gulp-bower
+ */
+gulp.task("heroku:dev", function (callback) {
     runSequence("build", ["server:static"/*, "server:api", "watch"*/], callback);
 });
 
@@ -286,7 +292,6 @@ gulp.task("production", function (callback) {
 gulp.task("docs", function () {
     runSequence("docs:clean", ["docs:api", "docs:server"]);
 });
-
 
 /*// Save revision
  .pipe(plugins.revAll.manifest({fileName: "CSSManifest.json"}))
