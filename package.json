@@ -6,9 +6,6 @@
   "engines": {
     "node": "0.12.x"
   },
-  "scripts": {
-    "postinstall": "bower install && gulp"
-  },
   "repository": {
     "type": "git",
     "url": "https://bitbucket.org/inspirrteam/inspirr.git"
