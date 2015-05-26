@@ -164,7 +164,7 @@ gulp.task("build:gzip", function () {
 gulp.task("server:static", function () {
     plugins.connect.server({
         root: "public",
-        port: 3002
+        port: 8080
     });
 });
 gulp.task("server:api", function (done) {
