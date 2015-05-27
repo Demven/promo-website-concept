@@ -8,10 +8,10 @@ var express = require("express"),
 app.set("trust proxy", true);
 app.set("x-powered-by", false);
 app.set("port", process.env.PORT || 4000);
-app.set("dataSrcType", process.env.dataSrc || "remote");
+/*app.set("dataSrcType", process.env.dataSrc || "remote");*/
 
 // Data source access
-app.set("dataSrc", (function(){
+/*app.set("dataSrc", (function(){
     var dbConfigs = null, db,
         mongoHelpers = new (require(path.join(__dirname, "classes/MongoDBHelpers.js")))();
     if(app.get("dataSrcType") === "remote"){
@@ -24,23 +24,23 @@ app.set("dataSrc", (function(){
         db: db,
         session: db
     };
-}()));
+}()));*/
 
 app.use(express.static('public'));
 app.use(require("body-parser").json());
 app.use(require("body-parser").urlencoded({extended: true}));
 app.use(require("cookie-parser")());
 app.use(require("compression")());
-app.use(require("method-override")());
+/*app.use(require("method-override")());*/
 
-app.use(function(req, res, next){
+/*app.use(function(req, res, next){
     req.dataSrc = app.get("dataSrc");
     next();
-});
+});*/
 
 // Routes
-var products = require(path.join(__dirname, "APIHandlers/products.js"));
-/**
+/*var products = require(path.join(__dirname, "APIHandlers/products.js"));
+/!**
  * @api {get} /api/v1/products Request List of products
  * @apiVersion 0.1.0
  * @apiName GetProducts
@@ -68,12 +68,12 @@ var products = require(path.join(__dirname, "APIHandlers/products.js"));
  *       favorites: 733
  *     }
  *
- */
+ *!/
 app.get("/api/v1/products", products.configureDataAccess, products.getList);
 
 
 var categories = require(path.join(__dirname, "APIHandlers/categories.js"));
-/**
+/!**
  * @api {get} /api/v1/categories Request List of categories
  * @apiVersion 0.1.0
  * @apiName GetCategories
@@ -89,8 +89,8 @@ var categories = require(path.join(__dirname, "APIHandlers/categories.js"));
  *       "name": "Musics"
  *     }
  *
- */
-app.get("/api/v1/categories", categories.configureDataAccess, categories.getList);
+ *!/
+app.get("/api/v1/categories", categories.configureDataAccess, categories.getList);*/
 
 
 app.listen(app.get("port"));
