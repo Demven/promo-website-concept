@@ -7,7 +7,7 @@ var express = require("express"),
  * */
 app.set("trust proxy", true);
 app.set("x-powered-by", false);
-app.set("port", process.env.PORT || 4002);
+app.set("port", process.env.PORT || 4000);
 app.set("dataSrcType", process.env.dataSrc || "remote");
 
 // Data source access
@@ -26,6 +26,7 @@ app.set("dataSrc", (function(){
     };
 }()));
 
+app.use(express.static('public'));
 app.use(require("body-parser").json());
 app.use(require("body-parser").urlencoded({extended: true}));
 app.use(require("cookie-parser")());
