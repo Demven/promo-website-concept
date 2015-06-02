@@ -274,7 +274,7 @@ gulp.task("build", function (callback) {
 });
 
 gulp.task("default", function (callback) {
-    runSequence("build"/*, ["server:static", "server:api"/*, "watch"]*/, callback);
+    runSequence("build", [/*"server:static", "server:api"/*, */"watch"], callback);
 });
 
 /** DEFAULT COPY

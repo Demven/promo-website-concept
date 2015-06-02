@@ -92,5 +92,9 @@ var categories = require(path.join(__dirname, "APIHandlers/categories.js"));
  *!/
 app.get("/api/v1/categories", categories.configureDataAccess, categories.getList);*/
 
+app.get("/", function(req, res) {
+    res.redirect("/stay-with-us.html");
+});
 
 app.listen(app.get("port"));
+console.info("Server started on localhost:" + app.get("port"));
