@@ -107,8 +107,22 @@ $terrain-height = 16%
       left: 0
       transform: rotate(-5deg)
       transform-origin: left
-    button
+  #form
+    width: 100%
+    position: fixed
+    bottom: 6em
+    .button
+      width: 12em
+      height: 1.6em
       background: #47a48f
       color: #fff
       font-weight: bold
-      font-size: 64pt
+      font-size: 4.6em
+      line-height: 1.5em
+      margin: 0 auto
+      text-align: center
+      border-radius: 0.16em
+      transition: box-shadow 0.3s
+      cursor: pointer
+      &:hover
+        box-shadow: 0 0 0.3em 0 rgba(0, 0, 0, 0.2)
