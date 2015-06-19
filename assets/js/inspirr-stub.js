@@ -1,3 +1,247 @@
-/**
- * Created by Dmitry Salnikov on 6/1/2015.
- */
+/** * Created by Dmitry Salnikov on 6/1/2015. */
+var IR = IR || {};
+IR.APP = (function InspirrStub(){
+    function InspirrStub(){
+        var viewport,
+            self = this;
+
+        var _onResize,
+            _addEvents,
+            _removeEvents;
+
+        this.MOBILE_WIDTH = 690;
+        this.TABLET_WIDTH = 995;
+        this.TABLET_WIDE_WIDTH = 1024; // iPad, generic notebook
+        this.DESKTOP_WIDTH = 1440;
+
+        this.DESKTOP_WIDE_BASE_WIDTH = 1920;
+        this.DESKTOP_BASE_WIDTH = 1280; // for 19' monitors
+
+        this.DEVICE_STATE = {
+            MOBILE: "mobile",
+            TABLET: "tablet",
+            TABLET_WIDE: "tabletWide",
+            DESKTOP: "desktop",
+            DESKTOP_WIDE: "desktopWide"
+        };
+
+        this.DEVICE_ORIENTATION = {
+            LANDSCAPE: "landscape",
+            PORTRAIT: "portrait"
+        };
+
+        this.currentDeviceState = this.DEVICE_STATE.DESKTOP;
+        this.deviceOrientation = this.DEVICE_ORIENTATION.LANDSCAPE;
+
+        this.start = function(){
+            _addEvents();
+            _onResize(); // trigger 'resize' to set initial state for all components
+        };
+
+        this.calculateViewport = function(){
+            var vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
+                vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+            viewport = {vw: vw, vh: vh};
+
+            console.info("window resize to vw=" + vw + ", vh=" + vh);
+
+            // update device state
+            var newState;
+            if(vw > this.DESKTOP_WIDTH){
+                newState = this.DEVICE_STATE.DESKTOP_WIDE;
+            } else if(vw > this.TABLET_WIDE_WIDTH){
+                newState = this.DEVICE_STATE.DESKTOP;
+            } else if(vw > this.TABLET_WIDTH){
+                newState = this.DEVICE_STATE.TABLET_WIDE;
+            } else if(vw > this.MOBILE_WIDTH){
+                newState = this.DEVICE_STATE.TABLET;
+            } else {
+                newState = this.DEVICE_STATE.MOBILE;
+            }
+
+            if(newState !== this.currentDeviceState){
+                this.currentDeviceState = newState;
+                console.info("device state changed to " + newState);
+            }
+
+            if(vw > vh){
+                this.deviceOrientation = this.DEVICE_ORIENTATION.LANDSCAPE;
+            } else {
+                this.deviceOrientation = this.DEVICE_ORIENTATION.PORTRAIT;
+            }
+        };
+
+        this.getViewport = function(){
+            if(!viewport){
+                this.calculateViewport();
+            }
+            return viewport;
+        };
+
+        this.destroy = function(){
+            _removeEvents();
+        };
+
+        _onResize = function(){
+            self.calculateViewport();
+            if(IR.UIC.STAY_WITH_US){
+                IR.UIC.STAY_WITH_US.resize(self.getViewport());
+            }
+        };
+
+        _addEvents =  function(){
+            window.addEventListener("resize", _onResize);
+        };
+
+        _removeEvents =  function(){
+            window.removeEventListener("resize", _onResize);
+        };
+    }
+
+    return new InspirrStub();
+})();
+
+// UI Components
+IR.UIC = {};
+IR.UIC.STAY_WITH_US = (function(){
+    /**
+     * Component, that manage page-stub called 'stay with us'
+     * @constructor
+     */
+    var StayWithUs = function(){
+        this.NAME = "Stay-With-Us-page";
+
+        this.EL = {
+            WRAPPER: $(document.getElementById("stay-with-us")),
+            LOGO: $(document.getElementById("logo-group")),
+            SKYLINE: $(document.getElementById("skyline")),
+            MOUNTAIN_TALL: $(document.querySelector("#skyline .mountain.tall")),
+            TERRAIN: $(document.getElementById("terrain")),
+            FORM: $(document.getElementById("form"))
+        };
+
+        this.ATTR = {
+            FONT_SIZE: "font-size",
+            MARGIN_TOP: "margin-top"
+        };
+
+        this.CLASS = {
+            SKYLINE_RISE: "rise",
+            FORM_SHOW: "show"
+        };
+
+        this.VAL = {
+            EM: "em",
+            REM: "rem",
+            PX: "px"
+        };
+
+        var self = this,
+            appeared = false;
+
+        this.resize = (function() {
+            var fontSize = 1;
+
+            var CRITERION_WIDTH = IR.APP.DESKTOP_WIDE_BASE_WIDTH, // px
+                MIN_FONT_SIZE_DESKTOP = 0.74, // fontSize for with == CRITERION_WIDTH
+                DIFF_DESKTOP_WIDTH = CRITERION_WIDTH - IR.APP.TABLET_WIDE_WIDTH,
+                DIFF_DESKTOP_FONT_SIZE = 1 - MIN_FONT_SIZE_DESKTOP;
+
+            var CRITERION_MOBILE_WIDTH = 414, // px
+                MIN_FONT_SIZE_MOBILE = 0.6, // fontSize for with == CRITERION_MOBILE_WIDTH
+                DIFF_MOBILE_WIDTH = IR.APP.TABLET_WIDE_WIDTH - CRITERION_MOBILE_WIDTH,
+                DIFF_MOBILE_FONT_SIZE = 1 - MIN_FONT_SIZE_MOBILE;
+
+            var SKYLINE_MAX_CORRELATION = 0.35; // 35% of height
+
+            return function(viewport){
+                console.info(self.NAME + ": resize with w=" + viewport.vw + " h=" + viewport.vh);
+
+                resizeRoot();
+                resizeSkyline();
+                resizeLogo();
+
+                self._afterResize();
+
+                function resizeRoot(){
+                    if(IR.APP.deviceOrientation === IR.APP.DEVICE_ORIENTATION.LANDSCAPE){
+                        // landscape
+                        if(viewport.vw >= CRITERION_WIDTH){
+                            // more than 1920
+                            fontSize = (viewport.vw/CRITERION_WIDTH).toFixed(2);
+                        } else if (viewport.vw >= IR.APP.TABLET_WIDE_WIDTH) {
+                            // for desktop and wide tablets (e.g. iPad)
+                            fontSize = interpolateFontSize(CRITERION_WIDTH, DIFF_DESKTOP_WIDTH, DIFF_DESKTOP_FONT_SIZE);
+                        } else {
+                            fontSize = (viewport.vw * MIN_FONT_SIZE_DESKTOP/IR.APP.TABLET_WIDE_WIDTH).toFixed(2);
+                        }
+                    } else {
+                        // portrait
+                        if (viewport.vw >= CRITERION_MOBILE_WIDTH) {
+                            // for tablets and mobiles in portrait with width >= iPhone 6+
+                            fontSize = interpolateFontSize(IR.APP.TABLET_WIDE_WIDTH, DIFF_MOBILE_WIDTH, DIFF_MOBILE_FONT_SIZE);
+                        } else {
+                            // for tablets and mobiles in portrait with width < iPhone 6+
+                            fontSize = (viewport.vw * MIN_FONT_SIZE_MOBILE/CRITERION_MOBILE_WIDTH).toFixed(2);
+                        }
+                    }
+
+                    console.log(fontSize);
+                    if(fontSize){
+                        self.EL.WRAPPER.css(self.ATTR.FONT_SIZE, fontSize + self.VAL.REM);
+                    } else {
+                        self.EL.WRAPPER.css(self.ATTR.FONT_SIZE, self.VAL.AUTO);
+                    }
+                }
+
+                function resizeSkyline(){
+                    var skylineHeight = self.EL.MOUNTAIN_TALL.height(),
+                        currentCorrelation = skylineHeight/viewport.vh,
+                        neededFontSize = (Math.min(SKYLINE_MAX_CORRELATION/currentCorrelation, 1)).toFixed(2);
+
+                    self.EL.SKYLINE.css(self.ATTR.FONT_SIZE, neededFontSize + self.VAL.EM);
+                }
+
+                function resizeLogo(){
+                    var skylineHeight = self.EL.MOUNTAIN_TALL.height(),
+                        terrainHeight = self.EL.TERRAIN.height(),
+                        availableSpace = viewport.vh - skylineHeight - terrainHeight,
+                        logoHeight = self.EL.LOGO.height(),
+                        additionalMargin = logoHeight*0.15,
+                        marginTop = (availableSpace - (logoHeight - additionalMargin))/2 + additionalMargin;
+
+                    console.log("availableSpace " + availableSpace + " marginTop " + marginTop);
+
+                    self.EL.LOGO.css(self.ATTR.MARGIN_TOP, marginTop + self.VAL.PX);
+                }
+
+                function interpolateFontSize(baseWidth, diffWidth, diffScale){
+                    return (1 + (viewport.vw - baseWidth)*diffScale/diffWidth).toFixed(2);
+                }
+            };
+        })();
+
+        this._afterResize = function(){
+            if(!appeared){
+                this._appearSkyline();
+                this._appearForm();
+
+                appeared = true;
+            }
+        };
+
+        this._appearSkyline = function(){
+            this.EL.SKYLINE.addClass(this.CLASS.SKYLINE_RISE);
+        };
+
+        this._appearForm = function(){
+            this.EL.FORM.addClass(this.CLASS.FORM_SHOW);
+        };
+    };
+
+    return new StayWithUs();
+})();
+
+// Start application
+IR.APP.start();

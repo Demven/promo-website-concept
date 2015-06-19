@@ -20,7 +20,9 @@ html
 /* vars */
 $terrain-height = 16%
 
-.stay-with-us
+$anim-long-dur = 1.8s
+
+#stay-with-us
   width: 100vw
   background: #fff
   font-family: $font-base
@@ -60,8 +62,13 @@ $terrain-height = 16%
 
   #skyline
     position: fixed
-    bottom: $terrain-height
+    bottom: -20%
     left: -5em
+    opacity: 0
+    transition: bottom $anim-long-dur ease-in-out, opacity 0.8s
+    &.rise
+      bottom: $terrain-height
+      opacity: 1
     .bird
       width: 8em
       height: 3.6em
@@ -111,6 +118,10 @@ $terrain-height = 16%
     width: 100%
     position: fixed
     bottom: 6em
+    transition: opacity $anim-long-dur
+    opacity: 0
+    &.show
+      opacity: 1
     .button
       width: 12em
       height: 1.6em
