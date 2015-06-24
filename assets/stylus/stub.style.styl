@@ -19,8 +19,10 @@ html
 
 /* vars */
 $terrain-height = 16%
+$terrain-involve-height = 45%
 
 $anim-long-dur = 1.8s
+$anim-short-dur = 0.4s
 
 #stay-with-us
   width: 100vw
@@ -31,6 +33,10 @@ $anim-long-dur = 1.8s
     margin-top: 14em
     display: flex
     flex-direction: column
+    transition: opacity $anim-long-dur
+    opacity: 0
+    &.show
+      opacity: 1
     .title
       width: auto
       display: flex
@@ -137,3 +143,23 @@ $anim-long-dur = 1.8s
       cursor: pointer
       &:hover
         box-shadow: 0 0 0.3em 0 rgba(0, 0, 0, 0.2)
+
+#stay-with-us.involve
+  #logo-group
+    font-size: 0.7em
+    transition: font-size $anim-short-dur
+  #skyline
+    bottom: $terrain-involve-height
+    transform: scale(0.7)
+    transition: bottom $anim-short-dur, transform $anim-short-dur
+  #terrain
+    height: $terrain-involve-height
+    transition: height $anim-short-dur
+  #form
+    height: 40%
+    transition: height $anim-short-dur
+
+@media $mobile
+  #stay-with-us.involve
+    #logo-group
+      margin-top: 13% !important

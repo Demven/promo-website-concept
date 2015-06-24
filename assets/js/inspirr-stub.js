@@ -70,6 +70,8 @@ IR.APP = (function InspirrStub(){
             } else {
                 this.deviceOrientation = this.DEVICE_ORIENTATION.PORTRAIT;
             }
+
+            return viewport;
         };
 
         this.getViewport = function(){
@@ -118,7 +120,8 @@ IR.UIC.STAY_WITH_US = (function(){
             SKYLINE: $(document.getElementById("skyline")),
             MOUNTAIN_TALL: $(document.querySelector("#skyline .mountain.tall")),
             TERRAIN: $(document.getElementById("terrain")),
-            FORM: $(document.getElementById("form"))
+            FORM: $(document.getElementById("form")),
+            FORM_BUTTON: $(document.querySelector("#form .button"))
         };
 
         this.ATTR = {
@@ -128,7 +131,8 @@ IR.UIC.STAY_WITH_US = (function(){
 
         this.CLASS = {
             SKYLINE_RISE: "rise",
-            FORM_SHOW: "show"
+            FORM_SHOW: "show",
+            INVOLVE: "involve"
         };
 
         this.VAL = {
@@ -138,7 +142,15 @@ IR.UIC.STAY_WITH_US = (function(){
         };
 
         var self = this,
-            appeared = false;
+            appeared = false,
+            involved = false,
+            normalLogoFontSise = 1, // em
+            involvedLogoFontSise = 0.7, // em
+            logoFontSizeCorrelation = normalLogoFontSise / involvedLogoFontSise,
+
+            normalTerrainHeight = 16, // %
+            involvedTerrainHeight = 45, // %
+            terrainHeightsCorrelation = normalTerrainHeight / involvedTerrainHeight;
 
         this.resize = (function() {
             var fontSize = 1;
@@ -160,7 +172,7 @@ IR.UIC.STAY_WITH_US = (function(){
 
                 resizeRoot();
                 resizeSkyline();
-                resizeLogo();
+                self._resizeLogo(viewport);
 
                 self._afterResize();
 
@@ -203,31 +215,32 @@ IR.UIC.STAY_WITH_US = (function(){
                     self.EL.SKYLINE.css(self.ATTR.FONT_SIZE, neededFontSize + self.VAL.EM);
                 }
 
-                function resizeLogo(){
-                    var skylineHeight = self.EL.MOUNTAIN_TALL.height(),
-                        terrainHeight = self.EL.TERRAIN.height(),
-                        availableSpace = viewport.vh - skylineHeight - terrainHeight,
-                        logoHeight = self.EL.LOGO.height(),
-                        additionalMargin = logoHeight*0.15,
-                        marginTop = (availableSpace - (logoHeight - additionalMargin))/2 + additionalMargin;
-
-                    console.log("availableSpace " + availableSpace + " marginTop " + marginTop);
-
-                    self.EL.LOGO.css(self.ATTR.MARGIN_TOP, marginTop + self.VAL.PX);
-                }
-
                 function interpolateFontSize(baseWidth, diffWidth, diffScale){
                     return (1 + (viewport.vw - baseWidth)*diffScale/diffWidth).toFixed(2);
                 }
             };
         })();
 
+        this._resizeLogo = function(viewport){
+            var skylineHeight = self.EL.MOUNTAIN_TALL.height(),
+                terrainHeight = self.EL.TERRAIN.height() * (involved ? terrainHeightsCorrelation : 1),
+                availableSpace = viewport.vh - skylineHeight - terrainHeight,
+                logoHeight = self.EL.LOGO.height() * (involved ? logoFontSizeCorrelation : 1),
+                additionalMargin = logoHeight*0.15,
+                marginTop = (availableSpace - (logoHeight - additionalMargin))/2 + additionalMargin;
+
+            self.EL.LOGO.css(self.ATTR.MARGIN_TOP, marginTop.toFixed(2) + self.VAL.PX);
+        };
+
         this._afterResize = function(){
             if(!appeared){
                 this._appearSkyline();
                 this._appearForm();
+                this._appearLogo();
 
                 appeared = true;
+
+                this._attachEvents();
             }
         };
 
@@ -237,6 +250,25 @@ IR.UIC.STAY_WITH_US = (function(){
 
         this._appearForm = function(){
             this.EL.FORM.addClass(this.CLASS.FORM_SHOW);
+        };
+
+        this._appearLogo = function(){
+            this.EL.LOGO.addClass(this.CLASS.FORM_SHOW);
+        };
+
+        // Event handlers
+        this._attachEvents = function(){
+            this.EL.FORM_BUTTON.on("click", self._onButtonClick);
+        };
+
+        this._dettachEvents = function(){
+            this.EL.FORM_BUTTON.off("click", self._onButtonClick);
+        };
+
+        this._onButtonClick = function(){
+            involved = true;
+            self.EL.WRAPPER.addClass(self.CLASS.INVOLVE);
+            self.EL.FORM_BUTTON.hide();
         };
     };
 
