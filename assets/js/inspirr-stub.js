@@ -132,7 +132,8 @@ IR.UIC.STAY_WITH_US = (function(){
         this.CLASS = {
             SKYLINE_RISE: "rise",
             FORM_SHOW: "show",
-            INVOLVE: "involve"
+            EXTEND: "extend",
+            SUBSCRIBE: "subscribe"
         };
 
         this.VAL = {
@@ -143,14 +144,15 @@ IR.UIC.STAY_WITH_US = (function(){
 
         var self = this,
             appeared = false,
-            involved = false,
+            subscribed = false,
+            scrolled = false,
             normalLogoFontSise = 1, // em
-            involvedLogoFontSise = 0.7, // em
-            logoFontSizeCorrelation = normalLogoFontSise / involvedLogoFontSise,
+            scrolledLogoFontSise = 0.7, // em
+            logoFontSizeCorrelation = normalLogoFontSise / scrolledLogoFontSise,
 
             normalTerrainHeight = 16, // %
-            involvedTerrainHeight = 45, // %
-            terrainHeightsCorrelation = normalTerrainHeight / involvedTerrainHeight;
+            scrolledTerrainHeight = 45, // %
+            terrainHeightsCorrelation = normalTerrainHeight / scrolledTerrainHeight;
 
         this.resize = (function() {
             var fontSize = 1;
@@ -223,9 +225,9 @@ IR.UIC.STAY_WITH_US = (function(){
 
         this._resizeLogo = function(viewport){
             var skylineHeight = self.EL.MOUNTAIN_TALL.height(),
-                terrainHeight = self.EL.TERRAIN.height() * (involved ? terrainHeightsCorrelation : 1),
+                terrainHeight = self.EL.TERRAIN.height() * (scrolled ? terrainHeightsCorrelation : 1),
                 availableSpace = viewport.vh - skylineHeight - terrainHeight,
-                logoHeight = self.EL.LOGO.height() * (involved ? logoFontSizeCorrelation : 1),
+                logoHeight = self.EL.LOGO.height() * (scrolled ? logoFontSizeCorrelation : 1),
                 additionalMargin = logoHeight*0.15,
                 marginTop = (availableSpace - (logoHeight - additionalMargin))/2 + additionalMargin;
 
@@ -258,17 +260,56 @@ IR.UIC.STAY_WITH_US = (function(){
 
         // Event handlers
         this._attachEvents = function(){
-            this.EL.FORM_BUTTON.on("click", self._onButtonClick);
+            this.EL.FORM_BUTTON.hammer = new Hammer(this.EL.FORM_BUTTON[0])
+                .on("tap", self._onSubscribe);
+            this.EL.WRAPPER.hammer = new Hammer(this.EL.WRAPPER[0])
+                .on("panup", self._scrollDown)
+                .on("pandown", self._scrollUp);
+
+            $(window).bind('mousewheel', self._onMouseWheel);
         };
 
         this._dettachEvents = function(){
-            this.EL.FORM_BUTTON.off("click", self._onButtonClick);
+            this.EL.FORM_BUTTON.hammer.destroy();
+            this.EL.WRAPPER.hammer.destroy();
+
+            $(window).unbind('mousewheel', self._onMouseWheel);
         };
 
-        this._onButtonClick = function(){
-            involved = true;
-            self.EL.WRAPPER.addClass(self.CLASS.INVOLVE);
-            self.EL.FORM_BUTTON.hide();
+        this._scrollDown = function(){
+            if(!scrolled){
+                scrolled = true;
+                self.EL.WRAPPER.addClass(self.CLASS.EXTEND);
+            }
+        };
+
+        this._scrollUp = function(){
+            if(scrolled){
+                scrolled = false;
+                self.EL.WRAPPER.removeClass(self.CLASS.EXTEND);
+            }
+        };
+
+        this._onMouseWheel = function(ev){
+            if(ev.originalEvent.wheelDelta /120 > 0) {
+                self._scrollUp();
+            }
+            else{
+                self._scrollDown();
+            }
+        };
+
+        this._onSubscribe = function(){
+            if(!subscribed){
+                subscribed = true;
+
+                if(!scrolled){
+                    self._scrollDown();
+                }
+
+                self.EL.WRAPPER.addClass(self.CLASS.SUBSCRIBE);
+                //self.EL.FORM_BUTTON.hide();
+            }
         };
     };
 
