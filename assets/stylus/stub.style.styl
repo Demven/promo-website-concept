@@ -18,8 +18,8 @@ html
   background: $color-base;
 
 /* vars */
-$terrain-height = 16%
-$terrain-involve-height = 45%
+$terrain-height = 16vh
+$terrain-involve-height = 45vh
 
 $anim-long-dur = 1.8s
 $anim-middle-dur = 0.8s
@@ -71,12 +71,13 @@ $anim-short-dur = 0.4s
 
   #skyline
     position: fixed
-    bottom: -20%
+    bottom: 0
     left: -5em
     opacity: 0
-    transition: bottom $anim-short-dur, transform $anim-short-dur
+    transform: translateY(20vh)
+    transition: transform $anim-short-dur
     &.rise
-      bottom: $terrain-height
+      transform: translateY(-16vh)
       opacity: 1
     .bird
       width: 8em
@@ -107,13 +108,14 @@ $anim-short-dur = 0.4s
         background-size: 70.2em 42.2em
         font-size: 0.8em
   #terrain
-    height: $terrain-height
+    height: 100vh
     width: 100%
     position: fixed
     bottom: 0
     left: 0
     background: #a8ccc4
-    transition: height $anim-short-dur
+    transform: translateY(100vh - $terrain-height)
+    transition: transform $anim-short-dur
     &:before
       content: ''
       background: #a8ccc4
@@ -161,10 +163,9 @@ $anim-short-dur = 0.4s
   #logo-group
     font-size: 0.7em
   #skyline
-    bottom: $terrain-involve-height
-    transform: scale(0.7)
+    transform: translateY(-45vh) scale(0.7)
   #terrain
-    height: $terrain-involve-height
+    transform: translateY(100vh - $terrain-involve-height)
   #form
     transform: translateY(-12em)
     .button

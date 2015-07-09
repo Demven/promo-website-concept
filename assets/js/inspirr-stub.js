@@ -150,9 +150,11 @@ IR.UIC.STAY_WITH_US = (function(){
             scrolledLogoFontSise = 0.7, // em
             logoFontSizeCorrelation = normalLogoFontSise / scrolledLogoFontSise,
 
+            normalSkylineScale = 1,
+            scrolledSkylineScale = 0.7,
+
             normalTerrainHeight = 16, // %
-            scrolledTerrainHeight = 45, // %
-            terrainHeightsCorrelation = normalTerrainHeight / scrolledTerrainHeight;
+            scrolledTerrainHeight = 45; // %
 
         this.resize = (function() {
             var fontSize = 1;
@@ -224,12 +226,13 @@ IR.UIC.STAY_WITH_US = (function(){
         })();
 
         this._resizeLogo = function(viewport){
-            var skylineHeight = self.EL.MOUNTAIN_TALL.height(),
-                terrainHeight = self.EL.TERRAIN.height() * (scrolled ? terrainHeightsCorrelation : 1),
-                availableSpace = viewport.vh - skylineHeight - terrainHeight,
-                logoHeight = self.EL.LOGO.height() * (scrolled ? logoFontSizeCorrelation : 1),
+            var windowHeight = viewport ? viewport.vh : $(window).height(),
+                skylineHeight = self.EL.MOUNTAIN_TALL.height() * (scrolled ? scrolledSkylineScale : normalSkylineScale),
+                terrainHeight = windowHeight * (scrolled ? scrolledTerrainHeight : normalTerrainHeight)/100,
+                availableSpace = windowHeight - skylineHeight - terrainHeight,
+                logoHeight = self.EL.LOGO.height(),
                 additionalMargin = logoHeight*0.15,
-                marginTop = (availableSpace - (logoHeight - additionalMargin))/2 + additionalMargin;
+                marginTop =  Math.max(((availableSpace - (logoHeight - additionalMargin))/2 + additionalMargin), additionalMargin);
 
             self.EL.LOGO.css(self.ATTR.MARGIN_TOP, marginTop.toFixed(2) + self.VAL.PX);
         };
