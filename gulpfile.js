@@ -1,12 +1,7 @@
-/**
- * Created by Dakal Oleksandr on 1/12/15.
- */
 var gulp = require("gulp"),
-    path = require("path"),
     argv = require("yargs").argv,
     _ = require("lodash"),
-// Task to run in order
-    runSequence = require("run-sequence").use(gulp);
+    runSequence = require("run-sequence").use(gulp); // Task to run in order
 
 // Load all gulp plugins
 var plugins = require("gulp-load-plugins")({
@@ -14,12 +9,6 @@ var plugins = require("gulp-load-plugins")({
     scope: ["devDependencies"],
     lazy: true
 });
-
-// Helpers. Log function that throw error and exit from task
-var transformRevFilename = function (file, hash) {
-    var ext = path.extname(file.path);
-    return path.basename(file.path, ext) + "-" + hash.substr(0, 10) + ext;
-};
 
 //*********************************
 //********* Clean tasks ***********
@@ -29,15 +18,7 @@ var del = require("del");
 gulp.task("build:clean", function (cb) {
     return del(["public"], cb);
 });
-// Clean folder with revisions information
-gulp.task("revisions:clean", function (cb) {
-    return del(["revisions"], cb);
-});
-// Clean docs folders
-gulp.task("docs:clean", function (cb) {
-    // Read sources
-    return del(["docs"], cb);
-});
+
 
 //*********************************
 //*********** Build CSS ***********
@@ -47,7 +28,8 @@ gulp.task("build:css", function () {
     // Read sources
     var src = gulp.src("assets/stylus/*.styl");
     // Generate stylus code
-    src = src.pipe(plugins.stylus({
+    src = src
+        .pipe(plugins.stylus({
             compress: true,
             // Generate inline sources
             sourcemap: {
@@ -94,11 +76,6 @@ gulp.task("build:js", function () {
         // Show filesize of generated files
         .pipe(plugins.filesize());
 
-    // Validate CSS
-    if(!(argv["skip-validation"] || argv["skip-js-validation"])){
-        src = src.pipe(plugins.jshint())
-            .pipe(plugins.jshint.reporter())
-    }
     return src;
 });
 
@@ -110,19 +87,14 @@ gulp.task("build:js", function () {
 gulp.task("build:html", function () {
     // Read sources
     var src = gulp.src(["assets/html/**"]);
-    // Production version
-/*    if (argv.production) {
-        src = src.pipe(plugins.cdnizer([
-                // matches all root angular files
-                "google:angular"
-            ]));
-    }*/
     // Minify HTMl
-    src = src.pipe(plugins.htmlmin({
+    src = src
+        .pipe(plugins.htmlmin({
             collapseWhitespace: true,
             removeComments: true
         }))
         .pipe(gulp.dest("public"));
+
     return src;
 });
 
@@ -167,42 +139,6 @@ gulp.task("server:static", function () {
         port: 8080
     });
 });
-gulp.task("server:api", function (done) {
-    var runHint = (function (argv, runSequence) {
-        if(!(argv["skip-validation"] || argv["skip-js-validation"])){
-            return function() { runSequence("js:server:hint") };
-        } else {
-            return _.noop;
-        }
-    }(argv, runSequence));
-    // Done triggers only once
-    plugins.nodemon({
-        script: "server/server.js",
-        ext: "js json",
-        ignore: ["assets/**", "public/**", "node_modules/**", "tests/**"],
-        env: {
-            NODE_ENV: argv.production ? "production" : "development",
-            PORT: 4002,
-            dataSrc: argv.db || "remote"
-        }
-    })
-    .on("start", _.once(function () {
-        setTimeout(function () {
-            runHint();
-            done();
-        }, 1000);
-    }))
-    .on("change", function(){
-            runHint();
-        });
-});
-//*********************************
-//********** Revisions ************
-//*********************************
-// Build HTML entry point
-gulp.task("revisions:create", function () {
-
-});
 
 //*********************************
 //********* Watch tasks ***********
@@ -219,50 +155,7 @@ gulp.task("watch", function () {
     });
 });
 
-//*********************************
-//******* Validation tasks ********
-//*********************************
-gulp.task("js:server:hint", function () {
-    return gulp.src("server/{,**/}*.js")
-        .pipe(plugins.jshint())
-        .pipe(plugins.jshint.reporter("jshint-stylish"));
-});
 
-//*********************************
-//********** Docs tasks ***********
-//*********************************
-gulp.task("docs:api", function (done) {
-    var apidoc = require("apidoc");
-    apidoc.createDoc({
-        src: "server/",
-        dest: "docs/api/"
-    });
-    done();
-});
-
-gulp.task("docs:server", function () {
-    return gulp.src("server/{,**/}*.js")
-        .pipe(plugins.yuidoc.parser({
-            "paths": ["server/**/"],
-            "project": {
-                "name": "Inspirr",
-                "description": "Inspirr documentation",
-                "version": "0.1.0"
-            }
-        }))
-        .pipe(plugins.yuidoc.generator({
-            "themedir": "node_modules/yuidoc-lucid-theme",
-            "helpers": ["node_modules/yuidoc-lucid-theme/helpers/helpers.js"]
-        }))
-        .pipe(gulp.dest("docs/server"));
-});
-//***********************************
-//********** Tests tasks ***********
-//***********************************
-gulp.task("tests", function () {
-    return gulp.src("tests/api.js", {read: false})
-        .pipe(plugins.mocha({reporter: "spec", timeout: 3000}));
-});
 //***********************************
 //********** Complex tasks ***********
 //***********************************
@@ -274,41 +167,17 @@ gulp.task("build", function (callback) {
 });
 
 gulp.task("default", function (callback) {
-    runSequence("build", [/*"server:static", "server:api"/*, */"watch"], callback);
+    runSequence("build", ["watch"], callback);
 });
 
 /** DEFAULT COPY
  * @see https://github.com/krry/heroku-buildpack-nodejs-gulp-bower
  */
 gulp.task("heroku:dev", function (callback) {
-    runSequence("build"/*, ["server:static", "server:api"/*, "watch"]*/, callback);
+    runSequence("build", callback);
 });
 
 gulp.task("production", function (callback) {
-    runSequence("build", "server:api", callback);
+    runSequence("build", callback);
 });
-
-
-gulp.task("docs", function () {
-    runSequence("docs:clean", ["docs:api", "docs:server"]);
-});
-
-/*// Save revision
- .pipe(plugins.revAll.manifest({fileName: "CSSManifest.json"}))
- // Revert plumber
-
- .pipe(gulp.dest("revisions"));*/
-/*
- // Generate gzip
- .pipe(plugins.pako.gzip())
- // Add versions
- .pipe(plugins.revAll({
- transformFilename: transformRevFilename
- }))
-
- // Replace revisions due to manifiest
- /* .pipe(plugins.revCollector({
- replaceReved: true,
- revSuffix: "-[0-9a-f]{10}-?"
- }))*/
 

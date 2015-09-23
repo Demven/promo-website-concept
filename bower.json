@@ -1,8 +1,8 @@
 {
-    "name": "inspirr",
+    "name": "dar-dev",
     "version": "1.0.0",
     "authors": [
-        "Dakal Oleksandr <dakal.oleksandr@gmail.com>"
+        "Dmitry Salnikov <dementorvinegar@gmail.com>"
     ],
     "license": "MIT",
     "private": true,

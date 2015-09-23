@@ -1,6 +1,7 @@
 var express = require("express"),
     app = express(),
     path = require("path"),
+    auth = require('./utils/auth'),
     configs = require(path.join(__dirname, "configs/configs.json"));
 /*
  * Configuration express application
@@ -39,60 +40,7 @@ app.use(require("compression")());
 });*/
 
 // Routes
-/*var products = require(path.join(__dirname, "APIHandlers/products.js"));
-/!**
- * @api {get} /api/v1/products Request List of products
- * @apiVersion 0.1.0
- * @apiName GetProducts
- * @apiGroup Products
- *
- * @apiParam {String} [type="default"] Type of list [random]
- *
- * @apiSuccess {Number} _id Unique product id
- * @apiSuccess {String} name Product name
- * @apiSuccess {String} image URL to product image
- * @apiSuccess {String} user Owner of product
- * @apiSuccess {String} description Product description
- * @apiSuccess {String} category Product category
- * @apiSuccess {Number} favorites Number of favorites
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       _id: "54d53b1ad96a0ab17e5a9113",
- *       name: "Hartmann-Mayer",
- *       image: "http://lorempixel.com/640/480/fashion",
- *       user: "Willow.Mayer74",
- *       description: "qui quo occaecati vel et",
- *       category: "calista",
- *       favorites: 733
- *     }
- *
- *!/
-app.get("/api/v1/products", products.configureDataAccess, products.getList);
-
-
-var categories = require(path.join(__dirname, "APIHandlers/categories.js"));
-/!**
- * @api {get} /api/v1/categories Request List of categories
- * @apiVersion 0.1.0
- * @apiName GetCategories
- * @apiGroup Categories
- *
- * @apiSuccess {Number} _id Unique category id
- * @apiSuccess {String} name Category name
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       "_id": "54d53b1ad96a0ab17e5a9113",
- *       "name": "Musics"
- *     }
- *
- *!/
-app.get("/api/v1/categories", categories.configureDataAccess, categories.getList);*/
-
-app.get("/", function(req, res) {
+app.get("/", auth.basicAuth('dar', 'dar2015'), function(req, res) {
     res.redirect("/stay-with-us.html");
 });
 
