@@ -8,6 +8,7 @@
 $header-base-font-size = 1rem // Desktop
 
 $header-height = 8.7em
+$header-items-font-size = 4.6em
 
 header
   width: 100vw
@@ -23,17 +24,21 @@ header
   justify-content: center
   z-index: 100
   ul
-    width: 80%
+    width: 102.4em
     height: 100%
     display: flex
     justify-content: center
     align-items: center
-    font-size: 3.4em
     text-transform: uppercase
     background-color: #fff
     color: #232323
     li
-      margin: 0 0.5em
+      padding: .45em .5em
+      font-size: $header-items-font-size
+      transition: background-color 0.5s
+      cursor: pointer
+      &:hover
+        background-color: rgba(0,0,0,0.06)
 
 /* MOBILE STYLES */
 /*@media $mobile

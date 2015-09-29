@@ -30,18 +30,18 @@ gulp.task("build:css", function () {
     // Generate stylus code
     src = src
         .pipe(plugins.stylus({
-            compress: true,
+            /*compress: true,
             // Generate inline sources
             sourcemap: {
                 inline: true
-            }
+            }*/
         }))
         .pipe(plugins.sourcemaps.init({
             loadMaps: true
         }))
         // PostCSS process to add prefixes
         .pipe(plugins.autoprefixer())
-        .pipe(plugins.cssUrlVersioner())
+        /*.pipe(plugins.cssUrlVersioner())*/
         // Source map write
         .pipe(plugins.sourcemaps.write("."))
         // Write to distributive folder
@@ -152,6 +152,9 @@ gulp.task("watch", function () {
     });
     gulp.watch("assets/js/**", function () {
         runSequence("build:js");
+    });
+    gulp.watch("assets/images/**", function () {
+        runSequence("build:images");
     });
 });
 

@@ -7,10 +7,13 @@
 
 $section-main-base-font-size = 1rem // Desktop
 
-$section-main-height = 80vh
+$section-main-height = 86em
 
 $section-main-slides-number = 3 // number of slides
-$section-main-slides-control-height = 6em
+$section-main-slides-control-width = 14em
+$section-main-slides-control-height = $section-main-height
+$section-main-slides-control-arrow-width = 2em
+$section-main-slides-control-arrow-height = 12em
 
 dar-section-main
   height: $section-main-height
@@ -21,6 +24,36 @@ dar-section-main
   align-items: center
   flex-wrap: nowrap
   justify-content: center
+
+  .company-title-container
+    width: 100vw
+    height: 11em
+    position: absolute
+    top: 14em
+    left: 0
+    display: flex
+    flex-direction: column
+    align-items: center
+    z-index: 10
+    .company-title
+      font-family: "Compact"
+      font-size: 11em
+      color: #fff
+
+  .logo-container
+    width: 100vw
+    height: $section-main-height
+    position: absolute
+    top: 0
+    left: 0
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    z-index: 10
+    .logo
+      width: 26em
+
   .slideshow
     height: 100%
     width: 100%
@@ -28,23 +61,66 @@ dar-section-main
     position: relative
 
     $slide-control()
-      width: 20px
+      width: $section-main-slides-control-width
       height: $section-main-slides-control-height
-      background-color: violet
       position: absolute
-      top: 50%
-      margin-top: -($section-main-slides-control-height/2)
-      z-index: 10
+      top: 0
+      z-index: 20
+      cursor: pointer
+      transition: background-color 0.5s
+      &:before
+        content: ""
+        width: $section-main-slides-control-arrow-width
+        height: $section-main-slides-control-arrow-height
+        display: block
+        position: absolute
+        background-color: #D0D0D0
+        opacity: 0.5
+        transition: background-color 0.5s
+      &:after
+        content: ""
+        width: $section-main-slides-control-arrow-width
+        height: $section-main-slides-control-arrow-height
+        display: block
+        position: absolute
+        background-color: #D0D0D0
+        opacity: 0.5
+        transition: background-color 0.5s
       &:hover
-        cursor: pointer
-        background-color: white
+        background-color: rgba(0,0,0,0.15)
+        &:before
+          background-color: #fff
+          opacity: 0.5
+        &:after
+          background-color: #fff
+          opacity: 0.5
 
     .prev
       $slide-control()
-      left: 3em
+      left: 0
+      &:before
+        bottom: 50%
+        left: 3em
+        transform: skewX(-27deg)
+        transform-origin: left bottom
+      &:after
+        top: 50%
+        left: 3em
+        transform: skewX(27deg)
+        transform-origin: left top
     .next
       $slide-control()
-      right: 3em
+      right: 0
+      &:before
+        bottom: 50%
+        right: 3em
+        transform: skewX(27deg)
+        transform-origin: right bottom
+      &:after
+        top: 50%
+        right: 3em
+        transform: skewX(-27deg)
+        transform-origin: right top
     .slides
       height: 100%
       width: 100vw
@@ -53,7 +129,18 @@ dar-section-main
         width: 100vw
         height: 100%
         position: absolute
-        transition: transform 1s
+        background: #fff
+        transition: transform 0.8s
+        img
+          width: 100%
+        .title
+          width: 100%
+          position: absolute
+          bottom: 1em
+          font-family: "Bebas-Bold"
+          font-size: 7.2em
+          text-align: center
+          color: #fff
 
 /* MOBILE STYLES */
 /*@media $mobile
