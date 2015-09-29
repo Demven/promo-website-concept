@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html ng-app="dar">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width = device-width, initial-scale = 1, minimum-scale = 1, maximum-scale = 1, user-scalable = no"/>
+    <title>ДАР Девелопмент</title>
+    <meta name="description" content="">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+<!--[if lt IE 10]>
+<p class="browsehappy">You are using an <b>outdated</b> browser.
+    Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<header></header>
+<main ui-view="content" class="page-content"></main>
+
+<script src="js/vendor/hammerjs/hammer.js"></script>
+<script src="js/vendor/angular/angular.js"></script>
+<script src="js/vendor/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="js/dar.js"></script>
+<script src="js/services/util.js"></script>
+<script src="js/components/header.js"></script>
+<script src="js/components/sections/main.js"></script>
+</body>
+</html>

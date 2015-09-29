@@ -1,7 +1,7 @@
 /**
- * Created by Dzmitry_Salnikau on 2/17/2015.
+ * Created by Dmitry_Salnikov on 9/24/2015.
  */
-IR.MODULE.HEADER.directive('header', function($rootScope, $window, irExtendService, irDeviceInfo) {
+DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendService, darDeviceInfo) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/header.html',
@@ -13,11 +13,9 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, irExtendServi
 
                 this.NAME = "Header";
                 this.isDestroyOnPageChange = false;
-                this.isTriggerResize = true;
+                this.isTriggerResize = false;
 
                 this.CLASS = {
-                    SLIDE_RIGHT: "slide-right",
-                    SLIDE_LEFT: "slide-left",
                     COLLAPSED: "collapsed"
                 };
 
@@ -35,106 +33,70 @@ IR.MODULE.HEADER.directive('header', function($rootScope, $window, irExtendServi
                 };
 
                 this.STATE = {
-                    NORMAL: "normal",
-                    SLIDE_RIGHT: "slide_right",
-                    SLIDE_LEFT: "slide_left"
+                    NORMAL: "normal"
                 };
 
                 this.ELEMENT = {
-                    USER_MENU_BUTTON: angular.element(wrapper[0].querySelector(".user-menu-button")),
-                    NOTIFICATIONS_BUTTON: angular.element(wrapper[0].querySelector(".notifications-button"))
-                    //CENTER_BOX: angular.element(wrapper[0].querySelector(".center-box")),
-                    //TITLE_BOX: angular.element(wrapper[0].querySelector(".title-box")),
                     //ACTIONS_BOX: angular.element(wrapper[0].querySelector(".actions-box"))
                 };
 
                 // global listeners
-                var offLeftDrawerOpen = new Function(),
+                /*var offLeftDrawerOpen = new Function(),
                     offLeftDrawerClose = new Function(),
                     offRightDrawerOpen = new Function(),
-                    offRightDrawerClose = new Function();
+                    offRightDrawerClose = new Function();*/
 
                 var currentState = this.STATE.NORMAL;
 
-                this._postCreate = function(){
-                    offLeftDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_OPEN, angular.bind(this, this._onLeftDrawerOpen));
+                //this._postCreate = function(){
+                    /*offLeftDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_OPEN, angular.bind(this, this._onLeftDrawerOpen));
                     offLeftDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_CLOSE, angular.bind(this, this._onLeftDrawerClose));
 
                     offRightDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_OPEN, angular.bind(this, this._onRightDrawerOpen));
-                    offRightDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_CLOSE, angular.bind(this, this._onRightDrawerClose));
+                    offRightDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_CLOSE, angular.bind(this, this._onRightDrawerClose));*/
 
                     // local listeners
-                    this.ELEMENT.USER_MENU_BUTTON.hammer = new Hammer(this.ELEMENT.USER_MENU_BUTTON[0])
+                    /*this.ELEMENT.USER_MENU_BUTTON.hammer = new Hammer(this.ELEMENT.USER_MENU_BUTTON[0])
                             .on(this.EVENT.TAP, function(){
                                 $rootScope.$broadcast(IR.EVENT.OCCURRED.HEADER_USER_MENU_BUTTON_CLICKED);
                             });
                     this.ELEMENT.NOTIFICATIONS_BUTTON.hammer = new Hammer(this.ELEMENT.NOTIFICATIONS_BUTTON[0])
                             .on(this.EVENT.TAP, function(){
                                 $rootScope.$broadcast(IR.EVENT.OCCURRED.HEADER_NOTIFICATIONS_BUTTON_CLICKED);
-                            });
-                };
+                            });*/
+                //};
 
-                this._resize = function(vw, vh){
-                    if (vw > irDeviceInfo.MOBILE_WIDTH) {
+                /*this._resize = function(vw, vh){
+                    if (vw > darDeviceInfo.MOBILE_WIDTH) {
                         // for desktop and tablet
-                        var fontSize = Math.min(parseFloat((vw / irDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
+                        var fontSize = Math.min(parseFloat((vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
                         wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
                     } else {
                         wrapper.css(this.ATTR.FONT_SIZE, this.VAL.AUTO)
                     }
-                };
-
-                this._onLeftDrawerOpen = function(){
-                    this._onRightDrawerClose();
-
-                    wrapper.addClass(this.CLASS.SLIDE_RIGHT);
-                    this.ELEMENT.USER_MENU_BUTTON.addClass(this.CLASS.COLLAPSED);
-                    currentState = this.STATE.SLIDE_RIGHT;
-                };
-
-                this._onLeftDrawerClose = function(){
-                    if(currentState === this.STATE.SLIDE_RIGHT){
-                        wrapper.removeClass(this.CLASS.SLIDE_RIGHT);
-                        this.ELEMENT.USER_MENU_BUTTON.removeClass(this.CLASS.COLLAPSED);
-                    }
-                };
-
-                this._onRightDrawerOpen = function(){
-                    this._onLeftDrawerClose();
-
-                    wrapper.addClass(this.CLASS.SLIDE_LEFT);
-                    this.ELEMENT.NOTIFICATIONS_BUTTON.addClass(this.CLASS.COLLAPSED);
-                    currentState = this.STATE.SLIDE_LEFT;
-                };
-
-                this._onRightDrawerClose = function(){
-                    if(currentState === this.STATE.SLIDE_LEFT){
-                        wrapper.removeClass(this.CLASS.SLIDE_LEFT);
-                        this.ELEMENT.NOTIFICATIONS_BUTTON.removeClass(this.CLASS.COLLAPSED);
-                    }
-                };
+                };*/
 
                 this._destroy = function(){
                     // remove global listeners
-                    offLeftDrawerOpen();
-                    offLeftDrawerClose();
+                    //offLeftDrawerOpen();
+                    //offLeftDrawerClose();
 
                     // remove local listeners
-                    this.ELEMENT.USER_MENU_BUTTON.hammer.destroy();
-                    this.ELEMENT.NOTIFICATIONS_BUTTON.hammer.destroy();
+                    //this.ELEMENT.USER_MENU_BUTTON.hammer.destroy();
+                    //this.ELEMENT.NOTIFICATIONS_BUTTON.hammer.destroy();
                 };
             }
 
 
-            irExtendService.extend(HeaderElementComponent, irExtendService.BaseElementComponent);
+            darExtendService.extend(HeaderElementComponent, darExtendService.BaseElementComponent);
 
-            if(IR.UIC.HEADER){
+            if(DAR.UIC.HEADER){
                 // no need to do a second header component
-                IR.UIC.HEADER.destroy();
+                DAR.UIC.HEADER.destroy();
             }
-            IR.UIC.HEADER = new HeaderElementComponent().build().render();
+            DAR.UIC.HEADER = new HeaderElementComponent().build().render();
 
-            return IR.UIC.HEADER;
+            return DAR.UIC.HEADER;
         }
     };
 });

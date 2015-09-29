@@ -1,0 +1,61 @@
+/** SECTION MAIN COMPONENT
+  * @author Dmitry Salnikov
+  * @since 9/24/2015
+ */
+@require './base/util'
+@require './base/devices'
+
+$section-main-base-font-size = 1rem // Desktop
+
+$section-main-height = 80vh
+
+$section-main-slides-number = 3 // number of slides
+$section-main-slides-control-height = 6em
+
+dar-section-main
+  height: $section-main-height
+  display: flex
+  position: relative
+  font-family: "Roboto"
+  font-size: $section-main-base-font-size
+  align-items: center
+  flex-wrap: nowrap
+  justify-content: center
+  .slideshow
+    height: 100%
+    width: 100%
+    background-color: cornflowerblue
+    position: relative
+
+    $slide-control()
+      width: 20px
+      height: $section-main-slides-control-height
+      background-color: violet
+      position: absolute
+      top: 50%
+      margin-top: -($section-main-slides-control-height/2)
+      z-index: 10
+      &:hover
+        cursor: pointer
+        background-color: white
+
+    .prev
+      $slide-control()
+      left: 3em
+    .next
+      $slide-control()
+      right: 3em
+    .slides
+      height: 100%
+      width: 100vw
+      position: relative
+      .slide
+        width: 100vw
+        height: 100%
+        position: absolute
+        transition: transform 1s
+
+/* MOBILE STYLES */
+/*@media $mobile
+  header
+    font-size: 0.44 * $header-base-font-size !important*/

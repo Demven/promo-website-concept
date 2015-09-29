@@ -1,7 +1,6 @@
-"use strict";
 /**
  * Module, that contains useful services
- * Created by Dzmitry_Salnikau on 2/9/2015.
+ * Created by Dmitry_Salnikov on 9/24/2015.
  */
 
 /**
@@ -10,7 +9,8 @@
  * @service
  * @return Object{extend, BaseJsonService, BaseListJsonService, BaseElementComponent}
  */
-IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLog, irDeviceInfo){
+DAR.MODULE.UTIL.factory("darExtendService", function($rootScope, $window, $q, darLog, darDeviceInfo){
+    "use strict";
     return (function(){
         /**
          * Function that provides extending parent's object
@@ -113,7 +113,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * Method that starts service
              */
             this.create = function(){
-                irLog.info(this.NAME + ": create");
+                darLog.info(this.NAME + ": create");
 
                 this.startTracking();
                 this._create();
@@ -135,10 +135,10 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * @private
              */
             this.postCreate = function(){
-                irLog.info(this.NAME + ": postCreate");
+                darLog.info(this.NAME + ": postCreate");
                 if(this.isDestroyOnPageChange) {
                     // destroy service if page has just changed
-                    offListenerPageChanged = $rootScope.$on(IR.EVENT.OCCURRED.PAGE_CHANGED, function () {
+                    offListenerPageChanged = $rootScope.$on(DAR.EVENT.OCCURRED.PAGE_CHANGED, function () {
                         self.destroy();
                     });
                 }
@@ -159,7 +159,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * @return promise
              */
             this.loadData = function(){
-                irLog.info(this.NAME + ": load");
+                darLog.info(this.NAME + ": load");
                 var deferred = $q.defer(),
                     newData;
                 if(isTracking || !data){
@@ -179,7 +179,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
             this.afterLoad = function(promise){
                 promise
                     .then(angular.bind(this, function(newData) {
-                        irLog.info(this.NAME + ": load SUCCESS");
+                        darLog.info(this.NAME + ": load SUCCESS");
                         if(isTracking && _isDataChanged(newData)){
                             data = newData;
                             _informListenersAboutUpdate();
@@ -187,7 +187,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
                             data = newData;
                         }
                     }), angular.bind(this, function(failure) {
-                        irLog.warn(this.NAME + ": load FAILED - " + failure);
+                        darLog.warn(this.NAME + ": load FAILED - " + failure);
                     }));
                 return promise;
             };
@@ -207,11 +207,11 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * @return promise
              */
             this.update = function(){
-                $rootScope.$broadcast(IR.EVENT.OCCURRED.LOAD_DATA_START);
-                irLog.info(this.NAME + ": beforeUpdate");
+                $rootScope.$broadcast(DAR.EVENT.OCCURRED.LOAD_DATA_START);
+                darLog.info(this.NAME + ": beforeUpdate");
                 this._beforeUpdate();
 
-                irLog.info(this.NAME + ": update");
+                darLog.info(this.NAME + ": update");
 
                 var promise = this.loadData();
 
@@ -219,14 +219,14 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
 
                 promise
                     .then(angular.bind(this, function(newData) {
-                        irLog.info(this.NAME + ": update SUCCESS");
-                        irLog.info(this.NAME + ": afterUpdate");
+                        darLog.info(this.NAME + ": update SUCCESS");
+                        darLog.info(this.NAME + ": afterUpdate");
                         this._afterUpdate();
                     }), angular.bind(this, function(failure) {
-                        irLog.warn(this.NAME + ": update FAILED - " + failure);
+                        darLog.warn(this.NAME + ": update FAILED - " + failure);
                     }))
                     .finally(function(){
-                        $rootScope.$broadcast(IR.EVENT.OCCURRED.LOAD_DATA_FINISHED);
+                        $rootScope.$broadcast(DAR.EVENT.OCCURRED.LOAD_DATA_FINISHED);
                     });
 
                 return promise;
@@ -246,7 +246,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * Tries to trigger update data at a specified timeout.
              */
             this.startTracking = function(){
-                irLog.info(this.NAME + ": startTracking");
+                darLog.info(this.NAME + ": startTracking");
                 if(this.TIMEOUT_TO_UPDATE > 0){
                     isTracking = true;
                     trackingId = setInterval(function(){
@@ -256,7 +256,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
             };
 
             this.stopTracking = function(){
-                irLog.info(this.NAME + ": stopTracking");
+                darLog.info(this.NAME + ": stopTracking");
                 if(isTracking){
                     isTracking = false;
                     clearInterval(trackingId);
@@ -271,7 +271,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * Set the current cache of data
              */
             this.set = function(newData){
-                irLog.info(this.NAME + ": set cache");
+                darLog.info(this.NAME + ": set cache");
 
                 data = newData;
             };
@@ -289,7 +289,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
             };
 
             this.save = function(newData){
-                irLog.info(this.NAME + ": save");
+                darLog.info(this.NAME + ": save");
                 if(this.isUsingFakeData && this.dataJSON) {
                     this.dataJSON = newData;
                 } else {
@@ -300,7 +300,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
             };
 
             this.destroy = function(){
-                irLog.info(this.NAME + ": destroy");
+                darLog.info(this.NAME + ": destroy");
                 data = null;
                 isCreated = false;
                 trackingId = 0;
@@ -315,7 +315,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
 
                 this._destroy();
 
-                irLog.info(this.NAME + ": DESTROYED");
+                darLog.info(this.NAME + ": DESTROYED");
             };
 
             /**
@@ -374,7 +374,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * @return promise
              */
             this.loadData = function(portion){
-                irLog.info(this.NAME + ": load");
+                darLog.info(this.NAME + ": load");
                 var deferred = $q.defer(),
                     newData,
                     portionNumber = portion || 1,
@@ -405,7 +405,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
             this.afterLoad = function(promise){
                 promise
                     .then(angular.bind(this, function(newData) {
-                        irLog.info(this.NAME + ": load SUCCESS");
+                        darLog.info(this.NAME + ": load SUCCESS");
 
                         if(newData){
                             // add this portion to the existing data cache
@@ -423,7 +423,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
                         }
 
                     }), angular.bind(this, function(failure) {
-                        irLog.warn(this.NAME + ": load FAILED - " + failure);
+                        darLog.warn(this.NAME + ": load FAILED - " + failure);
                     }));
                 return promise;
             };
@@ -483,7 +483,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
             };
 
             this.add = function(item){
-                irLog.info(this.NAME + ": add");
+                darLog.info(this.NAME + ": add");
                 if(this.isUsingFakeData && this.dataJSON) {
                     this.dataJSON.push(item);
                 } else {
@@ -494,7 +494,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
             };
 
             this.change = function(item){
-                irLog.info(this.NAME + ": change");
+                darLog.info(this.NAME + ": change");
                 if(this.isUsingFakeData && this.dataJSON) {
                     var index = this.getIndexById(item.id);
                     this.dataJSON[index] = item;
@@ -510,7 +510,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * @param itemId - id of the item to remove
              */
             this.remove = function(itemId){
-                irLog.info(this.NAME + ": delete with id = " + itemId);
+                darLog.info(this.NAME + ": delete with id = " + itemId);
                 if(this.isUsingFakeData && this.dataJSON) {
                     var index = this.getIndexById(itemId);
                     if(index >=0){
@@ -626,7 +626,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * @return {BaseElementComponent}
              */
             this.init = function () {
-                irLog.info(this.NAME + ": init");
+                darLog.info(this.NAME + ": init");
                 this._init();
                 return this;
             };
@@ -644,7 +644,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * @return {BaseElementComponent}
              */
             this.create = function (buildResult) {
-                irLog.info(this.NAME + ": create");
+                darLog.info(this.NAME + ": create");
                 this._create(buildResult);
                 isCreated = true;
                 return this;
@@ -663,17 +663,17 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
              * @return {BaseElementComponent}
              */
             this.postCreate = function () {
-                irLog.info(this.NAME + ": postCreate");
+                darLog.info(this.NAME + ": postCreate");
 
                 if(this.isDestroyOnPageChange){
                     // destroy component if page has just changed
-                    offListenerPageChanged = $rootScope.$on(IR.EVENT.OCCURRED.PAGE_CHANGED, function () {
+                    offListenerPageChanged = $rootScope.$on(DAR.EVENT.OCCURRED.PAGE_CHANGED, function () {
                         self.destroy();
                     });
                 }
 
                 if(this.isTriggerResize){
-                    offListenerWindowResize = $rootScope.$on(IR.EVENT.OCCURRED.WINDOW_RESIZE, function (ev, data) {
+                    offListenerWindowResize = $rootScope.$on(DAR.EVENT.OCCURRED.WINDOW_RESIZE, function (ev, data) {
                         self.resize(data.vw, data.vh);
                     });
                 }
@@ -700,19 +700,19 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
             this.render = function (data,animateShow) {
                 if(!isRendered){
                     // only for the first call
-                    irLog.info(this.NAME + ": render");
+                    darLog.info(this.NAME + ": render");
                     if(isBuilt){
                         this._render(data, animateShow);
 
                         if(this.isTriggerResize){
-                            var viewport = irDeviceInfo.getViewport();
+                            var viewport = darDeviceInfo.getViewport();
                             this.resize(viewport.vw, viewport.vh);
                         }
 
                         isRendered = true;
                     } else{
                         var errorMsg = "UI component " + this.NAME + " should be built before render! Use 'build() method.'";
-                        irLog.error(errorMsg);
+                        darLog.error(errorMsg);
                         throw new Error(errorMsg);
                     }
                 } else{
@@ -736,7 +736,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
 
             /** Resize the component */
             this.resize = function (vw, vh) {
-                irLog.info(this.NAME + ": resize");
+                darLog.info(this.NAME + ": resize");
 
                 this._resize(vw, vh);
             };
@@ -750,7 +750,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
 
             /** Destroys the component */
             this.destroy = function () {
-                irLog.info(this.NAME + ": destroy");
+                darLog.info(this.NAME + ": destroy");
                 // remove global listeners
                 if(offListenerPageChanged) {
                     offListenerPageChanged();
@@ -761,7 +761,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
 
                 this._destroy();
 
-                irLog.info(this.NAME + ": DESTROYED");
+                darLog.info(this.NAME + ": DESTROYED");
             };
 
             /** For override
@@ -808,11 +808,11 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
             };
 
             this._postCreate = function(){
-                offLeftDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_OPEN, _onLeftDrawerOpen);
-                offLeftDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_CLOSE, _onLeftDrawerClose);
+                offLeftDrawerOpen = $rootScope.$on(DAR.EVENT.OCCURRED.LEFT_DRAWER_OPEN, _onLeftDrawerOpen);
+                offLeftDrawerClose = $rootScope.$on(DAR.EVENT.OCCURRED.LEFT_DRAWER_CLOSE, _onLeftDrawerClose);
 
-                offRightDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_OPEN, _onRightDrawerOpen);
-                offRightDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_CLOSE, _onRightDrawerClose);
+                offRightDrawerOpen = $rootScope.$on(DAR.EVENT.OCCURRED.RIGHT_DRAWER_OPEN, _onRightDrawerOpen);
+                offRightDrawerClose = $rootScope.$on(DAR.EVENT.OCCURRED.RIGHT_DRAWER_CLOSE, _onRightDrawerClose);
             };
 
             this._destroy = function(){
@@ -868,7 +868,7 @@ IR.MODULE.UTIL.factory("irExtendService", function($rootScope, $window, $q, irLo
  * Also knows about device dimensions
  * @service
  */
-IR.MODULE.UTIL.provider("irDeviceInfo", function(){
+DAR.MODULE.UTIL.provider("darDeviceInfo", function(){
     this.MOBILE_WIDTH = 690;
     this.TABLET_WIDTH = 995;
     this.TABLET_WIDE_WIDTH = 1024; // iPad, generic notebook
@@ -901,7 +901,7 @@ IR.MODULE.UTIL.provider("irDeviceInfo", function(){
 
     var _execResult;
 
-    var irLogRef; // reference to a irLog service
+    var darLogRef; // reference to a darLog service
 
     if ( /MSIE/.test(ua) ) {
         browser = 'Internet Explorer';
@@ -981,7 +981,7 @@ IR.MODULE.UTIL.provider("irDeviceInfo", function(){
 
         viewport = {vw: vw, vh: vh};
 
-        irLogRef.info(NAME + ": window resize to vw=" + vw + ", vh=" + vh);
+        darLogRef.info(NAME + ": window resize to vw=" + vw + ", vh=" + vh);
 
         // update device state
         var newState;
@@ -999,7 +999,7 @@ IR.MODULE.UTIL.provider("irDeviceInfo", function(){
 
         if(newState !== this.currentDeviceState){
             this.currentDeviceState = newState;
-            irLogRef.info(NAME + ": device state changed to " + newState);
+            darLogRef.info(NAME + ": device state changed to " + newState);
         }
     };
 
@@ -1014,8 +1014,8 @@ IR.MODULE.UTIL.provider("irDeviceInfo", function(){
         return viewport;
     };
 
-    this.$get = function(irLog){
-        irLogRef = irLog;
+    this.$get = function(darLog){
+        darLogRef = darLog;
 
         return {
             MOBILE_WIDTH: this.MOBILE_WIDTH,
@@ -1045,7 +1045,7 @@ IR.MODULE.UTIL.provider("irDeviceInfo", function(){
  * You can set default log level in the angular's config method
  * @service
  */
-IR.MODULE.UTIL.provider("irLog", function(){
+DAR.MODULE.UTIL.provider("darLog", function(){
     "use strict";
     this.LOG_LEVEL = {
         ALL: "ALL",
@@ -1138,7 +1138,7 @@ IR.MODULE.UTIL.provider("irLog", function(){
  * Service, that provides useful methods for DOM elements (analog of jQuery)
  * @service
  */
-IR.MODULE.UTIL.service("irElement", function Element(){
+DAR.MODULE.UTIL.service("darElement", function Element(){
 
     /**
      * Returns top and left offset of element

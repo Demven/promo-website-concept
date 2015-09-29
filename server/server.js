@@ -41,7 +41,8 @@ app.use(require("compression")());
 
 // Routes
 app.get("/", auth.basicAuth('dar', 'dar2015'), function(req, res) {
-    res.redirect("/stay-with-us.html");
+    //res.redirect("/index.html");
+    res.send("/index.html");
 });
 
 app.listen(app.get("port"));

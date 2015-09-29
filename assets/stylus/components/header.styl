@@ -1,276 +1,41 @@
 /** HEADER COMPONENT
   * @author Dmitry Salnikov
-  * @since 2/17/2015
+  * @since 9/24/2015
  */
 @require './base/util'
 @require './base/devices'
 
 $header-base-font-size = 1rem // Desktop
 
-$header-height = 12.6em
-$header-action-size = 4em
-$header-mobile-action-size = 7em
-$header-logo-height = 7em
-$header-font-icon-size = 1em
-$header-logo-bird-left-part-width = 4.2em
-$header-logo-bird-left-part-height = 1.7em
-$header-logo-bird-right-part-width = 4.6em
-$header-logo-bird-right-part-height = 3.6em
-
-$header-title-box-color = #8e8e8e
-$header-font-icon-color = #b0b0b0
-$header-font-icon-hover-color = #999999
-
-$header-color-anim-dur = 0.3s
-$header-logo-bird-anim-dur = 0.8s
+$header-height = 8.7em
 
 header
+  width: 100vw
   height: $header-height
   display: flex
+  position: fixed
+  top: 0
+  left: 0
+  font-family: "Bebas-Regular"
   font-size: $header-base-font-size
   align-items: center
   flex-wrap: nowrap
-  margin-left: 0
-  transition: margin $drawer-open-anim-dur, transform $drawer-open-anim-dur
-
-  header-action-icon-after(url, border-radius = 0)
-    &:after
-      content: ''
-      width: $header-action-size
-      height: $header-action-size
-      position: absolute
-      top: 50%
-      left: 50%
-      margin-top: -($header-action-size/2)
-      margin-left: -($header-action-size/2)
-      display: block
-      background: url(url) no-repeat
-      background-size: $header-action-size $header-action-size
-      if border-radius
-        border-radius: border-radius
-
-  header-action-font-icon-after(iconCode = '', size = 1em, fontSize = 4em)
-    &:after
-      content: iconCode
-      width: size
-      height: size
-      position: absolute
-      top: 50%
-      left: 50%
-      margin-top: -(size/2)
-      margin-left: -(size/2)
-      display: block
-      font-family: $font-icon
-      font-size: fontSize
-      text-align: center
-      color: $header-font-icon-color
-      transition: color $header-color-anim-dur
-
-  .user-menu-button
-    width: $header-height
+  justify-content: center
+  z-index: 100
+  ul
+    width: 80%
     height: 100%
-    position: relative
-    cursor: pointer
-    transition: width $drawer-open-anim-dur
-    header-action-icon-after("http://fotohost.by/images/2015/02/17/avatar-medium.png", 4px)
-    &:after
-      transform: scale(1)
-      opacity: 1
-      transition: transform $drawer-open-anim-dur, opacity $drawer-open-anim-dur
-    &.collapsed
-      width: ($header-height/3.5)
-      cursor: auto
-      &:after
-        transform: scale(0)
-        opacity: 0
-    &:hover
-      &:after
-        box-shadow: 0 0 1px 0 #000
-
-  figure.logo
-    height: $header-logo-height
     display: flex
-    align-items: flex-start
-    cursor: pointer
-    .bird
-      order: 2
-      width: 8.1em
-      height: $header-logo-bird-right-part-height
-      position: relative
-      margin-left: 0.5em
-      &:before
-        content: ''
-        width: $header-logo-bird-left-part-width
-        height: $header-logo-bird-left-part-height
-        position: absolute
-        bottom: 0
-        left: 0
-        display: block
-        background: url(($url-icons + "bird-left-part.png")) no-repeat
-        background-size: $header-logo-bird-left-part-width $header-logo-bird-left-part-height
-        transition: transform $header-logo-bird-anim-dur
-      &:after
-        content: ''
-        width: $header-logo-bird-right-part-width
-        height: $header-logo-bird-right-part-height
-        position: absolute
-        top: -0.1em
-        left: 3.6em
-        display: block
-        background: url(($url-icons + "bird-right-part.png")) no-repeat
-        background-size: $header-logo-bird-right-part-width $header-logo-bird-right-part-height
-        transition: transform $header-logo-bird-anim-dur
-    figcaption
-      font-family: $font-base
-      font-weight: 700
-      font-size: 6.6em
-      color: $color-base
-      order: 1
-    &:hover
-      .bird
-        &:before
-          transform: rotate(18deg) scale(1.2)
-        &:after
-          transform: rotate(-9deg) scale(1.1)
-
-  .center-box
-    height: 80%
-    display: flex
-    flex-direction: row
-    flex-grow: 1
-    justify-content: space-between
-    border-left: 1px solid #dedede
-    border-right: 1px solid #dedede
-    margin-left: 2em
-    .title-box
-      display: flex
-      flex-direction: column
-      justify-content: center
-      padding-left: 2em
-      font-family: $font-base
-      font-weight: normal
-      color: $header-title-box-color
-      text-transform: uppercase
-      white-space: nowrap
-      .title
-        font-size: 2em
-      .subtitle
-        font-size: 5.6em
-
-    .actions-box
-      height: 100%
-      display: flex
-      align-items: center
-      .action
-        width: $header-height
-        height: $header-height
-        cursor: pointer
-        position: relative
-        &.search
-          header-action-font-icon-after($icon-code-search, $header-font-icon-size, $header-action-size)
-        &:hover
-          &:after
-            color: $header-font-icon-hover-color
-
-  .notifications-button
-    width: $header-height
-    height: $header-height
-    position: relative
-    cursor: pointer
-    header-action-font-icon-after($icon-code-bell, $header-font-icon-size, ($header-action-size + 0.4em))
-    &:after
-      transform: scale(1)
-      opacity: 1
-      transition: transform $drawer-open-anim-dur, opacity $drawer-open-anim-dur
-    &.collapsed
-      cursor: auto
-      &:after
-        transform: scale(0)
-        opacity: 0
-    &:hover
-      &:after
-        color: $header-font-icon-hover-color
-
-/* ANIMATIONS */
-header
-  &.slide-right
-    margin-left: $header-height
-  &.slide-left
-    margin-right: ($header-height/3.5)
-
+    justify-content: center
+    align-items: center
+    font-size: 3.4em
+    text-transform: uppercase
+    background-color: #fff
+    color: #232323
+    li
+      margin: 0 0.5em
 
 /* MOBILE STYLES */
-@media $mobile
-  header-mobile-action-icon-after()
-    &:after
-      width: $header-mobile-action-size
-      height: $header-mobile-action-size
-      margin-top: -($header-mobile-action-size/2)
-      margin-left: -($header-mobile-action-size/2)
-      background-size: $header-mobile-action-size $header-mobile-action-size
-
+/*@media $mobile
   header
-    font-size: 0.44 * $header-base-font-size !important
-    .user-menu-button
-      header-mobile-action-icon-after()
-
-    figure.logo
-      height: 8.6em
-      .bird
-        font-size: 136%
-      figcaption
-        font-size: 8.2em
-
-    .center-box
-      border: 0
-      justify-content: flex-end
-      margin: 0
-      .title-box
-        width: 100%
-        position: absolute
-        top: 12.6em
-        left: 0
-        flex-direction: row
-        padding: 1.2em 0
-        .title
-          font-size: 3em
-          padding: 0.2em 0.4em
-          border-right: 1px solid #dedede
-        .subtitle
-          font-size: 3em
-          padding: 0.2em 0.4em
-      .actions-box
-        .action
-          &.search:after
-            font-size:6em
-
-    .notifications-button:after
-      font-size: 6.6em
-
-    &.slide-right
-      margin-left: 0
-      transform: translateX($drawer-mobile-width)
-    &.slide-left
-      margin-right: 0
-      transform: translateX((-($drawer-mobile-width)+($header-height)))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    font-size: 0.44 * $header-base-font-size !important*/
