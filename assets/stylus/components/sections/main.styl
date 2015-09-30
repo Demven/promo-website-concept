@@ -19,7 +19,7 @@ dar-section-main
   height: $section-main-height
   display: flex
   position: relative
-  font-family: "Roboto"
+  font-family: $font-roboto-regular
   font-size: $section-main-base-font-size
   align-items: center
   flex-wrap: nowrap
@@ -36,7 +36,7 @@ dar-section-main
     align-items: center
     z-index: 10
     .company-title
-      font-family: "Compact"
+      font-family: $font-compact-regular
       font-size: 11em
       color: #fff
 
@@ -131,13 +131,13 @@ dar-section-main
         position: absolute
         background: #fff
         transition: transform 0.8s
-        img
-          width: 100%
+        background-position-x: 50%
+        background-repeat: no-repeat
         .title
           width: 100%
           position: absolute
           bottom: 1em
-          font-family: "Bebas-Bold"
+          font-family: $font-bebas-bold
           font-size: 7.2em
           text-align: center
           color: #fff

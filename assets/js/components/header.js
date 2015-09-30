@@ -13,7 +13,7 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
 
                 this.NAME = "Header";
                 this.isDestroyOnPageChange = false;
-                this.isTriggerResize = false;
+                this.isTriggerResize = true;
 
                 this.CLASS = {
                     COLLAPSED: "collapsed"
@@ -66,7 +66,7 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                             });*/
                 //};
 
-                /*this._resize = function(vw, vh){
+                this._resize = function(vw, vh){
                     if (vw > darDeviceInfo.MOBILE_WIDTH) {
                         // for desktop and tablet
                         var fontSize = Math.min(parseFloat((vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
@@ -74,7 +74,7 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                     } else {
                         wrapper.css(this.ATTR.FONT_SIZE, this.VAL.AUTO)
                     }
-                };*/
+                };
 
                 this._destroy = function(){
                     // remove global listeners

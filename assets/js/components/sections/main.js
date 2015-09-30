@@ -15,7 +15,7 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
 
                 this.NAME = "SectionMain";
                 this.isDestroyOnPageChange = true;
-                this.isTriggerResize = false;
+                this.isTriggerResize = true;
 
                 this.ATTR = {
                     FONT_SIZE: "font-size",
@@ -79,15 +79,15 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                     this._cloneFirstSlide();
                 };*/
 
-                /*this._resize = function(vw, vh){
-                 if (vw > darDeviceInfo.MOBILE_WIDTH) {
-                 // for desktop and tablet
-                 var fontSize = Math.min(parseFloat((vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
-                 wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
-                 } else {
-                 wrapper.css(this.ATTR.FONT_SIZE, this.VAL.AUTO)
-                 }
-                 };*/
+                this._resize = function(vw, vh){
+                    if (vw > darDeviceInfo.MOBILE_WIDTH) {
+                        // for desktop and tablet
+                        var fontSize = Math.min(parseFloat(0.9*(vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
+                        wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
+                    } else {
+                        wrapper.css(this.ATTR.FONT_SIZE, this.VAL.AUTO)
+                    }
+                };
 
                 this._destroy = function(){
                     // remove global listeners
