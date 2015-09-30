@@ -57,7 +57,7 @@ dar-section-main
   .slideshow
     height: 100%
     width: 100%
-    background-color: cornflowerblue
+    background-color: #000
     position: relative
 
     $slide-control()
@@ -133,6 +133,7 @@ dar-section-main
         transition: transform 0.8s
         background-position-x: 50%
         background-repeat: no-repeat
+        background-size: auto 100%
         .title
           width: 100%
           position: absolute
@@ -143,6 +144,17 @@ dar-section-main
           color: #fff
 
 /* MOBILE STYLES */
-/*@media $mobile
-  header
-    font-size: 0.44 * $header-base-font-size !important*/
+@media $mobile
+  dar-section-main
+    .company-title-container
+      .company-title
+        font-size: 9em
+    .slideshow
+      .prev
+        height: 32em
+        top: 50%
+        margin-top: -16em
+      .next
+        height: 32em
+        top: 50%
+        margin-top: -16em

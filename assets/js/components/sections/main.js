@@ -80,12 +80,15 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 };*/
 
                 this._resize = function(vw, vh){
+                    var fontSize;
                     if (vw > darDeviceInfo.MOBILE_WIDTH) {
                         // for desktop and tablet
-                        var fontSize = Math.min(parseFloat(0.9*(vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
+                        fontSize = Math.min(parseFloat(0.9*(vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
                         wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
                     } else {
-                        wrapper.css(this.ATTR.FONT_SIZE, this.VAL.AUTO)
+                        fontSize = Math.min(parseFloat((vw / darDeviceInfo.MOBILE_WIDTH).toFixed(2)), 0.6);
+                        wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
+                        //wrapper.css(this.ATTR.FONT_SIZE, this.VAL.AUTO)
                     }
                 };
 
