@@ -144,7 +144,7 @@ dar-section-main
           color: #fff
 
 /* MOBILE STYLES */
-@media $mobile
+$mobile-and-tablet-portrait-mixin()
   dar-section-main
     .company-title-container
       .company-title
@@ -158,3 +158,9 @@ dar-section-main
         height: 32em
         top: 50%
         margin-top: -16em
+
+@media $mobile-portrait
+  $mobile-and-tablet-portrait-mixin()
+
+@media $tablet-portrait
+  $mobile-and-tablet-portrait-mixin()

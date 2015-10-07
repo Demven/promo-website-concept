@@ -884,7 +884,13 @@ DAR.MODULE.UTIL.provider("darDeviceInfo", function(){
         DESKTOP_WIDE: "desktopWide"
     };
 
-    this.currentDeviceState = this.DEVICE_STATE.DESKTOP; // default state TODO: change states
+    this.DEVICE_ORIENTATION = {
+        LANDSCAPE: "landscape",
+        PORTRAIT: "portrait"
+    };
+
+    this.deviceState = null;
+    this.deviceOrientation = null;
 
     var NAME = "DeviceInfo";
 
@@ -952,25 +958,6 @@ DAR.MODULE.UTIL.provider("darDeviceInfo", function(){
         }
     }
 
-    if ( platform === 'MacIntel' || platform === 'MacPPC' ) {
-        os = 'Mac OS X';
-        osversion = /10[\.\_\d]+/.exec(ua)[0];
-        if ( /[\_]/.test(osversion) ) {
-            osversion = osversion.split('_').join('.');
-        }
-    } else if ( platform === 'CrOS' ) {
-        os = 'ChromeOS';
-    } else if ( platform === 'Win32' || platform == 'Win64' ) {
-        os = 'Windows';
-        bit = platform.replace(/[^0-9]+/,'');
-    } else if ( !os && /Android/.test(ua) ) {
-        os = 'Android';
-    } else if ( !os && /Linux/.test(platform) ) {
-        os = 'Linux';
-    } else if ( !os && /Windows/.test(ua) ) {
-        os = 'Windows';
-    }
-
     /**
      * Recalculates size of the viewport and set a proper device state
      * @warn You must fire this method on each resize of window manually
@@ -997,9 +984,22 @@ DAR.MODULE.UTIL.provider("darDeviceInfo", function(){
             newState = this.DEVICE_STATE.MOBILE;
         }
 
-        if(newState !== this.currentDeviceState){
-            this.currentDeviceState = newState;
+        if(newState !== this.deviceState){
+            this.deviceState = newState;
             darLogRef.info(NAME + ": device state changed to " + newState);
+        }
+
+        // update device orientation
+        var newOrientation;
+        if(vw > vh){
+            newOrientation = this.DEVICE_ORIENTATION.LANDSCAPE;
+        } else {
+            newOrientation = this.DEVICE_ORIENTATION.PORTRAIT;
+        }
+
+        if(newOrientation !== this.deviceOrientation){
+            this.deviceOrientation = newOrientation;
+            darLogRef.info(NAME + ": device orientation changed to " + newOrientation);
         }
     };
 
@@ -1014,6 +1014,14 @@ DAR.MODULE.UTIL.provider("darDeviceInfo", function(){
         return viewport;
     };
 
+    this.isPortraitMode = function(){
+        return this.deviceOrientation === this.DEVICE_ORIENTATION.PORTRAIT;
+    };
+
+    this.isLandscapeMode = function(){
+        return this.deviceOrientation === this.DEVICE_ORIENTATION.LANDSCAPE;
+    };
+
     this.$get = function(darLog){
         darLogRef = darLog;
 
@@ -1025,10 +1033,16 @@ DAR.MODULE.UTIL.provider("darDeviceInfo", function(){
             DESKTOP_BASE_WIDTH: this.DESKTOP_BASE_WIDTH,
 
             DEVICE_STATE: this.DEVICE_STATE,
-            currentDeviceState: this.currentDeviceState,
+            deviceState: this.deviceState,
+
+            DEVICE_ORIENTATION: this.DEVICE_ORIENTATION,
+            deviceOrientation: this.deviceOrientation,
 
             resize: this.resize,
             getViewport: this.getViewport,
+
+            isPortraitMode: this.isPortraitMode,
+            isLandscapeMode: this.isLandscapeMode,
 
             browser : browser,
             version : version,

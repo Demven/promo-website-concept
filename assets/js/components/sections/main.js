@@ -17,6 +17,12 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 this.isDestroyOnPageChange = true;
                 this.isTriggerResize = true;
 
+                this.CONFIG = {
+                    SECTION_HEIGHT: 0.85,  // % from viewport (used only for certain cases)
+                    MAX_FONT_SIZE: 1,
+                    MAX_MOBILE_FONT_SIZE: 0.6
+                };
+
                 this.ATTR = {
                     FONT_SIZE: "font-size",
                     TRANSFORM: "transform"
@@ -51,7 +57,6 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                     NEXT_BUTTON: angular.element(wrapper[0].querySelector(this.SELECTOR.NEXT_BUTTON))
                 };
 
-                this._currentSlidesPosition = 0; // central slide
                 this.slidesNumber = this.ELEMENT.SLIDES.length;
 
                 // global listeners
@@ -80,15 +85,45 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 };*/
 
                 this._resize = function(vw, vh){
-                    var fontSize;
+                    var fontSize,
+                        wrapperHeight,
+                        requiredSectionHeight;
                     if (vw > darDeviceInfo.MOBILE_WIDTH) {
-                        // for desktop and tablet
-                        fontSize = Math.min(parseFloat(0.9*(vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
+                        // DESKTOP and TABLET
+
+                        // apply max font-size
+                        wrapper.css(this.ATTR.FONT_SIZE, this.CONFIG.MAX_FONT_SIZE + this.VAL.REM);
+
+                        // then adjust by viewport height
+                        wrapperHeight = wrapper[0].offsetHeight;
+                        requiredSectionHeight = vh*this.CONFIG.SECTION_HEIGHT;
+                        fontSize = Math.min(parseFloat((requiredSectionHeight/wrapperHeight).toFixed(2)), this.CONFIG.MAX_FONT_SIZE);
+
+                        // for portrait mode on tablets
+                        if(fontSize === 1 && darDeviceInfo.isPortraitMode()){
+                            fontSize *=0.9;
+                        }
+
+                        // apply recalculated font-size
                         wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
                     } else {
-                        fontSize = Math.min(parseFloat((vw / darDeviceInfo.MOBILE_WIDTH).toFixed(2)), 0.6);
-                        wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
-                        //wrapper.css(this.ATTR.FONT_SIZE, this.VAL.AUTO)
+                        // MOBILE
+
+                        if(darDeviceInfo.isPortraitMode()){
+                            fontSize = Math.min(parseFloat((vw / darDeviceInfo.MOBILE_WIDTH).toFixed(2)), this.CONFIG.MAX_MOBILE_FONT_SIZE);
+                            wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
+                        } else {
+                            // landscape mode
+                            wrapper.css(this.ATTR.FONT_SIZE, this.CONFIG.MAX_MOBILE_FONT_SIZE + this.VAL.REM);
+
+                            // then adjust by viewport height
+                            wrapperHeight = wrapper[0].offsetHeight;
+                            requiredSectionHeight = vh*this.CONFIG.SECTION_HEIGHT;
+                            fontSize = Math.min(parseFloat(((requiredSectionHeight*this.CONFIG.MAX_MOBILE_FONT_SIZE)/wrapperHeight).toFixed(2)), this.CONFIG.MAX_MOBILE_FONT_SIZE);
+
+                            // apply recalculated font-size
+                            wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
+                        }
                     }
                 };
 
