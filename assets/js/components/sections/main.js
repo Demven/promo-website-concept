@@ -14,7 +14,7 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 SectionMainElementComponent.superclass.constructor.call(this);
 
                 this.NAME = "SectionMain";
-                this.VERSION = "0.5";
+                this.VERSION = "0.4";
                 this.isDestroyOnPageChange = true;
                 this.isTriggerResize = true;
 
