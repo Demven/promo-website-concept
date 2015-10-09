@@ -1,4 +1,4 @@
-/* global Hammer */
+/* global Quo */
 
 /**
  * Created by Dmitry_Salnikov on 9/24/2015.
@@ -14,6 +14,7 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 SectionMainElementComponent.superclass.constructor.call(this);
 
                 this.NAME = "SectionMain";
+                this.VERSION = "0.5";
                 this.isDestroyOnPageChange = true;
                 this.isTriggerResize = true;
 
@@ -35,7 +36,9 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 };
 
                 this.EVENT = {
-                    TAP: "tap"
+                    TAP: "touch",
+                    SWIPE_TO_RIGHT: "swipeRight",
+                    SWIPE_TO_LEFT: "swipeLeft"
                 };
 
                 this.CLASS = {
@@ -60,29 +63,20 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 this.slidesNumber = this.ELEMENT.SLIDES.length;
 
                 // global listeners
-                /*var offLeftDrawerOpen = new Function(),
-                 offLeftDrawerClose = new Function(),
-                 offRightDrawerOpen = new Function(),
-                 offRightDrawerClose = new Function();*/
+                /*var offLeftDrawerOpen = new Function();*/
 
                 this._postCreate = function(){
-                    //offLeftDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_OPEN, angular.bind(this, this._onLeftDrawerOpen));
-                    //offLeftDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_CLOSE, angular.bind(this, this._onLeftDrawerClose));
-
-                    //offRightDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_OPEN, angular.bind(this, this._onRightDrawerOpen));
-                    //offRightDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_CLOSE, angular.bind(this, this._onRightDrawerClose));*/
+                    // global listeners
+                    //offLeftDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_OPEN, angular.bind(this, this._onLeftDrawerOpen));*/
 
                     // local listeners
-                    this.ELEMENT.PREV_BUTTON.hammer = new Hammer(this.ELEMENT.PREV_BUTTON[0])
-                        .on(this.EVENT.TAP, angular.bind(this, this.prevSlide));
-                    this.ELEMENT.NEXT_BUTTON.hammer = new Hammer(this.ELEMENT.NEXT_BUTTON[0])
-                        .on(this.EVENT.TAP, angular.bind(this, this.nextSlide));
+                    // tap
+                    Quo(this.ELEMENT.PREV_BUTTON[0]).on(this.EVENT.TAP, angular.bind(this, this.prevSlide));
+                    Quo(this.ELEMENT.NEXT_BUTTON[0]).on(this.EVENT.TAP, angular.bind(this, this.nextSlide));
+                    // swipe
+                    Quo(wrapper[0]).on(this.EVENT.SWIPE_TO_RIGHT, angular.bind(this, this.prevSlide));
+                    Quo(wrapper[0]).on(this.EVENT.SWIPE_TO_LEFT, angular.bind(this, this.nextSlide));
                 };
-
-                /*this._render = function () {
-                    this._cloneLastSlide();
-                    this._cloneFirstSlide();
-                };*/
 
                 this._resize = function(vw, vh){
                     var fontSize,
@@ -100,7 +94,7 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                         fontSize = Math.min(parseFloat((requiredSectionHeight/wrapperHeight).toFixed(2)), this.CONFIG.MAX_FONT_SIZE);
 
                         // for portrait mode on tablets
-                        if(fontSize === 1 && darDeviceInfo.isPortraitMode()){
+                        if(fontSize === 1 && darDeviceInfo.isPortraitMode){
                             fontSize *=0.9;
                         }
 
@@ -109,7 +103,7 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                     } else {
                         // MOBILE
 
-                        if(darDeviceInfo.isPortraitMode()){
+                        if(darDeviceInfo.isPortraitMode){
                             fontSize = Math.min(parseFloat((vw / darDeviceInfo.MOBILE_WIDTH).toFixed(2)), this.CONFIG.MAX_MOBILE_FONT_SIZE);
                             wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
                         } else {
@@ -130,11 +124,12 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 this._destroy = function(){
                     // remove global listeners
                     //offLeftDrawerOpen();
-                    //offLeftDrawerClose();
 
                     // remove local listeners
-                    this.ELEMENT.PREV_BUTTON.hammer.destroy();
-                    this.ELEMENT.NEXT_BUTTON.hammer.destroy();
+                    Quo(this.ELEMENT.PREV_BUTTON[0]).off(this.EVENT.TAP);
+                    Quo(this.ELEMENT.NEXT_BUTTON[0]).off(this.EVENT.TAP);
+                    Quo(this.ELEMENT.SLIDES_CONTAINER[0]).off(this.EVENT.SWIPE_TO_RIGHT);
+                    Quo(this.ELEMENT.SLIDES_CONTAINER[0]).off(this.EVENT.SWIPE_TO_LEFT);
                 };
 
                 this.prevSlide = function(){

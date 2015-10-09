@@ -540,6 +540,12 @@ DAR.MODULE.UTIL.factory("darExtendService", function($rootScope, $window, $q, da
             this.NAME = "";
 
             /**
+             * Indicates version of a component (might be very useful)
+             * @type {string}
+             */
+            this.VERSION = "";
+
+            /**
              * Override this by a special prmise object and set flag this.isDefferedBuild to true
              * Build method will continue work only when this promise is resolved
              * @type {Promise}
@@ -993,8 +999,12 @@ DAR.MODULE.UTIL.provider("darDeviceInfo", function(){
         var newOrientation;
         if(vw > vh){
             newOrientation = this.DEVICE_ORIENTATION.LANDSCAPE;
+            this.isLandscapeMode = true;
+            this.isPortraitMode = false;
         } else {
             newOrientation = this.DEVICE_ORIENTATION.PORTRAIT;
+            this.isLandscapeMode = false;
+            this.isPortraitMode = true;
         }
 
         if(newOrientation !== this.deviceOrientation){
@@ -1012,14 +1022,6 @@ DAR.MODULE.UTIL.provider("darDeviceInfo", function(){
             this.resize();
         }
         return viewport;
-    };
-
-    this.isPortraitMode = function(){
-        return this.deviceOrientation === this.DEVICE_ORIENTATION.PORTRAIT;
-    };
-
-    this.isLandscapeMode = function(){
-        return this.deviceOrientation === this.DEVICE_ORIENTATION.LANDSCAPE;
     };
 
     this.$get = function(darLog){
