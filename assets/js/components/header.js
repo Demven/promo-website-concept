@@ -16,7 +16,7 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                 this.isTriggerResize = true;
 
                 this.CLASS = {
-                    COLLAPSED: "collapsed"
+                    CLOSED: "closed"
                 };
 
                 this.ATTR = {
@@ -33,7 +33,9 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                 };
 
                 this.STATE = {
-                    NORMAL: "normal"
+                    NORMAL: "normal",
+                    CLOSED: "closed",
+                    OPEN: "open"
                 };
 
                 this.ELEMENT = {
@@ -74,6 +76,34 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                     } else {
                         wrapper.css(this.ATTR.FONT_SIZE, this.VAL.AUTO)
                     }
+
+                    if(darDeviceInfo.deviceState === darDeviceInfo.DEVICE_STATE.MOBILE){
+                        if(currentState === this.STATE.NORMAL){
+                            this.setState(this.STATE.CLOSED);
+                        }
+                    } else if(currentState === this.STATE.CLOSED){
+                        this.setState(this.STATE.NORMAL);
+                    }
+                };
+
+                this._setState = function(state){
+                    switch(state){
+                        case this.STATE.NORMAL:
+                            wrapper.removeClass(this.CLASS.CLOSED);
+                            wrapper.removeClass(this.CLASS.OPEN);
+                            currentState = this.STATE.NORMAL;
+                            break;
+                        case this.STATE.CLOSED:
+                            wrapper.removeClass(this.CLASS.OPEN);
+                            wrapper.addClass(this.CLASS.CLOSED);
+                            currentState = this.STATE.CLOSED;
+                            break;
+                        case this.STATE.OPEN:
+                            wrapper.removeClass(this.CLASS.CLOSED);
+                            wrapper.addClass(this.CLASS.OPEN);
+                            currentState = this.STATE.OPEN;
+                            break;
+                    }
                 };
 
                 this._destroy = function(){
@@ -86,7 +116,6 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                     //this.ELEMENT.NOTIFICATIONS_BUTTON.hammer.destroy();
                 };
             }
-
 
             darExtendService.extend(HeaderElementComponent, darExtendService.BaseElementComponent);
 

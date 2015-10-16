@@ -41,8 +41,7 @@ app.use(require("compression")());
 
 // Routes
 app.get("/", auth.basicAuth('dar', 'dar2015'), function(req, res) {
-    //res.redirect("/index.html");
-    res.send("/index.html");
+    res.sendFile(path.join(__dirname, '../public', 'dar.html'));
 });
 
 app.listen(app.get("port"));

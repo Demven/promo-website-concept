@@ -568,6 +568,8 @@ DAR.MODULE.UTIL.factory("darExtendService", function($rootScope, $window, $q, da
              */
             this.isDefferedBuild = false;
 
+            /** Object with states of the component */
+            this.STATE = {};
             /** Object with css classes, that are used by this component */
             this.CLASS = {};
             /** Object with css attributes, that are used by this component */
@@ -751,6 +753,20 @@ DAR.MODULE.UTIL.factory("darExtendService", function($rootScope, $window, $q, da
              *  Please remove all listeners and clear all data
              */
             this._resize = function (vw, vh) {
+                return this;
+            };
+
+            /** Change state of the component to the specified state*/
+            this.setState = function (state) {
+                darLog.info(this.NAME + ": changed state to " + state);
+
+                this._setState(state);
+            };
+
+            /** For override
+             *  Please switch between states from this.STATE and do something for those particulat states
+             */
+            this._setState = function (state) {
                 return this;
             };
 

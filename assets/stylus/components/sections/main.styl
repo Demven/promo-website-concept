@@ -131,9 +131,8 @@ dar-section-main
         position: absolute
         background: #fff
         transition: transform 0.8s
-        background-position-x: 50%
+        background-position: 50% 50%
         background-repeat: no-repeat
-        background-size: auto 100%
         .title
           width: 100%
           position: absolute
@@ -164,3 +163,12 @@ $mobile-and-tablet-portrait-mixin()
 
 @media $tablet-portrait
   $mobile-and-tablet-portrait-mixin()
+
+
+@media $all-less-than-desktop
+  dar-section-main
+    .slideshow
+      .slides
+        .slide
+          background-size: auto 100%
+

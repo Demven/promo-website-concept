@@ -10,6 +10,11 @@ $header-base-font-size = 1rem // Desktop
 $header-height = 8.7em
 $header-items-font-size = 4.6em
 
+$logo-show()
+  width: 1.4em
+  opacity: 1
+  padding: .16em .5em
+
 header
   width: 100vw
   height: $header-height
@@ -32,6 +37,7 @@ header
     text-transform: uppercase
     background-color: #fff
     color: #232323
+    z-index: 100
     li
       padding: .45em .5em
       font-size: $header-items-font-size
@@ -40,8 +46,69 @@ header
       &:hover
         background-color: rgba(0,0,0,0.06)
 
+      &.logo
+        width: 0
+        margin-top: .12em
+        background-color: initial
+        padding: 0 0 0.3em 0
+        opacity: 0
+        transition: width .4s, opacity .4s, padding .4s
+        &.show
+          $logo-show()
+        img
+          width: 100%
+        &:hover
+          background-color: rgba(0,0,0,0.06)
+  .menu-button
+    display: none;
+
 /* MOBILE STYLES */
 @media $mobile
   header
-    ul
-      display: none
+    &.open
+      height: 80vh
+      background-color: #fff
+      font-size: 1em !important
+      flex-direction: column
+      ul
+        padding-top: 6em
+        background-color: rgba(255,255,255,0)
+        flex-direction: column
+        li
+          &.logo
+            $logo-show()
+            width: 1.6em
+      &:before
+        content: ""
+        position:absolute
+        bottom: -20vh
+        width: 0
+        height: 0
+        border-left: 80vw solid rgba(0,0,0,0.1)
+        border-right: 80vw solid rgba(0,0,0,0.1)
+        border-top: 30vh solid #fff
+        left: -30vw
+      .menu-button
+        width: 6em
+        height: 4.6em
+        display: block
+        z-index: 100
+        position: relative
+        cursor: pointer
+        .line-container
+          width: 6em
+          height: 4.6em
+          display: flex
+          flex-direction: column
+          justify-content: space-between
+          position: absolute
+          top: 2.6em
+          .line
+            width: 100%
+            height: 0.8em
+            background-color: #000
+            border-radius: 0.4em
+    &.closed
+      height: 10%
+      ul
+        display: none
