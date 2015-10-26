@@ -16,7 +16,12 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                 this.isTriggerResize = true;
 
                 this.CLASS = {
-                    CLOSED: "closed"
+                    CLOSED: "closed",
+                    OPEN: "open"
+                };
+
+                this.SELECTOR = {
+                    MENU_BUTTON: ".menu-button"
                 };
 
                 this.ATTR = {
@@ -39,7 +44,13 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                 };
 
                 this.ELEMENT = {
-                    //ACTIONS_BOX: angular.element(wrapper[0].querySelector(".actions-box"))
+                    MENU_BUTTON: angular.element(wrapper[0].querySelector(this.SELECTOR.MENU_BUTTON))
+                };
+
+                this.EVENT = {
+                    TAP: "touch",
+                    SWIPE_DOWN: "swipeDown",
+                    SWIPE_UP: "swipeUp"
                 };
 
                 // global listeners
@@ -49,34 +60,30 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                     offRightDrawerClose = new Function();*/
 
                 var currentState = this.STATE.NORMAL;
+                var MOBILE_MAX_WIDTH = 414;
 
-                //this._postCreate = function(){
-                    /*offLeftDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_OPEN, angular.bind(this, this._onLeftDrawerOpen));
-                    offLeftDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_CLOSE, angular.bind(this, this._onLeftDrawerClose));
-
-                    offRightDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_OPEN, angular.bind(this, this._onRightDrawerOpen));
-                    offRightDrawerClose = $rootScope.$on(IR.EVENT.OCCURRED.RIGHT_DRAWER_CLOSE, angular.bind(this, this._onRightDrawerClose));*/
-
+                this._postCreate = function(){
                     // local listeners
-                    /*this.ELEMENT.USER_MENU_BUTTON.hammer = new Hammer(this.ELEMENT.USER_MENU_BUTTON[0])
-                            .on(this.EVENT.TAP, function(){
-                                $rootScope.$broadcast(IR.EVENT.OCCURRED.HEADER_USER_MENU_BUTTON_CLICKED);
-                            });
-                    this.ELEMENT.NOTIFICATIONS_BUTTON.hammer = new Hammer(this.ELEMENT.NOTIFICATIONS_BUTTON[0])
-                            .on(this.EVENT.TAP, function(){
-                                $rootScope.$broadcast(IR.EVENT.OCCURRED.HEADER_NOTIFICATIONS_BUTTON_CLICKED);
-                            });*/
-                //};
+                    var menuButton = this.ELEMENT.MENU_BUTTON[0];
+                    // tap
+                    Quo(menuButton).on(this.EVENT.TAP, angular.bind(this, this.toggleMenu));
+                    // swipe
+                    Quo(menuButton).on(this.EVENT.SWIPE_DOWN, angular.bind(this, this.openMenu));
+                    Quo(menuButton).on(this.EVENT.SWIPE_UP, angular.bind(this, this.closeMenu));
+                };
 
                 this._resize = function(vw, vh){
+                    var fontSize;
                     if (vw > darDeviceInfo.MOBILE_WIDTH) {
                         // for desktop and tablet
-                        var fontSize = Math.min(parseFloat((vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
-                        wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
+                        fontSize = Math.min(parseFloat((vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
                     } else {
-                        wrapper.css(this.ATTR.FONT_SIZE, this.VAL.AUTO)
+                        // mobile
+                        fontSize = Math.min(parseFloat((vw / MOBILE_MAX_WIDTH).toFixed(2)), 1);
                     }
+                    wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
 
+                    // set proper state
                     if(darDeviceInfo.deviceState === darDeviceInfo.DEVICE_STATE.MOBILE){
                         if(currentState === this.STATE.NORMAL){
                             this.setState(this.STATE.CLOSED);
@@ -112,8 +119,32 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                     //offLeftDrawerClose();
 
                     // remove local listeners
-                    //this.ELEMENT.USER_MENU_BUTTON.hammer.destroy();
-                    //this.ELEMENT.NOTIFICATIONS_BUTTON.hammer.destroy();
+                    var menuButton = this.ELEMENT.MENU_BUTTON[0];
+                    Quo(menuButton).off(this.EVENT.TAP);
+                    Quo(menuButton).off(this.EVENT.SWIPE_DOWN);
+                    Quo(menuButton).off(this.EVENT.SWIPE_UP);
+                };
+
+                /*************************************** */
+
+                this.openMenu = function(){
+                    if(currentState === this.STATE.CLOSED){
+                        this.setState(this.STATE.OPEN);
+                    }
+                };
+
+                this.closeMenu = function(){
+                    if(currentState === this.STATE.OPEN){
+                        this.setState(this.STATE.CLOSED);
+                    }
+                };
+
+                this.toggleMenu = function(){
+                    if(currentState === this.STATE.CLOSED){
+                        this.openMenu();
+                    } else if(currentState === this.STATE.OPEN) {
+                        this.closeMenu();
+                    }
                 };
             }
 

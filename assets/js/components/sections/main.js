@@ -132,6 +132,9 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                     Quo(this.ELEMENT.SLIDES_CONTAINER[0]).off(this.EVENT.SWIPE_TO_LEFT);
                 };
 
+
+                /************************ */
+
                 this.prevSlide = function(){
                     var slide,
                         translateX;
