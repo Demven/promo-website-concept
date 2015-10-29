@@ -66,11 +66,13 @@ header
 @media $mobile
   header
     height: 100vh
+    top: -100%;
     flex-direction: column
     justify-content: start
     transition: top .4s
     ul
       height: 80vh
+      width: 100vw
       background-color: #fff
       flex-direction: column
       li
@@ -113,7 +115,7 @@ header
           border-radius: 0.4em
           transition: transform .6s, opacity .2s
     &.closed
-      top: -90%
+      top: -92%
       &:before
         transition: border-color .2s
       .menu-button

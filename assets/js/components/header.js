@@ -60,7 +60,10 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                     offRightDrawerClose = new Function();*/
 
                 var currentState = this.STATE.NORMAL;
-                var MOBILE_MAX_WIDTH = 414;
+                var MOBILE_PORTRAIT_MAX_WIDTH = 414;
+
+                var MOBILE_PORTRAIT_FACTOR = 0.8;
+                var MOBILE_LANDSCAPE_FACTOR = 0.5;
 
                 this._postCreate = function(){
                     // local listeners
@@ -79,7 +82,12 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                         fontSize = Math.min(parseFloat((vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
                     } else {
                         // mobile
-                        fontSize = Math.min(parseFloat((vw / MOBILE_MAX_WIDTH).toFixed(2)), 1);
+                        if(darDeviceInfo.isPortraitMode){
+                            fontSize = Math.min(parseFloat((vw*MOBILE_PORTRAIT_FACTOR / MOBILE_PORTRAIT_MAX_WIDTH).toFixed(2)), MOBILE_PORTRAIT_FACTOR);
+                        } else {
+                            // landscape
+                            fontSize = Math.min(parseFloat((vw*MOBILE_LANDSCAPE_FACTOR / darDeviceInfo.MOBILE_WIDTH).toFixed(2)), MOBILE_LANDSCAPE_FACTOR);
+                        }
                     }
                     wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
 
