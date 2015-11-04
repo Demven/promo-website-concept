@@ -1,7 +1,7 @@
 /* global Quo */
 
 /**
- * Created by Dmitry_Salnikov on 9/24/2015.
+ * Created by Dmitry Salnikov on 9/24/2015.
  */
 DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window, darExtendService, darDeviceInfo) {
     return {
@@ -14,7 +14,7 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 SectionMainElementComponent.superclass.constructor.call(this);
 
                 this.NAME = "SectionMain";
-                this.VERSION = "0.5";
+                this.VERSION = "1.0";
                 this.isDestroyOnPageChange = true;
                 this.isTriggerResize = true;
 
@@ -195,7 +195,6 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
             darExtendService.extend(SectionMainElementComponent, darExtendService.BaseElementComponent);
 
             if(DAR.UIC.SECTION.MAIN){
-                // no need to do a second header component
                 DAR.UIC.SECTION.MAIN.destroy();
             }
             DAR.UIC.SECTION.MAIN = new SectionMainElementComponent().build().render();

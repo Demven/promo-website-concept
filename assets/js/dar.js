@@ -12,10 +12,10 @@ DAR.UIC = new (function(){
     // sections
     this.SECTION = {
         MAIN: null,
+        ABOUT: null,
         PROJECTS: null,
         PARTNERS: null,
         TEAM: null,
-        ABOUT: null,
         CONTACTS: null
     };
 })();
@@ -34,10 +34,10 @@ DAR.MODULE_NAME = new (function(){
     this.UTIL = this.APP_NAME + ".util";
     // sections:
     this.SECTION_MAIN = this.SECTIONS + ".main";
+    this.SECTION_ABOUT = this.SECTIONS + ".about";
     this.SECTION_PROJECTS = this.SECTIONS + ".projects";
     this.SECTION_PARTNERS = this.SECTIONS + ".partners";
     this.SECTION_TEAM = this.SECTIONS + ".team";
-    this.SECTION_ABOUT = this.SECTIONS + ".about";
     this.SECTION_CONTACTS = this.SECTIONS + ".contacts";
 })();
 
@@ -46,18 +46,18 @@ DAR.MODULE = new (function(){
     this.UTIL = angular.module(DAR.MODULE_NAME.UTIL, []);
     // sections:
     this.SECTION_MAIN = angular.module(DAR.MODULE_NAME.SECTION_MAIN, []);
+    this.SECTION_ABOUT = angular.module(DAR.MODULE_NAME.SECTION_ABOUT, []);
     this.SECTION_PROJECTS = angular.module(DAR.MODULE_NAME.SECTION_PROJECTS, []);
     this.SECTION_PARTNERS = angular.module(DAR.MODULE_NAME.SECTION_PARTNERS, []);
     this.SECTION_TEAM = angular.module(DAR.MODULE_NAME.SECTION_TEAM, []);
-    this.SECTION_ABOUT = angular.module(DAR.MODULE_NAME.SECTION_ABOUT, []);
     this.SECTION_CONTACTS = angular.module(DAR.MODULE_NAME.SECTION_CONTACTS, []);
     // sections container
     this.SECTION = angular.module(DAR.MODULE_NAME.SECTION, [
         DAR.MODULE_NAME.SECTION_MAIN,
+        DAR.MODULE_NAME.SECTION_ABOUT,
         DAR.MODULE_NAME.SECTION_PROJECTS,
         DAR.MODULE_NAME.SECTION_PARTNERS,
         DAR.MODULE_NAME.SECTION_TEAM,
-        DAR.MODULE_NAME.SECTION_ABOUT,
         DAR.MODULE_NAME.SECTION_CONTACTS
     ]);
     // main module
