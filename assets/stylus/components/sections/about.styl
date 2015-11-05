@@ -26,12 +26,14 @@ dar-section-about
   .about-content
     font-size: 2.8em
     line-height: 1.3em
+    text-align: justify
     p
       padding-bottom: 0.4em;
     .more
       display: none
   .show-more,
   .hide-more
+    width: 8em
     color: #3466cc
     font-size: 2.4em
     cursor: pointer
@@ -56,4 +58,18 @@ dar-section-about
       display: none
     .hide-more
       display: block
+
+/* MOBILE STYLES */
+@media $mobile
+  dar-section-about
+    font-size: .8rem !important
+    width: 100%
+    padding-left: 3em
+    padding-right: 3em
+    box-sizing: border-box
+    h1
+      font-size: 4.0em
+      text-align: center
+    .about-content
+      font-size: 2.5em
 

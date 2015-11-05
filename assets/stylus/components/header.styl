@@ -28,6 +28,8 @@ header
   flex-wrap: nowrap
   justify-content: center
   z-index: 100
+  .content-shadow
+    display: none
   ul
     width: 102.4em
     height: 100%
@@ -70,6 +72,15 @@ header
     flex-direction: column
     justify-content: start
     transition: top .4s
+    .content-shadow
+      width: 100%
+      height: 100%
+      position: absolute
+      top: 0
+      left: 0
+      background: rgba(0,0,0,0.3)
+      display: block
+      transition: opacity .4s .3s
     ul
       height: 80vh
       width: 100vw
@@ -80,7 +91,7 @@ header
           $logo-show()
           width: 1.6em
           padding-top: 1em
-    &:before
+    &:after
       content: ""
       position:absolute
       bottom: 0
@@ -90,6 +101,17 @@ header
       border-right: 80vw solid rgba(0,0,0,0)
       border-top: 30vh solid #fff
       left: -30vw
+    &:before
+      content: ""
+      position: absolute
+      bottom: 0
+      width: 0
+      height: 0
+      border-left: 80vw solid rgba(0,0,0,0)
+      border-right: 80vw solid rgba(0,0,0,0)
+      border-top: 30vh solid rgba(0,0,0,0.5)
+      left: -30vw
+      -webkit-filter: blur(1em)
     .menu-button
       width: 6em
       height: 4.6em
@@ -116,16 +138,14 @@ header
           transition: transform .6s, opacity .2s
     &.closed
       top: -92%
-      &:before
-        transition: border-color .2s
+      .content-shadow
+        opacity: 0
       .menu-button
         transform: scale(.7)
     &.open
       top: 0
-      &:before
-        transition: border-color .4s .2s
-        border-left-color: rgba(0,0,0,0.1)
-        border-right-color: rgba(0,0,0,0.1)
+      .content-shadow
+        opacity: 1
       .menu-button
         transform: scale(1) translateY(-3vh)
         .line-container

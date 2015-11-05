@@ -12,15 +12,18 @@ DAR.MODULE.SECTION_ABOUT.directive('darSectionAbout', function($rootScope, $wind
                 SectionAboutElementComponent.superclass.constructor.call(this);
 
                 this.NAME = "SectionAbout";
-                this.VERSION = "0.1";
+                this.VERSION = "0.3";
                 this.isDestroyOnPageChange = true;
-                this.isTriggerResize = false;
+                this.isTriggerResize = true;
 
                 this.EVENT = {
                     TAP: "touch"
                 };
 
                 this.VAL = {
+                    REM: "rem",
+                    /*AUTO: "auto",
+                    VW: "vw",*/
                     NONE: "none",
                     BLOCK: "block"
                 };
@@ -52,6 +55,11 @@ DAR.MODULE.SECTION_ABOUT.directive('darSectionAbout', function($rootScope, $wind
                     OPEN: "open"
                 };
 
+                /*this.CONFIG = {
+                    MAX_FONT_SIZE: 1,
+                    MAX_MOBILE_FONT_SIZE: 0.6
+                };*/
+
                 var currentState;
 
                 this._postCreate = function(){
@@ -78,6 +86,23 @@ DAR.MODULE.SECTION_ABOUT.directive('darSectionAbout', function($rootScope, $wind
                             currentState = this.STATE.OPEN;
                             break;
                     }
+                };
+
+                this._resize = function(vw, vh){
+                    var fontSize;
+                    if (vw > darDeviceInfo.MOBILE_WIDTH) {
+                        // for desktop and tablet
+                        fontSize = Math.min(parseFloat((vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
+                    } /*else {
+                        // mobile
+                        if(darDeviceInfo.isPortraitMode){
+                            fontSize = Math.min(parseFloat((vw*MOBILE_PORTRAIT_FACTOR / MOBILE_PORTRAIT_MAX_WIDTH).toFixed(2)), MOBILE_PORTRAIT_FACTOR);
+                        } else {
+                            // landscape
+                            fontSize = Math.min(parseFloat((vw*MOBILE_LANDSCAPE_FACTOR / darDeviceInfo.MOBILE_WIDTH).toFixed(2)), MOBILE_LANDSCAPE_FACTOR);
+                        }
+                    }*/
+                    wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
                 };
 
                 this._destroy = function(){
