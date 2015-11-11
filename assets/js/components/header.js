@@ -1,7 +1,7 @@
 /**
  * Created by Dmitry_Salnikov on 9/24/2015.
  */
-DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendService, darDeviceInfo) {
+DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendService, darDeviceInfo) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/header.html',
@@ -17,11 +17,13 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
 
                 this.CLASS = {
                     CLOSED: "closed",
-                    OPEN: "open"
+                    OPEN: "open",
+                    PREVENT_SCROLL: "prevent-scroll"
                 };
 
                 this.SELECTOR = {
-                    MENU_BUTTON: ".menu-button"
+                    MENU_BUTTON: ".menu-button",
+                    BODY: "body"
                 };
 
                 this.ATTR = {
@@ -34,7 +36,8 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                 };
 
                 this.EVENT = {
-                    TAP: "tap"
+                    TAP: "tap",
+                    TOUCH_MOVE: "touchmove"
                 };
 
                 this.STATE = {
@@ -44,7 +47,8 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                 };
 
                 this.ELEMENT = {
-                    MENU_BUTTON: angular.element(wrapper[0].querySelector(this.SELECTOR.MENU_BUTTON))
+                    MENU_BUTTON: angular.element(wrapper[0].querySelector(this.SELECTOR.MENU_BUTTON)),
+                    BODY: angular.element(window.document.querySelector(this.SELECTOR.BODY))
                 };
 
                 this.EVENT = {
@@ -64,6 +68,8 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
 
                 var MOBILE_PORTRAIT_FACTOR = 0.8;
                 var MOBILE_LANDSCAPE_FACTOR = 0.5;
+
+                var self = this;
 
                 this._postCreate = function(){
                     // local listeners
@@ -111,11 +117,18 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                         case this.STATE.CLOSED:
                             wrapper.removeClass(this.CLASS.OPEN);
                             wrapper.addClass(this.CLASS.CLOSED);
+                            $timeout(function(){
+                                // prevent scrolling until animated menu will disappear
+                                self.ELEMENT.BODY.removeClass(self.CLASS.PREVENT_SCROLL);
+                            }, 400);
+                            this.addTouchHandling();
                             currentState = this.STATE.CLOSED;
                             break;
                         case this.STATE.OPEN:
                             wrapper.removeClass(this.CLASS.CLOSED);
                             wrapper.addClass(this.CLASS.OPEN);
+                            this.ELEMENT.BODY.addClass(this.CLASS.PREVENT_SCROLL);
+                            this.removeTouchHandling();
                             currentState = this.STATE.OPEN;
                             break;
                     }
@@ -131,6 +144,8 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                     Quo(menuButton).off(this.EVENT.TAP);
                     Quo(menuButton).off(this.EVENT.SWIPE_DOWN);
                     Quo(menuButton).off(this.EVENT.SWIPE_UP);
+
+                    this.removeTouchHandling();
                 };
 
                 /*************************************** */
@@ -153,6 +168,18 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $window, darExtendSer
                     } else if(currentState === this.STATE.OPEN) {
                         this.closeMenu();
                     }
+                };
+
+                this.addTouchHandling = function(){
+                    this.ELEMENT.MENU_BUTTON[0].addEventListener(this.EVENT.TOUCH_MOVE, self.handleTouchMove);
+                };
+
+                this.removeTouchHandling = function(){
+                    this.ELEMENT.MENU_BUTTON[0].removeEventListener(this.EVENT.TOUCH_MOVE, self.handleTouchMove);
+                };
+
+                this.handleTouchMove = function(e){
+                    e.preventDefault();
                 };
             }
 
