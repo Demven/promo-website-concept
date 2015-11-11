@@ -18,12 +18,13 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                 this.CLASS = {
                     CLOSED: "closed",
                     OPEN: "open",
-                    PREVENT_SCROLL: "prevent-scroll"
+                    PREVENT_SCROLL: "prevent-scroll",
+                    LOGO_SHOW: "show"
                 };
 
                 this.SELECTOR = {
                     MENU_BUTTON: ".menu-button",
-                    BODY: "body"
+                    LOGO: ".logo"
                 };
 
                 this.ATTR = {
@@ -35,11 +36,6 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                     AUTO: "auto"
                 };
 
-                this.EVENT = {
-                    TAP: "tap",
-                    TOUCH_MOVE: "touchmove"
-                };
-
                 this.STATE = {
                     NORMAL: "normal",
                     CLOSED: "closed",
@@ -48,13 +44,23 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
 
                 this.ELEMENT = {
                     MENU_BUTTON: angular.element(wrapper[0].querySelector(this.SELECTOR.MENU_BUTTON)),
-                    BODY: angular.element(window.document.querySelector(this.SELECTOR.BODY))
+                    LOGO: angular.element(wrapper[0].querySelector(this.SELECTOR.LOGO)),
+                    BODY: angular.element(window.document.body)
                 };
 
                 this.EVENT = {
                     TAP: "touch",
                     SWIPE_DOWN: "swipeDown",
-                    SWIPE_UP: "swipeUp"
+                    SWIPE_UP: "swipeUp",
+                    TOUCH_MOVE: "touchmove",
+                    SCROLL: "scroll"
+                };
+
+                this.CONFIG = {
+                    MOBILE_PORTRAIT_MAX_WIDTH: 414,
+                    MOBILE_PORTRAIT_FACTOR: 0.8,
+                    MOBILE_LANDSCAPE_FACTOR: 0.5,
+                    MAX_SCROLL_VH_FACTOR: 0.45
                 };
 
                 // global listeners
@@ -64,12 +70,10 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                     offRightDrawerClose = new Function();*/
 
                 var currentState = this.STATE.NORMAL;
-                var MOBILE_PORTRAIT_MAX_WIDTH = 414;
-
-                var MOBILE_PORTRAIT_FACTOR = 0.8;
-                var MOBILE_LANDSCAPE_FACTOR = 0.5;
 
                 var self = this;
+                var maxScrollTop = 0;
+                var isLogoHidden = true;
 
                 this._postCreate = function(){
                     // local listeners
@@ -79,6 +83,8 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                     // swipe
                     Quo(menuButton).on(this.EVENT.SWIPE_DOWN, angular.bind(this, this.openMenu));
                     Quo(menuButton).on(this.EVENT.SWIPE_UP, angular.bind(this, this.closeMenu));
+
+                    this.setState(this.STATE.NORMAL);
                 };
 
                 this._resize = function(vw, vh){
@@ -89,10 +95,10 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                     } else {
                         // mobile
                         if(darDeviceInfo.isPortraitMode){
-                            fontSize = Math.min(parseFloat((vw*MOBILE_PORTRAIT_FACTOR / MOBILE_PORTRAIT_MAX_WIDTH).toFixed(2)), MOBILE_PORTRAIT_FACTOR);
+                            fontSize = Math.min(parseFloat((vw * this.CONFIG.MOBILE_PORTRAIT_FACTOR / this.CONFIG.MOBILE_PORTRAIT_MAX_WIDTH).toFixed(2)), this.CONFIG.MOBILE_PORTRAIT_FACTOR);
                         } else {
                             // landscape
-                            fontSize = Math.min(parseFloat((vw*MOBILE_LANDSCAPE_FACTOR / darDeviceInfo.MOBILE_WIDTH).toFixed(2)), MOBILE_LANDSCAPE_FACTOR);
+                            fontSize = Math.min(parseFloat((vw * this.CONFIG.MOBILE_LANDSCAPE_FACTOR / darDeviceInfo.MOBILE_WIDTH).toFixed(2)), this.CONFIG.MOBILE_LANDSCAPE_FACTOR);
                         }
                     }
                     wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
@@ -105,6 +111,8 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                     } else if(currentState === this.STATE.CLOSED){
                         this.setState(this.STATE.NORMAL);
                     }
+
+                    maxScrollTop = this.CONFIG.MAX_SCROLL_VH_FACTOR * vh;
                 };
 
                 this._setState = function(state){
@@ -112,6 +120,7 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                         case this.STATE.NORMAL:
                             wrapper.removeClass(this.CLASS.CLOSED);
                             wrapper.removeClass(this.CLASS.OPEN);
+                            this.addScrollHandling();
                             currentState = this.STATE.NORMAL;
                             break;
                         case this.STATE.CLOSED:
@@ -121,6 +130,7 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                                 // prevent scrolling until animated menu will disappear
                                 self.ELEMENT.BODY.removeClass(self.CLASS.PREVENT_SCROLL);
                             }, 400);
+                            this.removeScrollHandling();
                             this.addTouchHandling();
                             currentState = this.STATE.CLOSED;
                             break;
@@ -173,13 +183,27 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                 this.addTouchHandling = function(){
                     this.ELEMENT.MENU_BUTTON[0].addEventListener(this.EVENT.TOUCH_MOVE, self.handleTouchMove);
                 };
-
                 this.removeTouchHandling = function(){
                     this.ELEMENT.MENU_BUTTON[0].removeEventListener(this.EVENT.TOUCH_MOVE, self.handleTouchMove);
                 };
-
                 this.handleTouchMove = function(e){
                     e.preventDefault();
+                };
+
+                this.addScrollHandling = function(){
+                    document.addEventListener(this.EVENT.SCROLL, self.handleScroll);
+                };
+                this.removeScrollHandling = function(){
+                    document.removeEventListener(this.EVENT.SCROLL, self.handleScroll);
+                };
+                this.handleScroll = function(){
+                    if(isLogoHidden && (window.document.body.scrollTop > maxScrollTop)){
+                        self.ELEMENT.LOGO.addClass(self.CLASS.LOGO_SHOW);
+                        isLogoHidden = false;
+                    } else if(!isLogoHidden && (window.document.body.scrollTop < maxScrollTop)) {
+                        self.ELEMENT.LOGO.removeClass(self.CLASS.LOGO_SHOW);
+                        isLogoHidden = true;
+                    }
                 };
             }
 
