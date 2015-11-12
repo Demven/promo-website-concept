@@ -12,11 +12,17 @@ html
   font-size: 10px
   body
     overflow-x: hidden
-    b
-      font-weight: bold
     &.prevent-scroll
       overflow: hidden
       pointer-events: none
+    main
+      b
+        font-weight: bold
+      h2
+        font-family: $font-pt-sans-regular
+        font-size: 4.6em
+        color: #333333
+        padding: .6em 0
 
 *::selection
   color: #fff;
@@ -36,6 +42,8 @@ main
   font-family: $font-base
 
 @media $mobile
-  #stay-with-us.involve
-    #logo-group
-      margin-top: 13% !important
+  main
+    h2
+      font-family: $font-pt-sans-regular
+      font-size: 4.0em
+      text-align: center

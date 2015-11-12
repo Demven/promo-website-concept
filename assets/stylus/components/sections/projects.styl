@@ -1,0 +1,53 @@
+/** SECTION PROJECTS COMPONENT
+  * @author Dmitry Salnikov
+  * @since 11/12/2015
+ */
+@require './base/util'
+@require './base/devices'
+
+$section-projects-base-font-size = 1rem // Desktop
+
+$section-projects-height = 62em
+$section-projects-tile-big-height = 60.4em
+$section-projects-tile-big-width = 60.4em
+$section-projects-tile-small-height = 29.4em
+$section-projects-tile-small-width = 40.4em
+
+dar-section-projects
+  width: 100%
+  display: flex
+  justify-content: center
+  flex-direction: column
+  position: relative
+  margin: 0 auto
+  padding-bottom: 3em
+  font-family: $font-pt-sans-regular
+  font-size: $section-projects-base-font-size
+  h2
+    width: 22.261em
+    margin: 0 auto
+  .projects-container
+    height: $section-projects-height
+    width: 100%
+    background: #ccc
+    position: relative
+    .slider
+      width: 2120px
+      height: $section-projects-height
+      display: flex
+      position: absolute
+      top: 0
+      left: 2em
+      flex-direction: column
+      flex-wrap: wrap
+      align-content: flex-start
+      .tile
+        margin: .8em
+        &.big
+          width: $section-projects-tile-big-width
+          height: $section-projects-tile-big-height
+          background: darkred
+        &.small
+          width: $section-projects-tile-small-width
+          height: $section-projects-tile-small-height
+          background: darkorange

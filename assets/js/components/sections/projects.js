@@ -1,20 +1,20 @@
 /**
- * Created by Dmitry Salnikov on 11/4/2015.
+ * Created by Dmitry Salnikov on 11/12/2015.
  */
-DAR.MODULE.SECTION_ABOUT.directive('darSectionAbout', function($rootScope, $window, darExtendService, darDeviceInfo) {
+DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope, $window, darExtendService, darDeviceInfo) {
     return {
         restrict: 'E',
-        templateUrl: 'templates/components/sections/about.html',
+        templateUrl: 'templates/components/sections/projects.html',
         link: function(scope, wrapper, iAttrs, controller, transcludeFn) {
 
-            function SectionAboutElementComponent() {
+            function SectionProjectsElementComponent() {
                 // call of the parent constructor
-                SectionAboutElementComponent.superclass.constructor.call(this);
+                SectionProjectsElementComponent.superclass.constructor.call(this);
 
-                this.NAME = "SectionAbout";
-                this.VERSION = "1.0";
+                this.NAME = "SectionProjects";
+                this.VERSION = "0.1";
                 this.isDestroyOnPageChange = true;
-                this.isTriggerResize = true;
+                this.isTriggerResize = false;
 
                 this.EVENT = {
                     TAP: "touch"
@@ -47,77 +47,60 @@ DAR.MODULE.SECTION_ABOUT.directive('darSectionAbout', function($rootScope, $wind
                 };
 
                 this.STATE = {
-                    CLOSED: "closed",
-                    OPEN: "open"
+                    NORMAL: "normal"
                 };
 
                 var currentState;
 
-                this._postCreate = function(){
+                /*this._postCreate = function(){
                     // local listeners
                     // tap
                     Quo(this.ELEMENT.SHOW_MORE[0]).on(this.EVENT.TAP, angular.bind(this, this.showMore));
                     Quo(this.ELEMENT.HIDE_MORE[0]).on(this.EVENT.TAP, angular.bind(this, this.hideMore));
-                };
+                };*/
 
                 this._render = function(){
-                    this.setState(this.STATE.CLOSED);
+                    this.setState(this.STATE.NORMAL);
                 };
 
                 this._setState = function(state){
                     switch(state){
-                        case this.STATE.CLOSED:
-                            wrapper.addClass(this.CLASS.CLOSED);
-                            wrapper.removeClass(this.CLASS.OPEN);
-                            currentState = this.STATE.CLOSED;
-                            break;
-                        case this.STATE.OPEN:
-                            wrapper.removeClass(this.CLASS.CLOSED);
-                            wrapper.addClass(this.CLASS.OPEN);
-                            currentState = this.STATE.OPEN;
+                        case this.STATE.NORMAL:
+                            wrapper.addClass(this.CLASS.NORMAL);
+                            currentState = this.STATE.NORMAL;
                             break;
                     }
                 };
 
-                this._resize = function(vw, vh){
+/*                this._resize = function(vw, vh){
                     var fontSize;
                     if (vw > darDeviceInfo.MOBILE_WIDTH) {
                         // for desktop and tablet
                         fontSize = Math.min(parseFloat((vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
                     }
                     wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
-                };
+                };*/
 
-                this._destroy = function(){
+/*                this._destroy = function(){
                     // remove local listeners
                     Quo(this.ELEMENT.SHOW_MORE[0]).off(this.EVENT.TAP);
                     Quo(this.ELEMENT.HIDE_MORE[0]).off(this.EVENT.TAP);
-                };
+                };*/
 
 
                 /************************ */
 
-                this.showMore = function(){
-                    if(currentState === this.STATE.CLOSED){
-                        this.setState(this.STATE.OPEN);
-                    }
-                };
 
-                this.hideMore = function(){
-                    if(currentState === this.STATE.OPEN){
-                        this.setState(this.STATE.CLOSED);
-                    }
-                };
             }
 
-            darExtendService.extend(SectionAboutElementComponent, darExtendService.BaseElementComponent);
+            darExtendService.extend(SectionProjectsElementComponent, darExtendService.BaseElementComponent);
 
-            if(DAR.UIC.SECTION.ABOUT){
-                DAR.UIC.SECTION.ABOUT.destroy();
+            if(DAR.UIC.SECTION.PROJECTS){
+                DAR.UIC.SECTION.PROJECTS.destroy();
             }
-            DAR.UIC.SECTION.ABOUT = new SectionAboutElementComponent().build().render();
+            DAR.UIC.SECTION.PROJECTS = new SectionProjectsElementComponent().build().render();
 
-            return DAR.UIC.SECTION.ABOUT;
+            return DAR.UIC.SECTION.PROJECTS;
         }
     };
 });
