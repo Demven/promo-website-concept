@@ -12,21 +12,23 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                 SectionProjectsElementComponent.superclass.constructor.call(this);
 
                 this.NAME = "SectionProjects";
-                this.VERSION = "0.1";
+                this.VERSION = "0.2";
                 this.isDestroyOnPageChange = true;
-                this.isTriggerResize = false;
+                this.isTriggerResize = true;
 
                 this.EVENT = {
-                    TAP: "touch"
+                    DRAG: "drag"
                 };
 
                 this.VAL = {
-                    REM: "rem"
+                    REM: "rem",
+                    PX: "px"
                 };
 
                 this.ATTR = {
                     FONT_SIZE: "font-size",
-                    DISPLAY: "display"
+                    WIDTH: "width",
+                    LEFT: "left"
                 };
 
                 this.CLASS = {
@@ -35,29 +37,33 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                 };
 
                 this.SELECTOR = {
-                    MORE: ".more",
-                    SHOW_MORE: ".show-more",
-                    HIDE_MORE: ".hide-more"
+                    TILE_SMALL: ".tile.small",
+                    TILE_BIG: ".tile.big",
+                    SLIDER: ".slider"
                 };
 
                 this.ELEMENT = {
-                    MORE: angular.element(wrapper[0].querySelector(this.SELECTOR.MORE)),
-                    SHOW_MORE: angular.element(wrapper[0].querySelector(this.SELECTOR.SHOW_MORE)),
-                    HIDE_MORE: angular.element(wrapper[0].querySelector(this.SELECTOR.HIDE_MORE))
+                    TILES_SMALL: angular.element(wrapper[0].querySelectorAll(this.SELECTOR.TILE_SMALL)),
+                    TILES_BIG: angular.element(wrapper[0].querySelectorAll(this.SELECTOR.TILE_BIG)),
+                    SLIDER: angular.element(wrapper[0].querySelector(this.SELECTOR.SLIDER))
                 };
 
                 this.STATE = {
                     NORMAL: "normal"
                 };
 
-                var currentState;
+                var currentState,
+                    isFirstResize = true,
+                    sliderMovePosition = 0,
+                    sliderWidth = 0,
+                    sliderLeft = 0,
+                    maxSliderLeft = 0,
+                    minSliderLeft = 0;
 
-                /*this._postCreate = function(){
+                this._postCreate = function(){
                     // local listeners
-                    // tap
-                    Quo(this.ELEMENT.SHOW_MORE[0]).on(this.EVENT.TAP, angular.bind(this, this.showMore));
-                    Quo(this.ELEMENT.HIDE_MORE[0]).on(this.EVENT.TAP, angular.bind(this, this.hideMore));
-                };*/
+                    this.ELEMENT.SLIDER.on("touchstart mousedown", angular.bind(this, this.onSliderStartMove));
+                };
 
                 this._render = function(){
                     this.setState(this.STATE.NORMAL);
@@ -72,25 +78,78 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                     }
                 };
 
-/*                this._resize = function(vw, vh){
-                    var fontSize;
+                this._resize = function(vw, vh){
+                    /*var fontSize;
                     if (vw > darDeviceInfo.MOBILE_WIDTH) {
                         // for desktop and tablet
                         fontSize = Math.min(parseFloat((vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
                     }
-                    wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
-                };*/
+                    wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);*/
 
-/*                this._destroy = function(){
+                    var tileStyle = this.ELEMENT.TILES_BIG[0].currentStyle || window.getComputedStyle(this.ELEMENT.TILES_BIG[0]),
+                        tileMarginTotal = window.parseInt(tileStyle.marginLeft) * 2,
+                        smallColumnQuantity = this.ELEMENT.TILES_SMALL.length / 2,
+                        bigColumnQuantity = this.ELEMENT.TILES_BIG.length,
+                        smallColumnWidth = this.ELEMENT.TILES_SMALL[0].offsetWidth + tileMarginTotal,
+                        bigColumnWidth = this.ELEMENT.TILES_BIG[0].offsetWidth + tileMarginTotal;
+
+                    sliderWidth = (smallColumnQuantity * smallColumnWidth) + (bigColumnQuantity * bigColumnWidth);
+                    this.ELEMENT.SLIDER.css(this.ATTR.WIDTH, sliderWidth + this.VAL.PX);
+
+                    if(isFirstResize){
+                        // set offset to slider such way that the first BIG tile from left is placed along with section title
+                        var bigTileOffsetLeft = this.ELEMENT.TILES_BIG[0].offsetLeft,
+                            headerOffsetLeft = window.document.querySelector("header ul").offsetLeft,
+                            delta = headerOffsetLeft - bigTileOffsetLeft;
+                        this.ELEMENT.SLIDER.css(this.ATTR.LEFT, delta + this.VAL.PX);
+                        sliderLeft = delta;
+                    }
+
+                    maxSliderLeft = 0.2 * vw;
+                    minSliderLeft = (-0.2 * vw) - (sliderWidth - vw);
+                };
+
+                this._destroy = function(){
                     // remove local listeners
-                    Quo(this.ELEMENT.SHOW_MORE[0]).off(this.EVENT.TAP);
-                    Quo(this.ELEMENT.HIDE_MORE[0]).off(this.EVENT.TAP);
-                };*/
+                    Quo(this.ELEMENT.SLIDER[0]).off(this.EVENT.DRAG);
+                };
 
 
                 /************************ */
 
+                this.onSliderStartMove = function(ev){
+                    this.ELEMENT.SLIDER.on("touchmove mousemove", angular.bind(this, this.onSliderMove));
+                    this.ELEMENT.SLIDER.on("touchend mouseup", angular.bind(this, this.onSliderEndMove));
+                    console.log("START");
+                    var clientX = ev.clientX || ev.touches[0].clientX;
+                    sliderMovePosition = clientX;
+                };
 
+                this.onSliderEndMove = function(){
+                    console.log("END");
+                    this.ELEMENT.SLIDER.off("touchmove mousemove");
+                    this.ELEMENT.SLIDER.off("touchend mouseup");
+                    sliderMovePosition = 0;
+                };
+
+                this.onSliderMove = function(ev) {
+                    var clientX = ev.clientX || ev.touches[0].clientX,
+                        delta = clientX - sliderMovePosition,
+                        calculatedSliderLeft = sliderLeft + delta;
+
+                    console.log(delta);
+                    console.log("sliderLeft " + calculatedSliderLeft);
+                    console.log("sliderWidth " + sliderWidth);
+                    console.log("maxValue " + maxSliderLeft);
+                    console.log("minValue " + minSliderLeft);
+
+                    if(calculatedSliderLeft < maxSliderLeft && calculatedSliderLeft > minSliderLeft){
+                        sliderLeft = calculatedSliderLeft;
+                        this.ELEMENT.SLIDER.css(this.ATTR.LEFT, sliderLeft + this.VAL.PX);
+
+                        sliderMovePosition = clientX;
+                    } 
+                };
             }
 
             darExtendService.extend(SectionProjectsElementComponent, darExtendService.BaseElementComponent);
