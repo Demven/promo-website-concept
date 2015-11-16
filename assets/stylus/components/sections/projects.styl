@@ -40,8 +40,16 @@ dar-section-projects
       flex-wrap: wrap
       align-content: flex-start
       cursor: pointer
+      &.animate
+        transition: transform .4s
       .tile
+        display: flex
+        justify-content: center
+        align-items: center
+        overflow: hidden
         margin: .8em
+        position: relative
+        user-select: none
         &.big
           width: $section-projects-tile-big-width
           height: $section-projects-tile-big-height
@@ -50,3 +58,56 @@ dar-section-projects
           width: $section-projects-tile-small-width
           height: $section-projects-tile-small-height
           background: darkorange
+        &:after
+          content: ''
+          display: block
+          position: absolute
+          width: 100%
+          height: 100%
+          top: 0
+          left: 0
+        .image-container
+          width: 1000%
+          height: 100%
+          display: flex
+          justify-content: center
+          align-items: center
+          img
+            min-width: 100%
+            min-height: 100%
+        .title-container
+          display: flex
+          position: absolute
+          width: 100%
+          height: 100%
+          left: 0
+          color: #fff
+          padding: 2.2em
+          box-sizing: border-box
+          .project-name
+            font-family: $font-roboto-bold
+            font-size: 2.9em
+            line-height: 1.5em
+          .project-summary
+            font-family: $font-roboto-regular
+            font-size: 2.5em
+          &.top-left
+            flex-direction: column
+            top: 0
+            text-align: left
+          &.top-right
+            flex-direction: column
+            top: 0
+            text-align: right
+          &.bottom-left
+            flex-direction: column-reverse
+            bottom: 0
+            text-align: left
+            .project-name
+              order: 1
+          &.bottom-right
+            flex-direction: column-reverse
+            bottom: 0
+            text-align: right
+            .project-name
+              order: 1

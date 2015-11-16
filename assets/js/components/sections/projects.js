@@ -28,7 +28,7 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                 this.ATTR = {
                     FONT_SIZE: "font-size",
                     WIDTH: "width",
-                    LEFT: "left"
+                    TRANSFORM: "transform"
                 };
 
                 this.CLASS = {
@@ -101,7 +101,7 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                         var bigTileOffsetLeft = this.ELEMENT.TILES_BIG[0].offsetLeft,
                             headerOffsetLeft = window.document.querySelector("header ul").offsetLeft,
                             delta = headerOffsetLeft - bigTileOffsetLeft;
-                        this.ELEMENT.SLIDER.css(this.ATTR.LEFT, delta + this.VAL.PX);
+                        this.ELEMENT.SLIDER.css(this.ATTR.TRANSFORM, "translateX(" + delta + this.VAL.PX + ")");
                         sliderLeft = delta;
                     }
 
@@ -145,10 +145,10 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
 
                     if(calculatedSliderLeft < maxSliderLeft && calculatedSliderLeft > minSliderLeft){
                         sliderLeft = calculatedSliderLeft;
-                        this.ELEMENT.SLIDER.css(this.ATTR.LEFT, sliderLeft + this.VAL.PX);
+                        this.ELEMENT.SLIDER.css(this.ATTR.TRANSFORM, "translateX(" + sliderLeft + this.VAL.PX + ") translateZ(0)");
 
                         sliderMovePosition = clientX;
-                    } 
+                    }
                 };
             }
 
