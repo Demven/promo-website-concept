@@ -40,6 +40,8 @@ dar-section-projects
       flex-wrap: wrap
       align-content: flex-start
       cursor: pointer
+      &.in-moving
+        cursor: w-resize
       &.animate
         transition: transform .4s
       .tile
@@ -50,14 +52,14 @@ dar-section-projects
         margin: .8em
         position: relative
         user-select: none
+        transition: transform .4s
+        z-index: 100
         &.big
           width: $section-projects-tile-big-width
           height: $section-projects-tile-big-height
-          background: darkred
         &.small
           width: $section-projects-tile-small-width
           height: $section-projects-tile-small-height
-          background: darkorange
         &:after
           content: ''
           display: block
@@ -72,6 +74,17 @@ dar-section-projects
           display: flex
           justify-content: center
           align-items: center
+          &:after
+            content: ''
+            display: block
+            position: absolute
+            width: 100%
+            height: 100%
+            top: 0
+            left: 0
+            background: rgba(0,0,0,0.2)
+            opacity: 0
+            transition: opacity .4s
           img
             min-width: 100%
             min-height: 100%
@@ -111,3 +124,41 @@ dar-section-projects
             text-align: right
             .project-name
               order: 1
+        .hover-container
+          display: block
+          width: 100%
+          height: auto
+          font-family: "Roboto-Regular"
+          color: white
+          position: absolute
+          left: 0
+          text-align: center
+          opacity: 0
+          transition: transform .4s, opacity .4s
+          .project-customer
+            font-family: $font-roboto-regular
+            font-size: 2.9em
+            line-height: 1.8em
+          .project-date
+            font-family: $font-roboto-light
+            font-size: 2.5em
+          &.top
+            top: 0
+            transform: translateY(-5em)
+          &.bottom
+            bottom: 0
+            transform: translateY(5em)
+
+      .tile:hover
+        transform: scale(1.02)
+        .image-container
+          &:after
+            opacity: 1
+        .hover-container
+          opacity: 1
+          &.top
+            transform: translateY(2.2em)
+          &.bottom
+            transform: translateY(-2.2em)
+
+

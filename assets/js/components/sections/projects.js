@@ -12,12 +12,15 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                 SectionProjectsElementComponent.superclass.constructor.call(this);
 
                 this.NAME = "SectionProjects";
-                this.VERSION = "0.2";
+                this.VERSION = "0.5";
                 this.isDestroyOnPageChange = true;
                 this.isTriggerResize = true;
 
                 this.EVENT = {
-                    DRAG: "drag"
+                    DRAG: "drag",
+                    TOUCH_START: "touchstart mousedown",
+                    TOUCH_MOVE: "touchmove mousemove",
+                    TOUCH_END: "touchend mouseup"
                 };
 
                 this.VAL = {
@@ -33,7 +36,8 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
 
                 this.CLASS = {
                     CLOSED: "closed",
-                    OPEN: "open"
+                    OPEN: "open",
+                    SLIDER_IN_MOVING: "in-moving"
                 };
 
                 this.SELECTOR = {
@@ -62,7 +66,7 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
 
                 this._postCreate = function(){
                     // local listeners
-                    this.ELEMENT.SLIDER.on("touchstart mousedown", angular.bind(this, this.onSliderStartMove));
+                    this.ELEMENT.SLIDER.on(this.EVENT.TOUCH_START, angular.bind(this, this.onSliderStartMove));
                 };
 
                 this._render = function(){
@@ -112,24 +116,20 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                 this._destroy = function(){
                     // remove local listeners
                     Quo(this.ELEMENT.SLIDER[0]).off(this.EVENT.DRAG);
+
+                    this.ELEMENT.SLIDER.off(this.EVENT.TOUCH_START);
                 };
 
 
                 /************************ */
 
                 this.onSliderStartMove = function(ev){
-                    this.ELEMENT.SLIDER.on("touchmove mousemove", angular.bind(this, this.onSliderMove));
-                    this.ELEMENT.SLIDER.on("touchend mouseup", angular.bind(this, this.onSliderEndMove));
-                    console.log("START");
-                    var clientX = ev.clientX || ev.touches[0].clientX;
-                    sliderMovePosition = clientX;
-                };
+                    this.ELEMENT.SLIDER.on(this.EVENT.TOUCH_MOVE, angular.bind(this, this.onSliderMove));
+                    this.ELEMENT.SLIDER.on(this.EVENT.TOUCH_END, angular.bind(this, this.onSliderEndMove));
 
-                this.onSliderEndMove = function(){
-                    console.log("END");
-                    this.ELEMENT.SLIDER.off("touchmove mousemove");
-                    this.ELEMENT.SLIDER.off("touchend mouseup");
-                    sliderMovePosition = 0;
+                    sliderMovePosition = ev.clientX || ev.touches[0].clientX;
+
+                    this.ELEMENT.SLIDER.addClass(this.CLASS.SLIDER_IN_MOVING);
                 };
 
                 this.onSliderMove = function(ev) {
@@ -137,18 +137,21 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                         delta = clientX - sliderMovePosition,
                         calculatedSliderLeft = sliderLeft + delta;
 
-                    console.log(delta);
-                    console.log("sliderLeft " + calculatedSliderLeft);
-                    console.log("sliderWidth " + sliderWidth);
-                    console.log("maxValue " + maxSliderLeft);
-                    console.log("minValue " + minSliderLeft);
-
                     if(calculatedSliderLeft < maxSliderLeft && calculatedSliderLeft > minSliderLeft){
                         sliderLeft = calculatedSliderLeft;
                         this.ELEMENT.SLIDER.css(this.ATTR.TRANSFORM, "translateX(" + sliderLeft + this.VAL.PX + ") translateZ(0)");
 
                         sliderMovePosition = clientX;
                     }
+                };
+
+                this.onSliderEndMove = function(){
+                    this.ELEMENT.SLIDER.off(this.EVENT.TOUCH_MOVE);
+                    this.ELEMENT.SLIDER.off(this.EVENT.TOUCH_END);
+
+                    sliderMovePosition = 0;
+
+                    this.ELEMENT.SLIDER.removeClass(this.CLASS.SLIDER_IN_MOVING);
                 };
             }
 
