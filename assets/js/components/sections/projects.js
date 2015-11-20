@@ -188,10 +188,13 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                     this.ELEMENT.SLIDER.addClass(this.CLASS.ANIMATE);
 
                     var calculatedSliderLeft = sliderLeft + delta;
-                    if(calculatedSliderLeft < maxSliderLeft && calculatedSliderLeft > minSliderLeft){
-                        sliderLeft = calculatedSliderLeft;
-                        this.ELEMENT.SLIDER.css(this.ATTR.TRANSFORM, "translateX(" + sliderLeft + this.VAL.PX + ") translateZ(0)");
+                    if (calculatedSliderLeft > maxSliderLeft) {
+                        calculatedSliderLeft = maxSliderLeft;
+                    } else if (calculatedSliderLeft < minSliderLeft) {
+                        calculatedSliderLeft = minSliderLeft;
                     }
+                    sliderLeft = calculatedSliderLeft;
+                    this.ELEMENT.SLIDER.css(this.ATTR.TRANSFORM, "translateX(" + sliderLeft + this.VAL.PX + ") translateZ(0)");
 
                     $timeout(function(){
                         self.ELEMENT.SLIDER.removeClass(self.CLASS.ANIMATE);
