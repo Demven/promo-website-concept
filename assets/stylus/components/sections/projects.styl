@@ -13,6 +13,9 @@ $section-projects-tile-big-width = 60.4em
 $section-projects-tile-small-height = 29.4em
 $section-projects-tile-small-width = 40.4em
 
+$section-projects-control-arrow-width = 1.3em
+$section-projects-control-arrow-height = 6em
+
 dar-section-projects
   width: 100%
   display: flex
@@ -162,3 +165,67 @@ dar-section-projects
             transform: translateY(-2.2em)
 
 
+    $slider-control()
+      width: 15em
+      height: $section-projects-height
+      position: absolute
+      top: 0
+      z-index: 20
+      cursor: pointer
+      transition: background-color 0.5s, width 0.5s
+      &:before
+        content: ""
+        width: $section-projects-control-arrow-width
+        height: $section-projects-control-arrow-height
+        display: block
+        position: absolute
+        background-color: #484848
+        opacity: 0.4
+        transition: background-color 0.5s
+      &:after
+        content: ""
+        width: $section-projects-control-arrow-width
+        height: $section-projects-control-arrow-height
+        display: block
+        position: absolute
+        background-color: #484848
+        opacity: 0.4
+        transition: background-color 0.5s
+      &:hover
+        width: 17em
+        &:before
+          background-color: #000
+          opacity: 0.5
+        &:after
+          background-color: #000
+          opacity: 0.5
+
+
+    .prev
+      $slider-control()
+      left: 0
+      background: linear-gradient(90deg, #fff, rgba(255,255,255,0))
+      &:before
+        bottom: 50%
+        left: 2em
+        transform: skewX(-27deg)
+        transform-origin: left bottom
+      &:after
+        top: 50%
+        left: 2em
+        transform: skewX(27deg)
+        transform-origin: left top
+    .next
+      $slider-control()
+      right: 0
+      background: linear-gradient(-90deg, #fff, rgba(255,255,255,0))
+      &:before
+        bottom: 50%
+        right: 2.6em
+        transform: skewX(27deg)
+        transform-origin: right bottom
+      &:after
+        top: 50%
+        right: 2.6em
+        transform: skewX(-27deg)
+        transform-origin: right top

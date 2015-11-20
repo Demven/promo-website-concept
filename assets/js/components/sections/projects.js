@@ -1,7 +1,7 @@
 /**
  * Created by Dmitry Salnikov on 11/12/2015.
  */
-DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope, $window, darExtendService, darDeviceInfo) {
+DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope, $window, $timeout, darExtendService, darDeviceInfo) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/sections/projects.html',
@@ -12,12 +12,12 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                 SectionProjectsElementComponent.superclass.constructor.call(this);
 
                 this.NAME = "SectionProjects";
-                this.VERSION = "0.5";
+                this.VERSION = "0.6";
                 this.isDestroyOnPageChange = true;
                 this.isTriggerResize = true;
 
                 this.EVENT = {
-                    DRAG: "drag",
+                    TAP: "touch",
                     TOUCH_START: "touchstart mousedown",
                     TOUCH_MOVE: "touchmove mousemove",
                     TOUCH_END: "touchend mouseup"
@@ -37,29 +37,40 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                 this.CLASS = {
                     CLOSED: "closed",
                     OPEN: "open",
-                    SLIDER_IN_MOVING: "in-moving"
+                    SLIDER_IN_MOVING: "in-moving",
+                    ANIMATE: "animate"
                 };
 
                 this.SELECTOR = {
                     TILE_SMALL: ".tile.small",
                     TILE_BIG: ".tile.big",
-                    SLIDER: ".slider"
+                    SLIDER: ".slider",
+                    PREV_BUTTON: ".prev",
+                    NEXT_BUTTON: ".next"
                 };
 
                 this.ELEMENT = {
                     TILES_SMALL: angular.element(wrapper[0].querySelectorAll(this.SELECTOR.TILE_SMALL)),
                     TILES_BIG: angular.element(wrapper[0].querySelectorAll(this.SELECTOR.TILE_BIG)),
-                    SLIDER: angular.element(wrapper[0].querySelector(this.SELECTOR.SLIDER))
+                    SLIDER: angular.element(wrapper[0].querySelector(this.SELECTOR.SLIDER)),
+                    PREV_BUTTON: angular.element(wrapper[0].querySelector(this.SELECTOR.PREV_BUTTON)),
+                    NEXT_BUTTON: angular.element(wrapper[0].querySelector(this.SELECTOR.NEXT_BUTTON))
                 };
 
                 this.STATE = {
                     NORMAL: "normal"
                 };
 
-                var currentState,
+                this.CONFIG = {
+                    SLIDER_ANIMATE_TIME: 400 // ms
+                };
+
+                var self = this,
+                    currentState,
                     isFirstResize = true,
                     sliderMovePosition = 0,
                     sliderWidth = 0,
+                    smallColumnWidth = 0,
                     sliderLeft = 0,
                     maxSliderLeft = 0,
                     minSliderLeft = 0;
@@ -67,6 +78,10 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                 this._postCreate = function(){
                     // local listeners
                     this.ELEMENT.SLIDER.on(this.EVENT.TOUCH_START, angular.bind(this, this.onSliderStartMove));
+
+                    // tap
+                    Quo(this.ELEMENT.PREV_BUTTON[0]).on(this.EVENT.TAP, angular.bind(this, this.slideToLeft));
+                    Quo(this.ELEMENT.NEXT_BUTTON[0]).on(this.EVENT.TAP, angular.bind(this, this.slideToRight));
                 };
 
                 this._render = function(){
@@ -94,9 +109,9 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                         tileMarginTotal = window.parseInt(tileStyle.marginLeft) * 2,
                         smallColumnQuantity = this.ELEMENT.TILES_SMALL.length / 2,
                         bigColumnQuantity = this.ELEMENT.TILES_BIG.length,
-                        smallColumnWidth = this.ELEMENT.TILES_SMALL[0].offsetWidth + tileMarginTotal,
                         bigColumnWidth = this.ELEMENT.TILES_BIG[0].offsetWidth + tileMarginTotal;
 
+                    smallColumnWidth = this.ELEMENT.TILES_SMALL[0].offsetWidth + tileMarginTotal;
                     sliderWidth = (smallColumnQuantity * smallColumnWidth) + (bigColumnQuantity * bigColumnWidth);
                     this.ELEMENT.SLIDER.css(this.ATTR.WIDTH, sliderWidth + this.VAL.PX);
 
@@ -111,11 +126,18 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
 
                     maxSliderLeft = 0.2 * vw;
                     minSliderLeft = (-0.2 * vw) - (sliderWidth - vw);
+
+                    if (vw < darDeviceInfo.TABLET_WIDE_WIDTH) {
+                        wrapper.css("display", "none");
+                    } else {
+                        wrapper.css("display", "");
+                    }
                 };
 
                 this._destroy = function(){
                     // remove local listeners
-                    Quo(this.ELEMENT.SLIDER[0]).off(this.EVENT.DRAG);
+                    Quo(this.ELEMENT.PREV_BUTTON[0]).off(this.EVENT.TAP);
+                    Quo(this.ELEMENT.NEXT_BUTTON[0]).off(this.EVENT.TAP);
 
                     this.ELEMENT.SLIDER.off(this.EVENT.TOUCH_START);
                 };
@@ -152,6 +174,28 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                     sliderMovePosition = 0;
 
                     this.ELEMENT.SLIDER.removeClass(this.CLASS.SLIDER_IN_MOVING);
+                };
+
+                this.slideToLeft = function(){
+                    this.moveSlideAnimated(smallColumnWidth);
+                };
+
+                this.slideToRight = function(){
+                    this.moveSlideAnimated(-smallColumnWidth);
+                };
+
+                this.moveSlideAnimated = function(delta){
+                    this.ELEMENT.SLIDER.addClass(this.CLASS.ANIMATE);
+
+                    var calculatedSliderLeft = sliderLeft + delta;
+                    if(calculatedSliderLeft < maxSliderLeft && calculatedSliderLeft > minSliderLeft){
+                        sliderLeft = calculatedSliderLeft;
+                        this.ELEMENT.SLIDER.css(this.ATTR.TRANSFORM, "translateX(" + sliderLeft + this.VAL.PX + ") translateZ(0)");
+                    }
+
+                    $timeout(function(){
+                        self.ELEMENT.SLIDER.removeClass(self.CLASS.ANIMATE);
+                    }, self.CONFIG.SLIDER_ANIMATE_TIME);
                 };
             }
 
