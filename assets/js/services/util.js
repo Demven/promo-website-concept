@@ -913,6 +913,8 @@ DAR.MODULE.UTIL.provider("darDeviceInfo", function(){
 
     this.deviceState = null;
     this.deviceOrientation = null;
+    this.isMobileState = false;
+    this.isTabletState = false;
 
     var NAME = "DeviceInfo";
 
@@ -1008,6 +1010,10 @@ DAR.MODULE.UTIL.provider("darDeviceInfo", function(){
 
         if(newState !== this.deviceState){
             this.deviceState = newState;
+
+            this.isMobileState = this.deviceState === this.DEVICE_STATE.MOBILE;
+            this.isTabletState = this.deviceState === this.DEVICE_STATE.TABLET || this.deviceState === this.DEVICE_STATE.TABLET_WIDE;
+
             darLogRef.info(NAME + ": device state changed to " + newState);
         }
 
@@ -1052,6 +1058,8 @@ DAR.MODULE.UTIL.provider("darDeviceInfo", function(){
 
             DEVICE_STATE: this.DEVICE_STATE,
             deviceState: this.deviceState,
+            isMobileState: this.isMobileState,
+            isTabletState: this.isTabletState,
 
             DEVICE_ORIENTATION: this.DEVICE_ORIENTATION,
             deviceOrientation: this.deviceOrientation,

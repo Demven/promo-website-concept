@@ -229,3 +229,32 @@ dar-section-projects
         right: 2.6em
         transform: skewX(-27deg)
         transform-origin: right top
+
+/* MOBILE STYLES */
+@media $mobile
+  dar-section-projects
+    h2
+      font-size: 6.4em !important
+      width: auto
+      margin: 0
+    .projects-container
+      .slider
+        .tile
+          &.big
+            width: $section-projects-tile-big-width
+            height: $section-projects-tile-big-height
+          &.small
+            width: $section-projects-tile-big-width
+            height: $section-projects-tile-big-height
+          .title-container
+            .project-name
+              font-size: 3.8em
+              line-height: 1.3em
+              padding-bottom: 0.3em
+            .project-summary
+              font-size: 3.4em
+          .hover-container
+            .project-customer
+              font-size: 3.8em
+            .project-date
+              font-size: 3.4em

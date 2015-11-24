@@ -62,7 +62,9 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                 };
 
                 this.CONFIG = {
-                    SLIDER_ANIMATE_TIME: 400 // ms
+                    SLIDER_ANIMATE_TIME: 400, // ms
+                    MAX_FONT_SIZE: 1,
+                    MAX_MOBILE_FONT_SIZE: 0.5
                 };
 
                 var self = this,
@@ -98,18 +100,24 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                 };
 
                 this._resize = function(vw, vh){
-                    /*var fontSize;
+                    var fontSize;
                     if (vw > darDeviceInfo.MOBILE_WIDTH) {
                         // for desktop and tablet
-                        fontSize = Math.min(parseFloat((vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), 1);
+                        fontSize = Math.min(parseFloat((vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), this.CONFIG.MAX_FONT_SIZE);
+                    } else {
+                        // mobile
+                        fontSize = Math.min(parseFloat((this.CONFIG.MAX_MOBILE_FONT_SIZE - (darDeviceInfo.MOBILE_WIDTH - vw)*0.12/370).toFixed(2)), this.CONFIG.MAX_MOBILE_FONT_SIZE);
+                        // ^ here are some magic numbers: 370 - the difference between 690px and 320px (minimum mobile width)
+                        // 0.12 - difference in fonts values for these extreme width
                     }
-                    wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);*/
+                    wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
 
                     var tileStyle = this.ELEMENT.TILES_BIG[0].currentStyle || window.getComputedStyle(this.ELEMENT.TILES_BIG[0]),
                         tileMarginTotal = window.parseInt(tileStyle.marginLeft) * 2,
-                        smallColumnQuantity = this.ELEMENT.TILES_SMALL.length / 2,
+                        smallColumnQuantity = darDeviceInfo.isMobileState ? this.ELEMENT.TILES_SMALL.length : this.ELEMENT.TILES_SMALL.length / 2,
                         bigColumnQuantity = this.ELEMENT.TILES_BIG.length,
-                        bigColumnWidth = this.ELEMENT.TILES_BIG[0].offsetWidth + tileMarginTotal;
+                        bigTileWidth = this.ELEMENT.TILES_BIG[0].offsetWidth,
+                        bigColumnWidth = bigTileWidth + tileMarginTotal;
 
                     smallColumnWidth = this.ELEMENT.TILES_SMALL[0].offsetWidth + tileMarginTotal;
                     sliderWidth = (smallColumnQuantity * smallColumnWidth) + (bigColumnQuantity * bigColumnWidth);
@@ -118,20 +126,21 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                     if(isFirstResize){
                         // set offset to slider such way that the first BIG tile from left is placed along with section title
                         var bigTileOffsetLeft = this.ELEMENT.TILES_BIG[0].offsetLeft,
-                            headerOffsetLeft = window.document.querySelector("header ul").offsetLeft,
+                            delta = 0;
+                        if(darDeviceInfo.isMobileState){
+                            delta = -bigTileOffsetLeft + ((vw - bigTileWidth) / 2);
+                        } else {
+                            var headerOffsetLeft = window.document.querySelector("header ul").offsetLeft;
+
                             delta = headerOffsetLeft - bigTileOffsetLeft;
+                        }
+
                         this.ELEMENT.SLIDER.css(this.ATTR.TRANSFORM, "translateX(" + delta + this.VAL.PX + ")");
                         sliderLeft = delta;
                     }
 
                     maxSliderLeft = 0.2 * vw;
                     minSliderLeft = (-0.2 * vw) - (sliderWidth - vw);
-
-                    if (vw < darDeviceInfo.TABLET_WIDE_WIDTH) {
-                        wrapper.css("display", "none");
-                    } else {
-                        wrapper.css("display", "");
-                    }
                 };
 
                 this._destroy = function(){
