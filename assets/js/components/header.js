@@ -63,12 +63,6 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                     MAX_SCROLL_VH_FACTOR: 0.45
                 };
 
-                // global listeners
-                /*var offLeftDrawerOpen = new Function(),
-                    offLeftDrawerClose = new Function(),
-                    offRightDrawerOpen = new Function(),
-                    offRightDrawerClose = new Function();*/
-
                 var currentState = this.STATE.NORMAL;
 
                 var self = this;

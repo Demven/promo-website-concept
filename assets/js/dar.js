@@ -18,6 +18,7 @@ DAR.UIC = new (function(){
         TEAM: null,
         CONTACTS: null
     };
+    this.FOOTER = null;
 })();
 
 /**
@@ -31,6 +32,7 @@ DAR.MODULE_NAME = new (function(){
     this.APP_NAME = "dar";
     this.HEADER = this.APP_NAME + ".header";
     this.SECTION = this.APP_NAME + ".section";
+    this.FOOTER = this.APP_NAME + ".footer";
     this.UTIL = this.APP_NAME + ".util";
     // sections:
     this.SECTION_MAIN = this.SECTIONS + ".main";
@@ -60,11 +62,13 @@ DAR.MODULE = new (function(){
         DAR.MODULE_NAME.SECTION_TEAM,
         DAR.MODULE_NAME.SECTION_CONTACTS
     ]);
+    this.FOOTER = angular.module(DAR.MODULE_NAME.FOOTER, []);
     // main module
     this.DAR = angular.module(DAR.MODULE_NAME.APP_NAME, [
         'ui.router',
         DAR.MODULE_NAME.HEADER,
         DAR.MODULE_NAME.SECTION,
+        DAR.MODULE_NAME.FOOTER,
         DAR.MODULE_NAME.UTIL
     ]);
 })();
