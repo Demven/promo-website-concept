@@ -35,8 +35,7 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                 };
 
                 this.CLASS = {
-                    CLOSED: "closed",
-                    OPEN: "open",
+                    NORMAL: "normal",
                     SLIDER_IN_MOVING: "in-moving",
                     ANIMATE: "animate"
                 };
@@ -92,10 +91,10 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
 
                 this._setState = function(state){
                     switch(state){
-                        case this.STATE.NORMAL:
-                            wrapper.addClass(this.CLASS.NORMAL);
-                            currentState = this.STATE.NORMAL;
-                            break;
+                    case this.STATE.NORMAL:
+                        wrapper.addClass(this.CLASS.NORMAL);
+                        currentState = this.STATE.NORMAL;
+                        break;
                     }
                 };
 

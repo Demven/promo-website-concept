@@ -15,8 +15,8 @@ $social-media-after()
   width: 0.8em
   height: 0.8em
   position: absolute
-  top: 0.1em
-  left: -1.1em
+  left: 0.3em
+  top: 0.35em
 
 footer
   width: 100vw
@@ -29,6 +29,10 @@ footer
   font-size: $footer-base-font-size
   font-family: $font-pt-sans-regular
   margin-top: 3em
+  opacity: 0
+  transition: opacity 1s 0.4s
+  &.normal
+    opacity: 1
   .social-container
     height: 7em
     width: 60em
@@ -37,28 +41,30 @@ footer
     justify-content: space-between
     align-items: center
     color: #fff
-    cursor: pointer
     .social-media
       font-size: 2.8em
       position: relative
       box-sizing: border-box
-      padding-bottom: 2px
+      padding: 0.3em
+      padding-left: 1.4em
+      cursor: pointer
       &:hover
-        padding-bottom: 0
+        padding-bottom: 0.2286em
         border-bottom: 2px dotted #fff
       &:after
         $social-media-after()
       &.fb:after
         background: url("data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 200 200' enable-background='new 0 0 200 200' xml:space='preserve'><path fill='#fff' d='M118.8,50h50V0H100C82.5,0,68.8,13.8,68.8,31.2V75H31.2v50h37.5v75h50v-75h37.5l12.5-50h-50V50H118.8z'/></svg>")
-      &.vk:after
-        width: 1.34em
-        height: 1.34em
-        left: -1.7em
-        top: -0.2em
-        background: url("data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 20 20' enable-background='new 0 0 20 20' xml:space='preserve'><path fill-rule='evenodd' clip-rule='evenodd' fill='#fff' d='M18.1,15.8c-0.5,0-1.7,0-2.2,0c-1.4,0-1.7-0.5-2.9-1.7c-1.1-1.1-1.3-0.5-1.3,1.1c0,0.4-0.2,0.8-0.7,0.8c-1.5,0-3.2,0.5-5.4-2c-2.4-2.7-4.4-7.5-4.5-8C0.9,5.4,1.1,5.2,1.6,5.2c0.6,0,1.9,0,2.3,0c0.7,0,0.7,0.4,0.9,0.8c0.8,1.9,2.9,6.3,3.4,4.2c0.3-1.2,0.3-4-1-4.3c-0.9-0.2,1-1.4,3.5-0.8c0.9,0.2,0.9,0.7,0.9,1.3c0,2.4-0.3,3.9,0.3,4.3c0.6,0.4,2-2.6,2.8-4.6c0.2-0.6,0.3-0.9,0.9-0.9c3.1,0,2.2,0,2.5,0c1.7,0,0,2.6-1.5,4.5c-1.2,1.6-1.1,1.6,0.2,3C18.5,14.1,20.1,15.8,18.1,15.8z'/></svg>")
+      &.vk
+        padding-left: 1.6em
+        &:after
+          width: 1.34em
+          height: 1.34em
+          left: 0.1em
+          top: 0.08em
+          background: url("data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 20 20' enable-background='new 0 0 20 20' xml:space='preserve'><path fill-rule='evenodd' clip-rule='evenodd' fill='#fff' d='M18.1,15.8c-0.5,0-1.7,0-2.2,0c-1.4,0-1.7-0.5-2.9-1.7c-1.1-1.1-1.3-0.5-1.3,1.1c0,0.4-0.2,0.8-0.7,0.8c-1.5,0-3.2,0.5-5.4-2c-2.4-2.7-4.4-7.5-4.5-8C0.9,5.4,1.1,5.2,1.6,5.2c0.6,0,1.9,0,2.3,0c0.7,0,0.7,0.4,0.9,0.8c0.8,1.9,2.9,6.3,3.4,4.2c0.3-1.2,0.3-4-1-4.3c-0.9-0.2,1-1.4,3.5-0.8c0.9,0.2,0.9,0.7,0.9,1.3c0,2.4-0.3,3.9,0.3,4.3c0.6,0.4,2-2.6,2.8-4.6c0.2-0.6,0.3-0.9,0.9-0.9c3.1,0,2.2,0,2.5,0c1.7,0,0,2.6-1.5,4.5c-1.2,1.6-1.1,1.6,0.2,3C18.5,14.1,20.1,15.8,18.1,15.8z'/></svg>")
       &.inst:after
         background: url("data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 200 200' enable-background='new 0 0 200 200' xml:space='preserve'><path fill='#fff' d='M187.5,0h-175C6.2,0,0,6.2,0,12.5v175c0,6.2,6.2,12.5,12.5,12.5h175c6.2,0,12.5-6.2,12.5-12.5v-175C200,6.2,193.8,0,187.5,0z M100,62.5c21.2,0,37.5,16.2,37.5,37.5s-16.2,37.5-37.5,37.5S62.5,121.2,62.5,100S78.8,62.5,100,62.5z M175,175H25V87.5h13.8c-1.2,3.8-1.2,8.8-1.2,12.5c0,35,27.5,62.5,62.5,62.5s62.5-27.5,62.5-62.5c0-3.8,0-8.8-1.2-12.5H175V175z M156.2,62.5c-10,0-18.8-8.7-18.8-18.8S146.2,25,156.2,25S175,33.8,175,43.8S166.2,62.5,156.2,62.5z'/></svg>")
-
   .motto
     font-family: $font-bebas-regular
     font-size: 9.6em
@@ -83,5 +89,53 @@ footer
       transform: scale(1.3)
       span
         display: inline
+        padding-right: 20px;
 
+@media $tablet-any
+  footer
+    font-size: 0.8rem
+    .social-container
+      .social-media
+        &:hover
+          border: none
+          padding-bottom: 0.3em
+
+@media $mobile
+   footer
+     font-size: 0.6rem
+     height: auto
+     .social-container
+       order: 2
+       width: 100vw
+       height: auto
+       flex-direction: column
+       margin-bottom: 1em
+       .social-media
+         padding: 0.3em 0 0.3em 1.1em
+         font-size: 5em
+         &:hover
+           border: none
+           padding-bottom: 0.3em
+         &:after
+           top: 0.4em
+           left: 0
+         &.vk:after
+           top: 0.1em
+           left: -0.5em
+     .motto
+       order: 1
+       font-size: 7.6em
+       margin: 0.8em 0 0.6em 0
+      .copyright
+        order: 3
+        font-size: 3.6em
+      .designed-by
+        order: 4
+        font-size: 3.1em
+        padding-bottom: 2em
+        &:hover
+          transform: initial
+          span
+            display: block
+            padding: 0.3em 0
 
