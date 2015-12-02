@@ -1,0 +1,71 @@
+/** SECTION TEAM COMPONENT
+  * @author Dmitry Salnikov
+  * @since 12/2/2015
+ */
+@require './base/util'
+@require './base/devices'
+
+$section-team-base-font-size = 1rem // Desktop
+
+$section-team-width = 102.4em
+$section-team-height = 82em
+
+$section-team-member-size = 24em
+$section-team-member-number-in-a-row = 3
+$section-team-member-padding = ($section-team-width - ($section-team-member-size*$section-team-member-number-in-a-row))/($section-team-member-number-in-a-row - 1)
+
+dar-section-team
+  width: $section-team-width
+  display: flex
+  flex-direction: column
+  margin: 0 auto
+  padding-bottom: 3em
+  font-size: $section-team-base-font-size
+  .team-members
+    width: 100%
+    height: $section-team-height
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: space-between
+    position: relative
+    padding-top: 2em
+    .member
+      width: $section-team-member-size
+      height: $section-team-member-size
+      &:nth-child(1),
+      &:nth-child(4)
+        padding-right: $section-team-member-padding
+      &:nth-child(3n)
+        padding-left: $section-team-member-padding
+      figure
+        width: $section-team-member-size
+        height: $section-team-member-size
+        position: relative
+        .photo
+          height: 101%
+          width: 101%
+          border-radius: 50%
+        figcaption
+          position: absolute
+          height: 12em
+          width: 100%
+          display: flex
+          padding-top: 2em
+          flex-direction: column
+          text-align: center
+          color: #000
+          .name
+            font-family: $font-roboto-bold
+            font-size: 2.2em
+            padding-bottom: 0.6em
+          .role
+            font-family: $font-roboto-regular
+            font-size: 1.8em
+
+
+
+/* MOBILE STYLES */
+@media $mobile
+  dar-section-team
+    font-size: 0.6rem
