@@ -12,9 +12,9 @@ DAR.MODULE.SECTION_TEAM.directive('darSectionTeam', function($rootScope, $window
                 SectionTeamElementComponent.superclass.constructor.call(this);
 
                 this.NAME = "SectionTeam";
-                this.VERSION = "0.1";
+                this.VERSION = "0.3";
                 this.isDestroyOnPageChange = true;
-                this.isTriggerResize = false;
+                this.isTriggerResize = true;
 
                 this.EVENT = {
                     TAP: "touch"
@@ -40,6 +40,11 @@ DAR.MODULE.SECTION_TEAM.directive('darSectionTeam', function($rootScope, $window
                     TILES_SMALL: angular.element(wrapper[0].querySelectorAll(this.SELECTOR.TILE_SMALL))
                 };*/
 
+                this.CONFIG = {
+                    MAX_FONT_SIZE: 1,
+                    MAX_MOBILE_FONT_SIZE: 0.8
+                };
+
                 this.STATE = {
                     NORMAL: "normal"
                 };
@@ -58,6 +63,20 @@ DAR.MODULE.SECTION_TEAM.directive('darSectionTeam', function($rootScope, $window
                             break;
                     }
                 };
+
+                this._resize = function(vw, vh) {
+                    var fontSize;
+                    if (vw > darDeviceInfo.MOBILE_WIDTH) {
+                        // for desktop and tablet
+                        fontSize = Math.min(parseFloat((vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), this.CONFIG.MAX_FONT_SIZE);
+                    } else {
+                        // mobile
+                        fontSize = Math.min(parseFloat((this.CONFIG.MAX_MOBILE_FONT_SIZE - (darDeviceInfo.MOBILE_WIDTH - vw) * 0.28 / 370).toFixed(2)), this.CONFIG.MAX_MOBILE_FONT_SIZE);
+                        // ^ here are some magic numbers: 370 - the difference between 690px and 320px (minimum mobile width)
+                        // 0.28 - difference in fonts values for these extreme width
+                    }
+                    wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
+                }
             }
 
             darExtendService.extend(SectionTeamElementComponent, darExtendService.BaseElementComponent);

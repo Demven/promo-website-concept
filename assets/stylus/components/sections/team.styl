@@ -9,9 +9,11 @@ $section-team-base-font-size = 1rem // Desktop
 
 $section-team-width = 102.4em
 $section-team-height = 82em
+$section-team-mobile-height = 122em
 
 $section-team-member-size = 24em
 $section-team-member-number-in-a-row = 3
+$section-team-member-padding = ($section-team-width - ($section-team-member-size*$section-team-member-number-in-a-row))/($section-team-member-number-in-a-row - 1)
 $section-team-member-padding = ($section-team-width - ($section-team-member-size*$section-team-member-number-in-a-row))/($section-team-member-number-in-a-row - 1)
 
 dar-section-team
@@ -68,4 +70,15 @@ dar-section-team
 /* MOBILE STYLES */
 @media $mobile
   dar-section-team
-    font-size: 0.6rem
+    width: 100vw
+    .team-members
+      height: $section-team-mobile-height
+      flex-direction: row
+      justify-content: space-around
+      .member
+        &:nth-child(1),
+        &:nth-child(2n+1)
+          padding: 0 2% 0 4%;
+        &:nth-child(2n)
+          padding: 0 4% 0 2%;
+
