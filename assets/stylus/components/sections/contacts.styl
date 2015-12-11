@@ -1,0 +1,104 @@
+/** SECTION CONTACTS COMPONENT
+  * @author Dmitry Salnikov
+  * @since 12/11/2015
+ */
+@require './base/util'
+@require './base/devices'
+
+$section-contacts-base-font-size = 1rem // Desktop
+
+$section-contacts-width = 100%
+$section-contacts-height = 50em
+$section-contacts-address-height = 0.9*$section-contacts-height
+
+$section-contacts-address-folded-corner-size = 8em
+
+dar-section-contacts
+  width: $section-contacts-width
+  display: flex
+  flex-direction: column
+  margin: 0 auto
+  padding-bottom: 3em
+  font-size: $section-contacts-base-font-size
+  position: relative
+  h2
+    width: 22.261em
+    margin: 0 auto
+  .address-container
+    width: 100%
+    height: $section-contacts-height
+    position: absolute
+    top: 10em
+    left: 0
+    z-index: 10
+    cursor: move
+    .address-box
+      width: 102.4em
+      height: 100%
+      margin: 0 auto
+      .address
+        width: 43em
+        height: $section-contacts-address-height
+        padding: 3em 5em
+        box-sizing: border-box
+        background: #fff
+        position: relative
+        font-family: $font-pt-sans-regular
+        cursor: initial
+        &:before
+          content: ""
+          width: $section-contacts-address-folded-corner-size
+          height: ($section-contacts-address-height - $section-contacts-address-folded-corner-size)
+          position: absolute
+          top: 0
+          right: -($section-contacts-address-folded-corner-size)
+          background-color: #fff
+        &:after
+          content: ""
+          position: absolute
+          bottom: 0
+          right: -($section-contacts-address-folded-corner-size)
+          border-width: $section-contacts-address-folded-corner-size $section-contacts-address-folded-corner-size 0 0
+          border-style: solid
+          border-color: $color-base-muted transparent
+        .company-name
+          font-size: 3em
+          font-weight: bold
+        .company-address
+          font-size: 3em
+          padding: 1em 0 0.5em
+          line-height: 1.4em
+        .company-contacts
+          font-size: 3em
+          padding: 0.5em 0
+          line-height: 1.4em
+          .company-email
+            color: #000
+            text-decoration: underline
+  .map-container
+    width: 100%
+    height: $section-contacts-height
+    position: relative
+    .map
+      width: 100vw
+      height: 100%
+      position: absolute
+      top: 0
+      left: 0
+      background-image: url('../images/bg/map-stub.jpg')
+      background-size: cover
+
+/* MOBILE STYLES */
+@media $mobile
+ dar-section-contacts
+   width: 100vw
+   h2
+     font-size: 6.4em !important
+     width: auto
+     margin: 0
+
+@media $all-less-than-desktop
+  dar-section-contacts
+    display: none
+
+
