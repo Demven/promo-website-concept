@@ -1,7 +1,7 @@
 /**
  * Created by Dmitry Salnikov on 12/2/2015.
  */
-DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope, $window, $timeout, darExtendService, darDeviceInfo) {
+DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope, darExtendService, darDeviceInfo) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/sections/contacts.html',
@@ -14,7 +14,7 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope,
                 this.NAME = "SectionContacts";
                 this.VERSION = "0.1";
                 this.isDestroyOnPageChange = true;
-                this.isTriggerResize = false;
+                this.isTriggerResize = true;
 
                 this.EVENT = {
                     TAP: "touch"
@@ -44,6 +44,11 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope,
                     NORMAL: "normal"
                 };
 
+                this.CONFIG = {
+                    MAX_FONT_SIZE: 1,
+                    MAX_MOBILE_FONT_SIZE: 0.8
+                };
+
                 var currentState;
 
                 this._render = function(){
@@ -58,6 +63,20 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope,
                             break;
                     }
                 };
+
+                this._resize = function(vw, vh) {
+                    var fontSize;
+                    if (vw > darDeviceInfo.MOBILE_WIDTH) {
+                        // for desktop and tablet
+                        fontSize = Math.min(parseFloat((vw / darDeviceInfo.DESKTOP_BASE_WIDTH).toFixed(2)), this.CONFIG.MAX_FONT_SIZE);
+                    } else {
+                        // mobile
+                        fontSize = Math.min(parseFloat((this.CONFIG.MAX_MOBILE_FONT_SIZE - (darDeviceInfo.MOBILE_WIDTH - vw) * 0.335 / 370).toFixed(2)), this.CONFIG.MAX_MOBILE_FONT_SIZE);
+                        // ^ here are some magic numbers: 370 - the difference between 690px and 320px (minimum mobile width)
+                        // 0.335 - difference in fonts values for these extreme width
+                    }
+                    wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
+                }
             }
 
             darExtendService.extend(SectionContactsElementComponent, darExtendService.BaseElementComponent);

@@ -9,7 +9,7 @@ $section-contacts-base-font-size = 1rem // Desktop
 
 $section-contacts-width = 100%
 $section-contacts-height = 50em
-$section-contacts-address-height = 0.9*$section-contacts-height
+$section-contacts-address-height = 0.9 *$section-contacts-height
 
 $section-contacts-address-folded-corner-size = 8em
 
@@ -60,7 +60,7 @@ dar-section-contacts
           right: -($section-contacts-address-folded-corner-size)
           border-width: $section-contacts-address-folded-corner-size $section-contacts-address-folded-corner-size 0 0
           border-style: solid
-          border-color: $color-base-muted transparent
+          border-color: $color-base transparent
         .company-name
           font-size: 3em
           font-weight: bold
@@ -72,8 +72,10 @@ dar-section-contacts
           font-size: 3em
           padding: 0.5em 0
           line-height: 1.4em
-          .company-email
+          a
             color: #000
+            text-decoration: none
+          .company-email
             text-decoration: underline
   .map-container
     width: 100%
@@ -89,16 +91,43 @@ dar-section-contacts
       background-size: cover
 
 /* MOBILE STYLES */
-@media $mobile
- dar-section-contacts
-   width: 100vw
-   h2
-     font-size: 6.4em !important
-     width: auto
-     margin: 0
+@media
 
-@media $all-less-than-desktop
+$mobile
   dar-section-contacts
-    display: none
-
+    width: 100vw
+    h2
+      width: auto
+      margin: 0
+      padding-top: 0 !important
+    .address-container
+      height: 60em
+      top: 32px
+      padding-top: 3em
+      .address-box
+        width: 100%
+        .address
+          width: 40em
+          height: 60em
+          padding-right: 0
+          paddding-top: 3em
+          &:before
+            height: 52em
+          .company-name
+            font-size: 3.6em
+            position: absolute
+            width: 10em
+            top: 1em
+          .company-address
+            font-size: 3.4em
+            position: absolute
+            width: 11em
+            top: 2.6em
+          .company-contacts
+            font-size: 3.4em
+            position: absolute
+            width: 11em
+            top: 9em
+    .map-container
+      height: 80em
 
