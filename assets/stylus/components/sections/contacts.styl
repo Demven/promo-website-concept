@@ -32,7 +32,9 @@ dar-section-contacts
     left: 0
     z-index: 10
     cursor: move
+    transition: transform .4s
     .address-box
+      position: relative
       width: 102.4em
       height: 100%
       margin: 0 auto
@@ -42,9 +44,12 @@ dar-section-contacts
         padding: 3em 5em
         box-sizing: border-box
         background: #fff
-        position: relative
+        position: absolute
+        top: 0
+        left: 0
         font-family: $font-pt-sans-regular
         cursor: initial
+        transition: transform .4s
         &:before
           content: ""
           width: $section-contacts-address-folded-corner-size
@@ -90,10 +95,18 @@ dar-section-contacts
       background-image: url('../images/bg/map-stub.jpg')
       background-size: cover
 
-/* MOBILE STYLES */
-@media
+  &.show-map
+    .address-container
+      height: 0
+      .address-box
+        height: 0
+        .address
+          transform: translate(-11.3em, -12.1em) scale(0.46)
+          cursor: alias
 
-$mobile
+
+/* MOBILE STYLES */
+@media $mobile
   dar-section-contacts
     width: 100vw
     h2
@@ -110,7 +123,7 @@ $mobile
           width: 40em
           height: 60em
           padding-right: 0
-          paddding-top: 3em
+          padding-top: 3em
           &:before
             height: 52em
           .company-name
@@ -131,3 +144,8 @@ $mobile
     .map-container
       height: 80em
 
+    &.show-map
+      .address-container
+        .address-box
+          .address
+            transform: translate(-8em, -11.8em) scale(0.6)

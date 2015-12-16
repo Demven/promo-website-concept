@@ -1,3 +1,4 @@
+/* global ymaps */
 /**
  * Created by Dmitry Salnikov on 12/2/2015.
  */
@@ -29,19 +30,21 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope,
                 };
 
                 this.CLASS = {
-                    NORMAL: "normal"
+                    NORMAL: "normal",
+                    SHOW_MAP: "show-map"
                 };
 
-                /*this.SELECTOR = {
-                 TILE_SMALL: ".tile.small"
-                 };
+                this.SELECTOR = {
+                    ADDRESS_CONTAINER: ".address-container"
+                };
 
-                 this.ELEMENT = {
-                 TILES_SMALL: angular.element(wrapper[0].querySelectorAll(this.SELECTOR.TILE_SMALL))
-                 };*/
+                this.ELEMENT = {
+                    ADDRESS_CONTAINER: angular.element(wrapper[0].querySelectorAll(this.SELECTOR.ADDRESS_CONTAINER))
+                };
 
                 this.STATE = {
-                    NORMAL: "normal"
+                    NORMAL: "normal",
+                    SHOW_MAP: "show-map"
                 };
 
                 this.CONFIG = {
@@ -49,7 +52,10 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope,
                     MAX_MOBILE_FONT_SIZE: 0.8
                 };
 
-                var currentState;
+                var currentState,
+                    isMapRendered = false;
+
+                var MAP_ELEMENT_ID = 'map';
 
                 this._render = function(){
                     this.setState(this.STATE.NORMAL);
@@ -57,11 +63,23 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope,
 
                 this._setState = function(state){
                     switch(state){
-                        case this.STATE.NORMAL:
-                            wrapper.addClass(this.CLASS.NORMAL);
-                            currentState = this.STATE.NORMAL;
-                            break;
+                    case this.STATE.NORMAL:
+                        wrapper.removeClass(this.CLASS.SHOW_MAP);
+                        wrapper.addClass(this.CLASS.NORMAL);
+                        currentState = this.STATE.NORMAL;
+                        break;
+                    case this.STATE.SHOW_MAP:
+                        wrapper.removeClass(this.CLASS.NORMAL);
+                        wrapper.addClass(this.CLASS.SHOW_MAP);
+                        currentState = this.STATE.SHOW_MAP;
+                        break;
                     }
+                };
+
+                this._postCreate = function(){
+                    // local listeners
+                    // tap
+                    Quo(this.ELEMENT.ADDRESS_CONTAINER[0]).on(this.EVENT.TAP, angular.bind(this, this.toggleMap));
                 };
 
                 this._resize = function(vw, vh) {
@@ -76,7 +94,71 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope,
                         // 0.335 - difference in fonts values for these extreme width
                     }
                     wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
-                }
+                };
+
+                /************************ */
+
+                this.toggleMap = function(){
+                    switch(currentState){
+                        case this.STATE.NORMAL:
+                        // show map
+                        if (!isMapRendered && ymaps) {
+                            this.initMap();
+                        }
+                        this.setState(this.STATE.SHOW_MAP);
+                        break;
+                    case this.STATE.SHOW_MAP:
+                        // hide map
+                        this.setState(this.STATE.NORMAL);
+                        break;
+                    }
+
+
+                };
+
+                this.initMap = function(){
+                    ymaps.ready(function(){
+                        var myMap = new ymaps.Map(MAP_ELEMENT_ID, {
+                            center: [55.747565, 37.583461],
+                            zoom: 16
+                        });
+
+                        var myPlacemark = new ymaps.Placemark([55.747565, 37.583461], {
+                            hintContent: 'ДАР Девелопмент',
+                            balloonContent: 'ООО ДАР Девелопмент <br> Москва <br><b>Усачева, 24</b>'
+                        }, {
+                            preset: 'islands#redIcon'
+                        });
+
+                        //myMap.setType('yandex#hybrid');
+
+                        myMap.geoObjects.add(myPlacemark);
+
+                        myMap.controls.remove('searchControl');
+                        myMap.controls.remove('trafficControl');
+
+                        if (darDeviceInfo.isMobileState) {
+                            myMap.controls.remove('rulerControl');
+                            myMap.controls.remove('typeSelector');
+                            myMap.controls.remove('geolocationControl');
+                            myMap.controls.add('geolocationControl', {
+                                float: "right"
+                            });
+                            myMap.controls.remove('zoomControl');
+                            myMap.controls.add('zoomControl', {
+                                float: "right",
+                                position: {
+                                    top: 100,
+                                    right: 10
+                                }
+                            });
+                        }
+                    });
+
+
+
+                    isMapRendered = true;
+                };
             }
 
             darExtendService.extend(SectionContactsElementComponent, darExtendService.BaseElementComponent);
