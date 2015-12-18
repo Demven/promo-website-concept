@@ -53,7 +53,12 @@ DAR.MODULE.SECTION_ABOUT.directive('darSectionAbout', function($rootScope, $wind
 
                 var currentState;
 
+                var offScrollToSection = new Function();
+
                 this._postCreate = function(){
+                    // global listeners
+                    offScrollToSection = $rootScope.$on(DAR.EVENT.WISH.SCROLL_TO_SECTION, angular.bind(this, this.onScrollToSectionEvent));
+
                     // local listeners
                     // tap
                     Quo(this.ELEMENT.SHOW_MORE[0]).on(this.EVENT.TAP, angular.bind(this, this.showMore));
@@ -89,6 +94,9 @@ DAR.MODULE.SECTION_ABOUT.directive('darSectionAbout', function($rootScope, $wind
                 };
 
                 this._destroy = function(){
+                    // remove global listeners
+                    offScrollToSection();
+
                     // remove local listeners
                     Quo(this.ELEMENT.SHOW_MORE[0]).off(this.EVENT.TAP);
                     Quo(this.ELEMENT.HIDE_MORE[0]).off(this.EVENT.TAP);
@@ -108,6 +116,17 @@ DAR.MODULE.SECTION_ABOUT.directive('darSectionAbout', function($rootScope, $wind
                         this.setState(this.STATE.CLOSED);
                     }
                 };
+
+                this.onScrollToSectionEvent = function(ev, data) {
+                    if (data.sectionName && data.sectionName === this.NAME) {
+                        var sectionOffsetTop = wrapper[0].offsetTop,
+                            additionalOffsetTop = data.offsetTop || 0,
+                            scrollY = sectionOffsetTop - additionalOffsetTop;
+                        $window.scrollTo(0, scrollY);
+
+                        console.warn(data.sectionName);
+                    }
+                }
             }
 
             darExtendService.extend(SectionAboutElementComponent, darExtendService.BaseElementComponent);

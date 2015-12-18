@@ -2,7 +2,7 @@
 /**
  * Created by Dmitry Salnikov on 12/2/2015.
  */
-DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope, darExtendService, darDeviceInfo) {
+DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope, $window, darExtendService, darDeviceInfo) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/sections/contacts.html',
@@ -57,6 +57,8 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope,
 
                 var MAP_ELEMENT_ID = 'map';
 
+                var offScrollToSection = new Function();
+
                 this._render = function(){
                     this.setState(this.STATE.NORMAL);
                 };
@@ -77,6 +79,9 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope,
                 };
 
                 this._postCreate = function(){
+                    // global listeners
+                    offScrollToSection = $rootScope.$on(DAR.EVENT.WISH.SCROLL_TO_SECTION, angular.bind(this, this.onScrollToSectionEvent));
+
                     // local listeners
                     // tap
                     Quo(this.ELEMENT.ADDRESS_CONTAINER[0]).on(this.EVENT.TAP, angular.bind(this, this.toggleMap));
@@ -96,6 +101,14 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope,
                     wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
                 };
 
+                this._destroy = function(){
+                    // remove global listeners
+                    offScrollToSection();
+
+                    // remove local listeners
+                    Quo(this.ELEMENT.ADDRESS_CONTAINER[0]).off(this.EVENT.TAP);
+                };
+
                 /************************ */
 
                 this.toggleMap = function(){
@@ -112,8 +125,6 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope,
                         this.setState(this.STATE.NORMAL);
                         break;
                     }
-
-
                 };
 
                 this.initMap = function(){
@@ -155,10 +166,19 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope,
                         }
                     });
 
-
-
                     isMapRendered = true;
                 };
+
+                this.onScrollToSectionEvent = function(ev, data) {
+                    if (data.sectionName && data.sectionName === this.NAME) {
+                        var sectionOffsetTop = wrapper[0].offsetTop,
+                            additionalOffsetTop = data.offsetTop || 0,
+                            scrollY = sectionOffsetTop - additionalOffsetTop;
+                        $window.scrollTo(0, scrollY);
+
+                        console.warn(data.sectionName);
+                    }
+                }
             }
 
             darExtendService.extend(SectionContactsElementComponent, darExtendService.BaseElementComponent);

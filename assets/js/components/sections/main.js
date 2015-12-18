@@ -63,11 +63,11 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 this.slidesNumber = this.ELEMENT.SLIDES.length;
 
                 // global listeners
-                /*var offLeftDrawerOpen = new Function();*/
+                var offScrollToSection = new Function();
 
                 this._postCreate = function(){
                     // global listeners
-                    //offLeftDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_OPEN, angular.bind(this, this._onLeftDrawerOpen));*/
+                    offScrollToSection = $rootScope.$on(DAR.EVENT.WISH.SCROLL_TO_SECTION, angular.bind(this, this.onScrollToSectionEvent));
 
                     // local listeners
                     // tap
@@ -123,7 +123,7 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
 
                 this._destroy = function(){
                     // remove global listeners
-                    //offLeftDrawerOpen();
+                    offScrollToSection();
 
                     // remove local listeners
                     Quo(this.ELEMENT.PREV_BUTTON[0]).off(this.EVENT.TAP);
@@ -190,6 +190,14 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 this._getTranslateX = function($el){
                     return Number($el.css(this.ATTR.TRANSFORM).split("(")[1].slice(0, -3));
                 };
+
+                this.onScrollToSectionEvent = function(ev, data) {
+                    if (data.sectionName && data.sectionName === this.NAME) {
+                        $window.scrollTo(0, 0);
+
+                        console.warn(data.sectionName);
+                    }
+                }
             }
 
             darExtendService.extend(SectionMainElementComponent, darExtendService.BaseElementComponent);

@@ -76,7 +76,12 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                     maxSliderLeft = 0,
                     minSliderLeft = 0;
 
+                var offScrollToSection = new Function();
+
                 this._postCreate = function(){
+                    // global listeners
+                    offScrollToSection = $rootScope.$on(DAR.EVENT.WISH.SCROLL_TO_SECTION, angular.bind(this, this.onScrollToSectionEvent));
+
                     // local listeners
                     this.ELEMENT.SLIDER.on(this.EVENT.TOUCH_START, angular.bind(this, this.onSliderStartMove));
 
@@ -143,6 +148,9 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                 };
 
                 this._destroy = function(){
+                    // remove global listeners
+                    offScrollToSection();
+
                     // remove local listeners
                     Quo(this.ELEMENT.PREV_BUTTON[0]).off(this.EVENT.TAP);
                     Quo(this.ELEMENT.NEXT_BUTTON[0]).off(this.EVENT.TAP);
@@ -208,6 +216,17 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                         self.ELEMENT.SLIDER.removeClass(self.CLASS.ANIMATE);
                     }, self.CONFIG.SLIDER_ANIMATE_TIME);
                 };
+
+                this.onScrollToSectionEvent = function(ev, data) {
+                    if (data.sectionName && data.sectionName === this.NAME) {
+                        var sectionOffsetTop = wrapper[0].offsetTop,
+                            additionalOffsetTop = data.offsetTop || 0,
+                            scrollY = sectionOffsetTop - additionalOffsetTop;
+                        $window.scrollTo(0, scrollY);
+
+                        console.warn(data.sectionName);
+                    }
+                }
             }
 
             darExtendService.extend(SectionProjectsElementComponent, darExtendService.BaseElementComponent);

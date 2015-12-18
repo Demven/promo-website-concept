@@ -1195,3 +1195,34 @@ DAR.MODULE.UTIL.service("darElement", function Element(){
     };
 
 });
+
+/**
+ * Service, that provides useful methods for DOM elements (analog of jQuery)
+ * @service
+ */
+DAR.MODULE.UTIL.service("darPageScroller", function(){
+
+
+    this.scroll = function(el){
+        var requestAnimationFrame = $window.requestAnimationFrame ||
+            $window.mozRequestAnimationFrame ||
+            $window.webkitRequestAnimationFrame ||
+            $window.msRequestAnimationFrame;
+
+        function easeOutCubic(currentIteration, startValue, changeInValue, totalIterations) {
+            return changeInValue * (Math.pow(currentIteration / totalIterations - 1, 3) + 1) + startValue;
+        }
+
+        function scrollToPosition() {
+            $window.scrollTo(0, easeOutCubic(iteration, startValue, targetValue, totalIterations));
+            iteration++;
+
+            if (iteration === totalIterations) {
+                return;
+            }
+
+            requestAnimationFrame(scrollToPosition);
+        }
+    };
+
+});

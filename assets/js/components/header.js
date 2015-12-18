@@ -24,7 +24,8 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
 
                 this.SELECTOR = {
                     MENU_BUTTON: ".menu-button",
-                    LOGO: ".logo"
+                    LOGO: ".logo",
+                    NAV_ITEM: "li"
                 };
 
                 this.ATTR = {
@@ -45,7 +46,8 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                 this.ELEMENT = {
                     MENU_BUTTON: angular.element(wrapper[0].querySelector(this.SELECTOR.MENU_BUTTON)),
                     LOGO: angular.element(wrapper[0].querySelector(this.SELECTOR.LOGO)),
-                    BODY: angular.element(window.document.body)
+                    BODY: angular.element(window.document.body),
+                    NAV_ITEM: wrapper[0].querySelectorAll(this.SELECTOR.NAV_ITEM)
                 };
 
                 this.EVENT = {
@@ -74,6 +76,11 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                     var menuButton = this.ELEMENT.MENU_BUTTON[0];
                     // tap
                     Quo(menuButton).on(this.EVENT.TAP, angular.bind(this, this.toggleMenu));
+                    for(var i = this.ELEMENT.NAV_ITEM.length; i--; ){
+                        console.log(this.ELEMENT.NAV_ITEM[i]);
+                        Quo(this.ELEMENT.NAV_ITEM[i]).on(this.EVENT.TAP, angular.bind(this, this.onNavItemClicked));
+                    }
+
                     // swipe
                     Quo(menuButton).on(this.EVENT.SWIPE_DOWN, angular.bind(this, this.openMenu));
                     Quo(menuButton).on(this.EVENT.SWIPE_UP, angular.bind(this, this.closeMenu));
@@ -139,20 +146,25 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                 };
 
                 this._destroy = function(){
-                    // remove global listeners
-                    //offLeftDrawerOpen();
-                    //offLeftDrawerClose();
-
                     // remove local listeners
                     var menuButton = this.ELEMENT.MENU_BUTTON[0];
                     Quo(menuButton).off(this.EVENT.TAP);
                     Quo(menuButton).off(this.EVENT.SWIPE_DOWN);
                     Quo(menuButton).off(this.EVENT.SWIPE_UP);
 
+                    for(var i = this.ELEMENT.NAV_ITEM.length; i--; ){
+                        Quo(this.ELEMENT.NAV_ITEM[i]).off(this.EVENT.TAP);
+                    }
+
                     this.removeTouchHandling();
                 };
 
                 /*************************************** */
+
+                this.onNavItemClicked = function(ev){
+                    var sectionName = angular.element(ev.target).attr('data-section-name');
+                    $rootScope.$broadcast(DAR.EVENT.WISH.SCROLL_TO_SECTION, {sectionName: sectionName, offsetTop: wrapper[0].offsetHeight});
+                };
 
                 this.openMenu = function(){
                     if(currentState === this.STATE.CLOSED){

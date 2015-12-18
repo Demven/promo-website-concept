@@ -75,10 +75,7 @@ DAR.MODULE = new (function(){
 
 DAR.EVENT = {
     WISH: {
-        /** request to change page title using data send with this event */
-        SET_PAGE_TITLE: "WISH_SET_PAGE_TITLE", // data = "pageTitle"
-        /** request to change page subtitle using data send with this event */
-        SET_PAGE_SUBTITLE: "WISH_SET_PAGE_SUBTITLE" // data = "pageSubtitle"
+        SCROLL_TO_SECTION: "WISH_SCROLL_TO_SECTION" // data = {sectionName, offsetTop}
     },
     OCCURRED: {
         WINDOW_RESIZE: "OCCURRED_WINDOW_RESIZE", // data = {vw, vh}
