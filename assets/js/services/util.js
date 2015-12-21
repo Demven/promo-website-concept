@@ -1065,7 +1065,7 @@ DAR.MODULE.UTIL.provider("darDeviceInfo", function(){
             deviceOrientation: this.deviceOrientation,
 
             resize: this.resize,
-            getViewport: this.getViewport,
+            getViewport: this.getViewport, // {vw, vh}
 
             isPortraitMode: this.isPortraitMode,
             isLandscapeMode: this.isLandscapeMode,

@@ -62,7 +62,9 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                     MOBILE_PORTRAIT_MAX_WIDTH: 414,
                     MOBILE_PORTRAIT_FACTOR: 0.8,
                     MOBILE_LANDSCAPE_FACTOR: 0.5,
-                    MAX_SCROLL_VH_FACTOR: 0.45
+                    MAX_SCROLL_VH_FACTOR: 0.45,
+                    MOBILE_NAV_FOLDED_ANGLE_HEIGHT_VH: 0.08,
+                    MOBILE_NAV_CLOSE_ANIMATION_MS: 200
                 };
 
                 var currentState = this.STATE.NORMAL;
@@ -161,8 +163,16 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                 /*************************************** */
 
                 this.onNavItemClicked = function(ev){
-                    var sectionName = angular.element(ev.target).attr('data-section-name');
-                    $rootScope.$broadcast(DAR.EVENT.WISH.SCROLL_TO_SECTION, {sectionName: sectionName, offsetTop: wrapper[0].offsetHeight});
+                    var sectionName = angular.element(ev.target).attr('data-section-name'),
+                        additionalOffset = darDeviceInfo.isMobileState ? (this.CONFIG.MOBILE_NAV_FOLDED_ANGLE_HEIGHT_VH * darDeviceInfo.getViewport().vh) : wrapper[0].offsetHeight;
+
+                    this.closeMenu();
+
+                    // wait till the end of animation
+                    // and then will broadcast event to scroll to clicked section
+                    $timeout(function() {
+                        $rootScope.$broadcast(DAR.EVENT.WISH.SCROLL_TO_SECTION, {sectionName: sectionName, offsetTop: additionalOffset});
+                    }, this.CONFIG.MOBILE_NAV_CLOSE_ANIMATION_MS);
                 };
 
                 this.openMenu = function(){
