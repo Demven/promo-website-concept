@@ -1200,29 +1200,36 @@ DAR.MODULE.UTIL.service("darElement", function Element(){
  * Service, that provides useful methods for DOM elements (analog of jQuery)
  * @service
  */
-DAR.MODULE.UTIL.service("darPageScroller", function(){
+DAR.MODULE.UTIL.service("darPageScroller", function($window, darLog){
+    var NAME = "PageScroller";
 
-
-    this.scroll = function(el){
+    this.scrollTo = function(targetPosition, componentName){
         var requestAnimationFrame = $window.requestAnimationFrame ||
-            $window.mozRequestAnimationFrame ||
-            $window.webkitRequestAnimationFrame ||
-            $window.msRequestAnimationFrame;
+                $window.mozRequestAnimationFrame ||
+                $window.webkitRequestAnimationFrame ||
+                $window.msRequestAnimationFrame;
+
+        var startPosition = $window.scrollY,
+            iteration = 0,
+            totalIterations = 50;
 
         function easeOutCubic(currentIteration, startValue, changeInValue, totalIterations) {
             return changeInValue * (Math.pow(currentIteration / totalIterations - 1, 3) + 1) + startValue;
         }
 
         function scrollToPosition() {
-            $window.scrollTo(0, easeOutCubic(iteration, startValue, targetValue, totalIterations));
+            $window.scrollTo(0, easeOutCubic(iteration, startPosition, targetPosition - startPosition, totalIterations));
             iteration++;
 
             if (iteration === totalIterations) {
+                darLog.info(NAME + ": page scrolled to " + componentName);
                 return;
             }
 
             requestAnimationFrame(scrollToPosition);
         }
+
+        scrollToPosition();
     };
 
 });

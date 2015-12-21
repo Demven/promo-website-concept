@@ -1,7 +1,7 @@
 /**
  * Created by Dmitry Salnikov on 11/4/2015.
  */
-DAR.MODULE.SECTION_ABOUT.directive('darSectionAbout', function($rootScope, $window, darExtendService, darDeviceInfo) {
+DAR.MODULE.SECTION_ABOUT.directive('darSectionAbout', function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/sections/about.html',
@@ -121,12 +121,11 @@ DAR.MODULE.SECTION_ABOUT.directive('darSectionAbout', function($rootScope, $wind
                     if (data.sectionName && data.sectionName === this.NAME) {
                         var sectionOffsetTop = wrapper[0].offsetTop,
                             additionalOffsetTop = data.offsetTop || 0,
-                            scrollY = sectionOffsetTop - additionalOffsetTop;
-                        $window.scrollTo(0, scrollY);
+                            targetValue = sectionOffsetTop - additionalOffsetTop;
 
-                        console.warn(data.sectionName);
+                        darPageScroller.scrollTo(targetValue, data.sectionName);
                     }
-                }
+                };
             }
 
             darExtendService.extend(SectionAboutElementComponent, darExtendService.BaseElementComponent);

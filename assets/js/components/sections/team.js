@@ -1,7 +1,7 @@
 /**
  * Created by Dmitry Salnikov on 12/2/2015.
  */
-DAR.MODULE.SECTION_TEAM.directive('darSectionTeam', function($rootScope, $window, darExtendService, darDeviceInfo) {
+DAR.MODULE.SECTION_TEAM.directive('darSectionTeam', function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/sections/team.html',
@@ -88,36 +88,9 @@ DAR.MODULE.SECTION_TEAM.directive('darSectionTeam', function($rootScope, $window
                     if (data.sectionName && data.sectionName === this.NAME) {
                         var sectionOffsetTop = wrapper[0].offsetTop,
                             additionalOffsetTop = data.offsetTop || 0,
-                            scrollY = sectionOffsetTop - additionalOffsetTop;
+                            targetValue = sectionOffsetTop - additionalOffsetTop;
 
-                        console.warn(data.sectionName);
-
-                        var requestAnimationFrame = $window.requestAnimationFrame ||
-                            $window.mozRequestAnimationFrame ||
-                            $window.webkitRequestAnimationFrame ||
-                            $window.msRequestAnimationFrame;
-
-                        var startValue = window.scrollY,
-                            targetValue = scrollY,
-                            iteration = 0,
-                            totalIterations = 50;
-
-                        scrollToPosition();
-
-                        function easeOutCubic(currentIteration, startValue, changeInValue, totalIterations) {
-                            return changeInValue * (Math.pow(currentIteration / totalIterations - 1, 3) + 1) + startValue;
-                        }
-
-                        function scrollToPosition() {
-                            $window.scrollTo(0, easeOutCubic(iteration, startValue, targetValue, totalIterations));
-                            iteration++;
-
-                            if (iteration === totalIterations) {
-                                return;
-                            }
-
-                            requestAnimationFrame(scrollToPosition);
-                        }
+                        darPageScroller.scrollTo(targetValue, data.sectionName);
                     }
                 };
             }

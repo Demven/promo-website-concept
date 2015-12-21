@@ -77,7 +77,6 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                     // tap
                     Quo(menuButton).on(this.EVENT.TAP, angular.bind(this, this.toggleMenu));
                     for(var i = this.ELEMENT.NAV_ITEM.length; i--; ){
-                        console.log(this.ELEMENT.NAV_ITEM[i]);
                         Quo(this.ELEMENT.NAV_ITEM[i]).on(this.EVENT.TAP, angular.bind(this, this.onNavItemClicked));
                     }
 

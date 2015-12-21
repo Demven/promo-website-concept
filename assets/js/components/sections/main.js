@@ -3,7 +3,7 @@
 /**
  * Created by Dmitry Salnikov on 9/24/2015.
  */
-DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window, darExtendService, darDeviceInfo) {
+DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/sections/main.html',
@@ -193,11 +193,13 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
 
                 this.onScrollToSectionEvent = function(ev, data) {
                     if (data.sectionName && data.sectionName === this.NAME) {
-                        $window.scrollTo(0, 0);
+                        var sectionOffsetTop = wrapper[0].offsetTop,
+                            additionalOffsetTop = data.offsetTop || 0,
+                            targetValue = sectionOffsetTop - additionalOffsetTop;
 
-                        console.warn(data.sectionName);
+                        darPageScroller.scrollTo(targetValue, data.sectionName);
                     }
-                }
+                };
             }
 
             darExtendService.extend(SectionMainElementComponent, darExtendService.BaseElementComponent);
