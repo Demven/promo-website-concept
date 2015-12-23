@@ -30,11 +30,27 @@ dar-section-partners
       filter: grayscale(100%)
       transition: filter .4s, -webkit-filter .4s
       cursor: pointer
+      position: relative
+      &:after
+        content: ''
+        position: absolute
+        top: 0
+        left: 0
+        width: 100%
+        height: 100%
       &:hover
         filter: none
+      &.hover
+        filter: none
+
 
 /* MOBILE STYLES */
 @media $mobile
   dar-section-partners
     width: 100vw
+    .partner-list
+      height: auto
+      justify-content: center
+      .partner
+        padding: 2em
 
