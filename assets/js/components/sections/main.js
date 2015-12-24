@@ -18,12 +18,6 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 this.isDestroyOnPageChange = true;
                 this.isTriggerResize = true;
 
-                this.CONFIG = {
-                    SECTION_HEIGHT: 0.85,  // % from viewport (used only for certain cases)
-                    MAX_FONT_SIZE: 1,
-                    MAX_MOBILE_FONT_SIZE: 0.6
-                };
-
                 this.ATTR = {
                     FONT_SIZE: "font-size",
                     TRANSFORM: "transform"
@@ -61,7 +55,10 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 };
 
                 this.CONFIG = {
-                    SLIDES_INTERVAL_MS: 5000
+                    SECTION_HEIGHT: 0.85,  // % from viewport (used only for certain cases)
+                    MAX_FONT_SIZE: 1,
+                    MAX_MOBILE_FONT_SIZE: 0.6,
+                    SLIDES_INTERVAL_MS: 7000
                 };
 
                 this.slidesNumber = this.ELEMENT.SLIDES.length;
@@ -69,7 +66,7 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 // global listeners
                 var offScrollToSection = new Function(),
                     nextSlideClearIntervalId,
-                    autoSlideshowStopped = false;;
+                    autoSlideshowStopped = false;
 
                 this._postCreate = function(){
                     // global listeners
