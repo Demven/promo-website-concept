@@ -175,6 +175,8 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                         delta = clientX - sliderMovePosition,
                         calculatedSliderLeft = sliderLeft + delta;
 
+                    console.log(minSliderLeft + " < " + calculatedSliderLeft + " > " + maxSliderLeft);
+
                     if(calculatedSliderLeft < maxSliderLeft && calculatedSliderLeft > minSliderLeft){
                         sliderLeft = calculatedSliderLeft;
                         this.ELEMENT.SLIDER.css(this.ATTR.TRANSFORM, "translateX(" + sliderLeft + this.VAL.PX + ") translateZ(0)");

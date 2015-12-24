@@ -60,10 +60,16 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                     NEXT_BUTTON: angular.element(wrapper[0].querySelector(this.SELECTOR.NEXT_BUTTON))
                 };
 
+                this.CONFIG = {
+                    SLIDES_INTERVAL_MS: 5000
+                };
+
                 this.slidesNumber = this.ELEMENT.SLIDES.length;
 
                 // global listeners
-                var offScrollToSection = new Function();
+                var offScrollToSection = new Function(),
+                    nextSlideClearIntervalId,
+                    autoSlideshowStopped = false;;
 
                 this._postCreate = function(){
                     // global listeners
@@ -71,11 +77,14 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
 
                     // local listeners
                     // tap
-                    Quo(this.ELEMENT.PREV_BUTTON[0]).on(this.EVENT.TAP, angular.bind(this, this.prevSlide));
-                    Quo(this.ELEMENT.NEXT_BUTTON[0]).on(this.EVENT.TAP, angular.bind(this, this.nextSlide));
+                    Quo(this.ELEMENT.PREV_BUTTON[0]).on(this.EVENT.TAP, angular.bind(this, this.touchPrevSlide));
+                    Quo(this.ELEMENT.NEXT_BUTTON[0]).on(this.EVENT.TAP, angular.bind(this, this.touchNextSlide));
                     // swipe
-                    Quo(wrapper[0]).on(this.EVENT.SWIPE_TO_RIGHT, angular.bind(this, this.prevSlide));
-                    Quo(wrapper[0]).on(this.EVENT.SWIPE_TO_LEFT, angular.bind(this, this.nextSlide));
+                    Quo(wrapper[0]).on(this.EVENT.SWIPE_TO_RIGHT, angular.bind(this, this.touchPrevSlide));
+                    Quo(wrapper[0]).on(this.EVENT.SWIPE_TO_LEFT, angular.bind(this, this.touchNextSlide));
+
+                    // auto-sliding
+                    nextSlideClearIntervalId = window.setInterval(angular.bind(this, this._nextSlide), this.CONFIG.SLIDES_INTERVAL_MS);
                 };
 
                 this._resize = function(vw, vh){
@@ -130,12 +139,24 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                     Quo(this.ELEMENT.NEXT_BUTTON[0]).off(this.EVENT.TAP);
                     Quo(this.ELEMENT.SLIDES_CONTAINER[0]).off(this.EVENT.SWIPE_TO_RIGHT);
                     Quo(this.ELEMENT.SLIDES_CONTAINER[0]).off(this.EVENT.SWIPE_TO_LEFT);
+
+                    window.clearInterval(nextSlideClearIntervalId);
                 };
 
 
                 /************************ */
 
-                this.prevSlide = function(){
+                this.touchPrevSlide = function(){
+                    this.stopAutoSlideshow();
+                    this._prevSlide();
+                };
+
+                this.touchNextSlide = function(){
+                    this.stopAutoSlideshow();
+                    this._nextSlide();
+                };
+
+                this._prevSlide = function(){
                     var slide,
                         translateX;
                     for(var i = 0, len = this.slidesNumber; i < len; i++){
@@ -147,7 +168,7 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                     this._moveLastSlideToFirstPosition();
                 };
 
-                this.nextSlide = function(){
+                this._nextSlide = function(){
                     var slide,
                         translateX;
                     for(var i = 0, len = this.slidesNumber; i < len; i++){
@@ -189,6 +210,13 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
 
                 this._getTranslateX = function($el){
                     return Number($el.css(this.ATTR.TRANSFORM).split("(")[1].slice(0, -3));
+                };
+
+                this.stopAutoSlideshow = function() {
+                    if (!autoSlideshowStopped) {
+                        window.clearInterval(nextSlideClearIntervalId);
+                        autoSlideshowStopped = true;
+                    }
                 };
 
                 this.onScrollToSectionEvent = function(ev, data) {
