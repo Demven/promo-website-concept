@@ -212,10 +212,11 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                     document.removeEventListener(this.EVENT.SCROLL, self.handleScroll);
                 };
                 this.handleScroll = function(){
-                    if(isLogoHidden && (window.document.body.scrollTop > maxScrollTop)){
+                    var scrollTop = window.document.documentElement.scrollTop || window.document.body.scrollTop;
+                    if(isLogoHidden && (scrollTop > maxScrollTop)){
                         self.ELEMENT.LOGO.addClass(self.CLASS.LOGO_SHOW);
                         isLogoHidden = false;
-                    } else if(!isLogoHidden && (window.document.body.scrollTop < maxScrollTop)) {
+                    } else if(!isLogoHidden && (scrollTop < maxScrollTop)) {
                         self.ELEMENT.LOGO.removeClass(self.CLASS.LOGO_SHOW);
                         isLogoHidden = true;
                     }

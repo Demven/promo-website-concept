@@ -14,7 +14,6 @@ $section-team-mobile-height = 122em
 $section-team-member-size = 24em
 $section-team-member-number-in-a-row = 3
 $section-team-member-padding = ($section-team-width - ($section-team-member-size*$section-team-member-number-in-a-row))/($section-team-member-number-in-a-row - 1)
-$section-team-member-padding = ($section-team-width - ($section-team-member-size*$section-team-member-number-in-a-row))/($section-team-member-number-in-a-row - 1)
 
 dar-section-team
   width: $section-team-width
@@ -36,9 +35,9 @@ dar-section-team
       height: $section-team-member-size
       &:nth-child(1),
       &:nth-child(4)
-        padding-right: $section-team-member-padding
+        padding-right: $section-team-member-padding - 0.2em
       &:nth-child(3n)
-        padding-left: $section-team-member-padding
+        padding-left: $section-team-member-padding - 0.2em
       figure
         width: $section-team-member-size
         height: $section-team-member-size

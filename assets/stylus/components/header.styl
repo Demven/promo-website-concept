@@ -9,9 +9,10 @@ $header-base-font-size = 1rem // Desktop
 
 $header-height = 8.7em
 $header-items-font-size = 4.3em
+$header-logo-size = 1.4em
 
 $logo-show()
-  width: 1.4em
+  width: $header-logo-size
   opacity: 1
   padding: 0.33em 0.5em 0.21em
   position: relative
@@ -67,6 +68,7 @@ header
             left: 0
         img
           width: 100%
+          height: $header-logo-size
         &:hover
           background-color: rgba(0,0,0,0.06)
   .menu-button
@@ -96,6 +98,7 @@ header
       box-shadow: none
       position: absolute
       top: 0
+      left: 0
       li
         &.logo
           $logo-show()
@@ -108,6 +111,8 @@ header
             position: absolute
             top: 0
             left: 0
+          img
+            height: 1.6em
     &:after
       content: ""
       position:absolute
