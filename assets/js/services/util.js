@@ -1209,7 +1209,7 @@ DAR.MODULE.UTIL.service("darPageScroller", function($window, darLog){
                 $window.webkitRequestAnimationFrame ||
                 $window.msRequestAnimationFrame;
 
-        var startPosition = $window.scrollY,
+        var startPosition = $window.scrollY || window.document.documentElement.scrollTop,
             iteration = 0,
             totalIterations = 50;
 
