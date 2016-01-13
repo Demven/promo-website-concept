@@ -1,3 +1,4 @@
+/* global interact */
 /**
  * Created by Dmitry Salnikov on 11/12/2015.
  */
@@ -12,15 +13,15 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                 SectionProjectsElementComponent.superclass.constructor.call(this);
 
                 this.NAME = "SectionProjects";
-                this.VERSION = "0.6";
+                this.VERSION = "1.0";
                 this.isDestroyOnPageChange = true;
                 this.isTriggerResize = true;
 
                 this.EVENT = {
                     TAP: "touch",
-                    TOUCH_START: "touchstart mousedown",
-                    TOUCH_MOVE: "touchmove mousemove",
-                    TOUCH_END: "touchend mouseup"
+                    DRAG_START: "dragstart",
+                    DRAG_MOVE: "dragmove",
+                    DRAG_END: "dragend"
                 };
 
                 this.VAL = {
@@ -69,12 +70,13 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                 var self = this,
                     currentState,
                     isFirstResize = true,
-                    sliderMovePosition = 0,
                     sliderWidth = 0,
                     smallColumnWidth = 0,
                     sliderLeft = 0,
                     maxSliderLeft = 0,
                     minSliderLeft = 0;
+
+                var sliderInteractObject = null;
 
                 var offScrollToSection = new Function();
 
@@ -83,7 +85,18 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                     offScrollToSection = $rootScope.$on(DAR.EVENT.WISH.SCROLL_TO_SECTION, angular.bind(this, this.onScrollToSectionEvent));
 
                     // local listeners
-                    this.ELEMENT.SLIDER.on(this.EVENT.TOUCH_START, angular.bind(this, this.onSliderStartMove));
+
+                    // drag events
+                    // see http://interactjs.io/docs/
+                    if (window.interact) {
+                        sliderInteractObject = window.interact(this.ELEMENT.SLIDER[0])
+                            .draggable({
+                                axis: 'x'
+                            })
+                            .on(this.EVENT.DRAG_START, angular.bind(this, this.onSliderStartMove))
+                            .on(this.EVENT.DRAG_MOVE, angular.bind(this, this.onSliderMove))
+                            .on(this.EVENT.DRAG_END, angular.bind(this, this.onSliderEndMove));
+                    }
 
                     // tap
                     Quo(this.ELEMENT.PREV_BUTTON[0]).on(this.EVENT.TAP, angular.bind(this, this.slideToLeft));
@@ -155,40 +168,27 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
                     Quo(this.ELEMENT.PREV_BUTTON[0]).off(this.EVENT.TAP);
                     Quo(this.ELEMENT.NEXT_BUTTON[0]).off(this.EVENT.TAP);
 
-                    this.ELEMENT.SLIDER.off(this.EVENT.TOUCH_START);
+                    sliderInteractObject.unset(); // remove all drag events
                 };
 
 
                 /************************ */
 
-                this.onSliderStartMove = function(ev){
-                    this.ELEMENT.SLIDER.on(this.EVENT.TOUCH_MOVE, angular.bind(this, this.onSliderMove));
-                    this.ELEMENT.SLIDER.on(this.EVENT.TOUCH_END, angular.bind(this, this.onSliderEndMove));
-
-                    sliderMovePosition = ev.clientX || ev.touches[0].clientX;
-
+                this.onSliderStartMove = function(){
                     this.ELEMENT.SLIDER.addClass(this.CLASS.SLIDER_IN_MOVING);
                 };
 
                 this.onSliderMove = function(ev) {
-                    var clientX = ev.clientX || ev.touches[0].clientX,
-                        delta = clientX - sliderMovePosition,
+                    var delta = ev.dx,
                         calculatedSliderLeft = sliderLeft + delta;
 
                     if(calculatedSliderLeft < maxSliderLeft && calculatedSliderLeft > minSliderLeft){
                         sliderLeft = calculatedSliderLeft;
                         this.ELEMENT.SLIDER.css(this.ATTR.TRANSFORM, "translateX(" + sliderLeft + this.VAL.PX + ") translateZ(0)");
-
-                        sliderMovePosition = clientX;
                     }
                 };
 
                 this.onSliderEndMove = function(){
-                    this.ELEMENT.SLIDER.off(this.EVENT.TOUCH_MOVE);
-                    this.ELEMENT.SLIDER.off(this.EVENT.TOUCH_END);
-
-                    sliderMovePosition = 0;
-
                     this.ELEMENT.SLIDER.removeClass(this.CLASS.SLIDER_IN_MOVING);
                 };
 
