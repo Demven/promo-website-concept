@@ -48,7 +48,7 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                     SECTION_HEIGHT: 0.85,  // % from viewport (used only for certain cases)
                     MAX_FONT_SIZE: 1,
                     MAX_MOBILE_FONT_SIZE: 0.6,
-                    SLIDES_INTERVAL_MS: 7000
+                    SLIDES_INTERVAL_MS: 10000
                 };
 
                 // global listeners
