@@ -180,6 +180,24 @@ header
           .line:nth-child(3)
             transform: translateY(-1.95em) rotate(-135deg)
 
+@media $mobile-landscape
+  header
+    &:after
+      border-left: 100vw solid rgba(0,0,0,0)
+      border-right: 100vw solid rgba(0,0,0,0)
+      left: -50vw
+    &:before
+      content: ""
+      position: absolute
+      bottom: 0
+      width: 0
+      height: 0
+      border-left: 100vw solid rgba(0,0,0,0)
+      border-right: 100vw solid rgba(0,0,0,0)
+      left: -50vw
+    &.closed
+      top: -91%
+
 body.prevent-scroll
   header
     pointer-events: auto
