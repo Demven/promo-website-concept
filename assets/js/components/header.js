@@ -133,14 +133,14 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                                 self.ELEMENT.BODY.removeClass(self.CLASS.PREVENT_SCROLL);
                             }, 400);
                             this.removeScrollHandling();
-                            this.addTouchHandling();
+                            this.removeTouchHandling();
                             currentState = this.STATE.CLOSED;
                             break;
                         case this.STATE.OPEN:
                             wrapper.removeClass(this.CLASS.CLOSED);
                             wrapper.addClass(this.CLASS.OPEN);
                             this.ELEMENT.BODY.addClass(this.CLASS.PREVENT_SCROLL);
-                            this.removeTouchHandling();
+                            this.addTouchHandling();
                             currentState = this.STATE.OPEN;
                             break;
                     }
