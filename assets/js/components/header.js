@@ -196,10 +196,10 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
                 };
 
                 this.addTouchHandling = function(){
-                    this.ELEMENT.MENU_BUTTON[0].addEventListener(this.EVENT.TOUCH_MOVE, self.handleTouchMove);
+                    wrapper[0].addEventListener(this.EVENT.TOUCH_MOVE, self.handleTouchMove);
                 };
                 this.removeTouchHandling = function(){
-                    this.ELEMENT.MENU_BUTTON[0].removeEventListener(this.EVENT.TOUCH_MOVE, self.handleTouchMove);
+                    wrapper[0].removeEventListener(this.EVENT.TOUCH_MOVE, self.handleTouchMove);
                 };
                 this.handleTouchMove = function(e){
                     e.preventDefault();
