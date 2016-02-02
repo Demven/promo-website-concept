@@ -24,6 +24,9 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
 
                 this.VAL = {
                     REM: "rem",
+                    BACKGROUND_IMAGE: 'background-image',
+                    DATA_ORIGINAL_IMAGE: 'original-image',
+                    DATA_SIZES: 'sizes',
                 };
 
                 this.EVENT = {
@@ -163,13 +166,12 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                         i = 0,
                         len = slides.length,
                         slide,
-                        bgImage,
                         sizeArray,
                         bgImageUrl,
                         necessarySize;
                     for ( ; i < len ; i++) {
                         slide = $(slides[i]);
-                        sizeArray = slide.data('sizes');
+                        sizeArray = slide.data(this.VAL.DATA_SIZES);
                         necessarySize = sizeArray[sizeArray.length - 1]; // last value as default
 
                         var s = sizeArray.length;
@@ -180,10 +182,9 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                             }
                         }
 
-                        bgImage = slide.css('background-image');
-                        bgImageUrl = slide.data('original-image');
+                        bgImageUrl = slide.data(this.VAL.DATA_ORIGINAL_IMAGE);
 
-                        slide.css('background-image', 'url(' + bgImageUrl + '-' + necessarySize + '.jpg)');
+                        slide.css(this.VAL.BACKGROUND_IMAGE, 'url(' + bgImageUrl + '-' + necessarySize + '.jpg)');
                         console.warn(bgImageUrl + ' size=' + necessarySize);
                     }
                 };
