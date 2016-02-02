@@ -34,12 +34,14 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
 
                 this.SELECTOR = {
                     SLIDES_CONTAINER: ".slides",
+                    SLIDES: ".slide",
                     PREV_BUTTON: ".prev",
                     NEXT_BUTTON: ".next"
                 };
 
                 this.ELEMENT = {
                     SLIDES_CONTAINER: angular.element(wrapper[0].querySelector(this.SELECTOR.SLIDES_CONTAINER)),
+                    //SLIDES: angular.element(wrapper[0].querySelectorAll(this.SELECTOR.SLIDES)),
                     PREV_BUTTON: angular.element(wrapper[0].querySelector(this.SELECTOR.PREV_BUTTON)),
                     NEXT_BUTTON: angular.element(wrapper[0].querySelector(this.SELECTOR.NEXT_BUTTON))
                 };
@@ -54,7 +56,8 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 // global listeners
                 var offScrollToSection = new Function(),
                     nextSlideClearIntervalId,
-                    autoSlideshowStopped = false;
+                    autoSlideshowStopped = false,
+                    previousVwForImages = 0;
 
                 this._postCreate = function(){
                     // global listeners
@@ -124,6 +127,8 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                             wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
                         }
                     }
+
+                    this.loadImages(vw);
                 };
 
                 this._destroy = function(){
@@ -143,6 +148,45 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
 
 
                 /************************ */
+
+                this.loadImages = function(vw) {
+                    // load images only if the difference between new and previous width value > 70 px
+                    if ((vw - previousVwForImages) < 70) {
+                        return;
+                    }
+
+                    previousVwForImages = vw;
+
+                    vw = vw + 200;
+
+                    var slides = $(wrapper[0].querySelectorAll(this.SELECTOR.SLIDES)),
+                        i = 0,
+                        len = slides.length,
+                        slide,
+                        bgImage,
+                        sizeArray,
+                        bgImageUrl,
+                        necessarySize;
+                    for ( ; i < len ; i++) {
+                        slide = $(slides[i]);
+                        sizeArray = slide.data('sizes');
+                        necessarySize = sizeArray[sizeArray.length - 1]; // last value as default
+
+                        var s = sizeArray.length;
+                        for (; s--; ) {
+                            if (vw >= sizeArray[s-1]) {
+                                necessarySize = sizeArray[s];
+                                break;
+                            }
+                        }
+
+                        bgImage = slide.css('background-image');
+                        bgImageUrl = slide.data('original-image');
+
+                        slide.css('background-image', 'url(' + bgImageUrl + '-' + necessarySize + '.jpg)');
+                        console.warn(bgImageUrl + ' size=' + necessarySize);
+                    }
+                };
 
                 this.touchPrevSlide = function(){
                     this.stopAutoSlideshow();
