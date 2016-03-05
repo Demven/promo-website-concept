@@ -206,6 +206,6 @@ gulp.task("heroku:dev", function (callback) {
 });
 
 gulp.task("production", function (callback) {
-    runSequence("build", /*"bundle", "rev",*/ callback);
+    runSequence("build", "bundle", "rev", callback);
 });
 
