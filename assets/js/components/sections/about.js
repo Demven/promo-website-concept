@@ -1,7 +1,9 @@
 /**
  * Created by Dmitry Salnikov on 11/4/2015.
  */
-DAR.MODULE.SECTION_ABOUT.directive('darSectionAbout', function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
+DAR.MODULE.SECTION_ABOUT.directive('darSectionAbout',
+    ['$rootScope', '$window', 'darExtendService', 'darDeviceInfo', 'darPageScroller',
+    function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/sections/about.html',
@@ -138,5 +140,5 @@ DAR.MODULE.SECTION_ABOUT.directive('darSectionAbout', function($rootScope, $wind
             return DAR.UIC.SECTION.ABOUT;
         }
     };
-});
+}]);
 

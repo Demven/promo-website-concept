@@ -1,7 +1,9 @@
 /**
  * Created by Dmitry Salnikov on 12/22/2015.
  */
-DAR.MODULE.SECTION_TEAM.directive('darSectionPartners', function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
+DAR.MODULE.SECTION_TEAM.directive('darSectionPartners',
+    ['$rootScope', '$window', 'darExtendService', 'darDeviceInfo', 'darPageScroller',
+    function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/sections/partners.html',
@@ -12,7 +14,7 @@ DAR.MODULE.SECTION_TEAM.directive('darSectionPartners', function($rootScope, $wi
                 SectionPartnersElementComponent.superclass.constructor.call(this);
 
                 this.NAME = "SectionPartners";
-                this.VERSION = "0.5";
+                this.VERSION = "1.0";
                 this.isDestroyOnPageChange = true;
                 this.isTriggerResize = true;
 
@@ -130,5 +132,5 @@ DAR.MODULE.SECTION_TEAM.directive('darSectionPartners', function($rootScope, $wi
             return DAR.UIC.SECTION.PARTNERS;
         }
     };
-});
+}]);
 

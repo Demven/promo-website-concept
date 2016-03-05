@@ -3,7 +3,9 @@
 /**
  * Created by Dmitry Salnikov on 9/24/2015.
  */
-DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
+DAR.MODULE.SECTION_MAIN.directive('darSectionMain',
+    ['$rootScope', '$window', 'darExtendService', 'darDeviceInfo', 'darPageScroller',
+    function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/sections/main.html',
@@ -235,5 +237,5 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
             return DAR.UIC.SECTION.MAIN;
         }
     };
-});
+}]);
 
