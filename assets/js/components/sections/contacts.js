@@ -2,7 +2,9 @@
 /**
  * Created by Dmitry Salnikov on 12/2/2015.
  */
-DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
+DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', 
+    ['$rootScope', '$window', 'darExtendService', 'darDeviceInfo', 'darPageScroller',
+    function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/sections/contacts.html',
@@ -13,7 +15,7 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope,
                 SectionContactsElementComponent.superclass.constructor.call(this);
 
                 this.NAME = "SectionContacts";
-                this.VERSION = "0.1";
+                this.VERSION = "1.0";
                 this.isDestroyOnPageChange = true;
                 this.isTriggerResize = true;
 
@@ -190,5 +192,5 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', function($rootScope,
             return DAR.UIC.SECTION.CONTACTS;
         }
     };
-});
+}]);
 

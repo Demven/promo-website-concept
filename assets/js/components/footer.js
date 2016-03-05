@@ -1,7 +1,9 @@
 /**
  * Created by Dmitry_Salnikov on 11/26/2015.
  */
-DAR.MODULE.FOOTER.directive('footer', function($rootScope, $timeout, darExtendService, darDeviceInfo) {
+DAR.MODULE.FOOTER.directive('footer',
+    ['$rootScope', '$timeout', 'darExtendService', 'darDeviceInfo',
+    function($rootScope, $timeout, darExtendService, darDeviceInfo) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/footer.html',
@@ -84,5 +86,4 @@ DAR.MODULE.FOOTER.directive('footer', function($rootScope, $timeout, darExtendSe
             return DAR.UIC.FOOTER;
         }
     };
-});
-
+}]);

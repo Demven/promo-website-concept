@@ -1,7 +1,9 @@
 /**
  * Created by Dmitry Salnikov on 12/2/2015.
  */
-DAR.MODULE.SECTION_TEAM.directive('darSectionTeam', function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
+DAR.MODULE.SECTION_TEAM.directive('darSectionTeam',
+    ['$rootScope', '$window', 'darExtendService', 'darDeviceInfo', 'darPageScroller',
+    function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/sections/team.html',
@@ -12,7 +14,7 @@ DAR.MODULE.SECTION_TEAM.directive('darSectionTeam', function($rootScope, $window
                 SectionTeamElementComponent.superclass.constructor.call(this);
 
                 this.NAME = "SectionTeam";
-                this.VERSION = "0.3";
+                this.VERSION = "1.0";
                 this.isDestroyOnPageChange = true;
                 this.isTriggerResize = true;
 
@@ -105,5 +107,5 @@ DAR.MODULE.SECTION_TEAM.directive('darSectionTeam', function($rootScope, $window
             return DAR.UIC.SECTION.TEAM;
         }
     };
-});
+}]);
 

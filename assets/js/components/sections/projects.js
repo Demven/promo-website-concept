@@ -2,7 +2,9 @@
 /**
  * Created by Dmitry Salnikov on 11/12/2015.
  */
-DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope, $window, $timeout, darExtendService, darDeviceInfo, darPageScroller) {
+DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects',
+    ['$rootScope', '$window', '$timeout', 'darExtendService', 'darDeviceInfo', 'darPageScroller',
+    function($rootScope, $window, $timeout, darExtendService, darDeviceInfo, darPageScroller) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/sections/projects.html',
@@ -238,5 +240,5 @@ DAR.MODULE.SECTION_PROJECTS.directive('darSectionProjects', function($rootScope,
             return DAR.UIC.SECTION.PROJECTS;
         }
     };
-});
+}]);
 

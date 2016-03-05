@@ -1,7 +1,9 @@
 /**
  * Created by Dmitry_Salnikov on 9/24/2015.
  */
-DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendService, darDeviceInfo) {
+DAR.MODULE.HEADER.directive('header', 
+    ['$rootScope', '$timeout', 'darExtendService', 'darDeviceInfo', 
+    function($rootScope, $timeout, darExtendService, darDeviceInfo) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/header.html',
@@ -234,5 +236,5 @@ DAR.MODULE.HEADER.directive('header', function($rootScope, $timeout, darExtendSe
             return DAR.UIC.HEADER;
         }
     };
-});
+}]);
 

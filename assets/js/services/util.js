@@ -4,12 +4,303 @@
  */
 
 /**
+ * Service, that provides handy logging
+ * You can set default log level in the angular's config method
+ * @service
+ */
+DAR.MODULE.UTIL.provider("darLog", function(){
+    "use strict";
+    this.LOG_LEVEL = {
+        ALL: "ALL",
+        INFO: "INFO",
+        WARN: "WARN",
+        ERROR: "ERROR",
+        FATAL: "FATAL",
+        OFF: "OFF"
+    };
+
+    var LEVEL_PRIORITY = {
+        ALL: 0,
+        INFO: 1,
+        WARN: 2,
+        ERROR: 3,
+        FATAL: 4,
+        OFF: 5
+    };
+
+    var WRITE_WAY = ["log", "info", "warn", "error", "error"];
+
+    var colon = ": ",
+        currentLogLevel = this.LOG_LEVEL.ALL; // default level
+
+    /**
+     * Set log level
+     * @param logLevel - one value from the this.LOG_LEVEL
+     */
+    this.setLogLevel = function(logLevel){
+        currentLogLevel = logLevel;
+    };
+
+    /**
+     * Write log message without any level
+     * @param msg - String
+     */
+    this.write = function(msg){
+        if(LEVEL_PRIORITY[currentLogLevel] !== LEVEL_PRIORITY.OFF){
+            window.console.log(msg);
+        }
+    };
+
+    /**
+     * Write log message using passing log level
+     * @param logLevel - one value from the this.LOG_LEVEL
+     * @param msg - String
+     */
+    this.writeAs = function(logLevel, msg){
+        var requestedPriority = LEVEL_PRIORITY[logLevel];
+        if(LEVEL_PRIORITY[currentLogLevel] <= requestedPriority){
+            window.console[WRITE_WAY[requestedPriority]](logLevel + colon + msg);
+        }
+    };
+
+    this.all = function(msg){
+        this.writeAs(this.LOG_LEVEL.ALL, msg);
+    };
+
+    this.info = function(msg){
+        this.writeAs(this.LOG_LEVEL.INFO, msg);
+    };
+
+    this.warn = function(msg){
+        this.writeAs(this.LOG_LEVEL.WARN, msg);
+    };
+
+    this.error = function(msg){
+        this.writeAs(this.LOG_LEVEL.ERROR, msg);
+    };
+
+    this.fatal = function(msg){
+        this.writeAs(this.LOG_LEVEL.FATAL, msg);
+    };
+
+    this.$get = function(){
+        return {
+            LOG_LEVEL: this.LOG_LEVEL,
+            setLogLevel: this.setLogLevel,
+            writeAs: this.writeAs,
+            write: this.write,
+            all: this.all,
+            info: this.info,
+            warn: this.warn,
+            fatal: this.fatal
+        };
+    }
+});
+
+/**
+ * Service, that provides all available data about user device
+ * Also knows about device dimensions
+ * @service
+ */
+DAR.MODULE.UTIL.provider("darDeviceInfo", function(){
+    this.MOBILE_WIDTH = 690;
+    this.TABLET_WIDTH = 995;
+    this.TABLET_WIDE_WIDTH = 1024; // iPad, generic notebook
+    this.DESKTOP_WIDTH = 1440;
+
+    this.DESKTOP_BASE_WIDTH = 1280; // for 19' monitors
+
+    this.DEVICE_STATE = {
+        MOBILE: "mobile",
+        TABLET: "tablet",
+        TABLET_WIDE: "tabletWide",
+        DESKTOP: "desktop",
+        DESKTOP_WIDE: "desktopWide"
+    };
+
+    this.DEVICE_ORIENTATION = {
+        LANDSCAPE: "landscape",
+        PORTRAIT: "portrait"
+    };
+
+    this.deviceState = null;
+    this.deviceOrientation = null;
+    this.isMobileState = false;
+    this.isTabletState = false;
+
+    var NAME = "DeviceInfo";
+
+    // The code below is taken from https://github.com/benbscholz/detect
+    var browser,
+        version,
+        mobile,
+        os,
+        osversion,
+        bit,
+        ua = window.navigator.userAgent,
+        platform = window.navigator.platform,
+        viewport;
+
+    var _execResult;
+
+    var darLogRef; // reference to a darLog service
+
+    if ( /MSIE/.test(ua) ) {
+        browser = 'Internet Explorer';
+        if ( /IEMobile/.test(ua) ) {
+            mobile = 1;
+        }
+        _execResult = /MSIE \d+[.]\d+/.exec(ua);
+        version = _execResult ? _execResult[0].split(' ')[1] : null;
+    } else if ( /Chrome/.test(ua) ) {
+        // Platform override for Chromebooks
+        if ( /CrOS/.test(ua) ) {
+            platform = 'CrOS';
+        }
+        browser = 'Chrome';
+        _execResult = /Chrome\/[\d\.]+/.exec(ua);
+        version = _execResult ? _execResult[0].split('/')[1] : null;
+    } else if ( /Opera/.test(ua) ) {
+        browser = 'Opera';
+        if ( /mini/.test(ua) || /Mobile/.test(ua) ) {
+            mobile = 1;
+        }
+    } else if ( /Android/.test(ua) ) {
+        browser = 'Android Webkit Browser';
+        mobile = 1;
+        os = /Android\s[\.\d]+/.exec(ua)[0];
+    } else if ( /Firefox/.test(ua) ) {
+        browser = 'Firefox';
+        if ( /Fennec/.test(ua) ) {
+            mobile = 1;
+        }
+        _execResult = /Firefox\/[\.\d]+/.exec(ua);
+        version = _execResult ? _execResult[0].split('/')[1] : null;
+    } else if ( /Safari/.test(ua) ) {
+        browser = 'Safari';
+        if ( (/iPhone/.test(ua)) || (/iPad/.test(ua)) || (/iPod/.test(ua)) ) {
+            os = 'iOS';
+            mobile = 1;
+        }
+    }
+
+    if ( !version ) {
+        version = /Version\/[\.\d]+/.exec(ua);
+        if (version) {
+            version = version[0].split('/')[1];
+        } else {
+            _execResult = /Opera\/[\.\d]+/.exec(ua);
+            version = _execResult ? _execResult[0].split('/')[1] : null;
+        }
+    }
+
+    /**
+     * Recalculates size of the viewport and set a proper device state
+     * @warn You must fire this method on each resize of window manually
+     */
+    this.resize = function(){
+        var vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
+            vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+        viewport = {vw: vw, vh: vh};
+
+        darLogRef.info(NAME + ": window resize to vw=" + vw + ", vh=" + vh);
+
+        // update device state
+        var newState;
+        if(vw > this.DESKTOP_WIDTH){
+            newState = this.DEVICE_STATE.DESKTOP_WIDE;
+        } else if(vw > this.TABLET_WIDE_WIDTH){
+            newState = this.DEVICE_STATE.DESKTOP;
+        } else if(vw > this.TABLET_WIDTH){
+            newState = this.DEVICE_STATE.TABLET_WIDE;
+        } else if(vw > this.MOBILE_WIDTH){
+            newState = this.DEVICE_STATE.TABLET;
+        } else {
+            newState = this.DEVICE_STATE.MOBILE;
+        }
+
+        if(newState !== this.deviceState){
+            this.deviceState = newState;
+
+            this.isMobileState = this.deviceState === this.DEVICE_STATE.MOBILE;
+            this.isTabletState = this.deviceState === this.DEVICE_STATE.TABLET || this.deviceState === this.DEVICE_STATE.TABLET_WIDE;
+
+            darLogRef.info(NAME + ": device state changed to " + newState);
+        }
+
+        // update device orientation
+        var newOrientation;
+        if(vw > vh){
+            newOrientation = this.DEVICE_ORIENTATION.LANDSCAPE;
+            this.isLandscapeMode = true;
+            this.isPortraitMode = false;
+        } else {
+            newOrientation = this.DEVICE_ORIENTATION.PORTRAIT;
+            this.isLandscapeMode = false;
+            this.isPortraitMode = true;
+        }
+
+        if(newOrientation !== this.deviceOrientation){
+            this.deviceOrientation = newOrientation;
+            darLogRef.info(NAME + ": device orientation changed to " + newOrientation);
+        }
+    };
+
+    /**
+     * Returs object with width and height of the viewport
+     * @return {vw, vh}
+     */
+    this.getViewport = function(){
+        if(!viewport){
+            this.resize();
+        }
+        return viewport;
+    };
+
+    this.$get = ['darLog', function(darLog){
+        darLogRef = darLog;
+
+        return {
+            MOBILE_WIDTH: this.MOBILE_WIDTH,
+            TABLET_WIDTH: this.TABLET_WIDTH,
+            TABLET_WIDE_WIDTH: this.TABLET_WIDE_WIDTH,
+            DESKTOP_WIDTH: this.DESKTOP_WIDTH,
+            DESKTOP_BASE_WIDTH: this.DESKTOP_BASE_WIDTH,
+
+            DEVICE_STATE: this.DEVICE_STATE,
+            deviceState: this.deviceState,
+            isMobileState: this.isMobileState,
+            isTabletState: this.isTabletState,
+
+            DEVICE_ORIENTATION: this.DEVICE_ORIENTATION,
+            deviceOrientation: this.deviceOrientation,
+
+            resize: this.resize,
+            getViewport: this.getViewport, // {vw, vh}
+
+            isPortraitMode: this.isPortraitMode,
+            isLandscapeMode: this.isLandscapeMode,
+
+            browser : browser,
+            version : version,
+            mobile : mobile,
+            os : os,
+            osVersion : osversion,
+            bit: bit
+        }
+    }];
+});
+
+/**
  * Factory, that provides base objects for services and components
  * Also have method to extend objects
  * @service
  * @return Object{extend, BaseJsonService, BaseListJsonService, BaseElementComponent}
  */
-DAR.MODULE.UTIL.factory("darExtendService", function($rootScope, $window, $q, darLog, darDeviceInfo){
+DAR.MODULE.UTIL.factory("darExtendService", 
+    ['$rootScope', '$window', '$q', 'darLog', 'darDeviceInfo', 
+    function($rootScope, $window, $q, darLog, darDeviceInfo){
     "use strict";
     return (function(){
         /**
@@ -883,296 +1174,7 @@ DAR.MODULE.UTIL.factory("darExtendService", function($rootScope, $window, $q, da
             BasePage: BasePage
         };
     })();
-});
-
-/**
- * Service, that provides all available data about user device
- * Also knows about device dimensions
- * @service
- */
-DAR.MODULE.UTIL.provider("darDeviceInfo", function(){
-    this.MOBILE_WIDTH = 690;
-    this.TABLET_WIDTH = 995;
-    this.TABLET_WIDE_WIDTH = 1024; // iPad, generic notebook
-    this.DESKTOP_WIDTH = 1440;
-
-    this.DESKTOP_BASE_WIDTH = 1280; // for 19' monitors
-
-    this.DEVICE_STATE = {
-        MOBILE: "mobile",
-        TABLET: "tablet",
-        TABLET_WIDE: "tabletWide",
-        DESKTOP: "desktop",
-        DESKTOP_WIDE: "desktopWide"
-    };
-
-    this.DEVICE_ORIENTATION = {
-        LANDSCAPE: "landscape",
-        PORTRAIT: "portrait"
-    };
-
-    this.deviceState = null;
-    this.deviceOrientation = null;
-    this.isMobileState = false;
-    this.isTabletState = false;
-
-    var NAME = "DeviceInfo";
-
-    // The code below is taken from https://github.com/benbscholz/detect
-    var browser,
-        version,
-        mobile,
-        os,
-        osversion,
-        bit,
-        ua = window.navigator.userAgent,
-        platform = window.navigator.platform,
-        viewport;
-
-    var _execResult;
-
-    var darLogRef; // reference to a darLog service
-
-    if ( /MSIE/.test(ua) ) {
-        browser = 'Internet Explorer';
-        if ( /IEMobile/.test(ua) ) {
-            mobile = 1;
-        }
-        _execResult = /MSIE \d+[.]\d+/.exec(ua);
-        version = _execResult ? _execResult[0].split(' ')[1] : null;
-    } else if ( /Chrome/.test(ua) ) {
-        // Platform override for Chromebooks
-        if ( /CrOS/.test(ua) ) {
-            platform = 'CrOS';
-        }
-        browser = 'Chrome';
-        _execResult = /Chrome\/[\d\.]+/.exec(ua);
-        version = _execResult ? _execResult[0].split('/')[1] : null;
-    } else if ( /Opera/.test(ua) ) {
-        browser = 'Opera';
-        if ( /mini/.test(ua) || /Mobile/.test(ua) ) {
-            mobile = 1;
-        }
-    } else if ( /Android/.test(ua) ) {
-        browser = 'Android Webkit Browser';
-        mobile = 1;
-        os = /Android\s[\.\d]+/.exec(ua)[0];
-    } else if ( /Firefox/.test(ua) ) {
-        browser = 'Firefox';
-        if ( /Fennec/.test(ua) ) {
-            mobile = 1;
-        }
-        _execResult = /Firefox\/[\.\d]+/.exec(ua);
-        version = _execResult ? _execResult[0].split('/')[1] : null;
-    } else if ( /Safari/.test(ua) ) {
-        browser = 'Safari';
-        if ( (/iPhone/.test(ua)) || (/iPad/.test(ua)) || (/iPod/.test(ua)) ) {
-            os = 'iOS';
-            mobile = 1;
-        }
-    }
-
-    if ( !version ) {
-        version = /Version\/[\.\d]+/.exec(ua);
-        if (version) {
-            version = version[0].split('/')[1];
-        } else {
-            _execResult = /Opera\/[\.\d]+/.exec(ua);
-            version = _execResult ? _execResult[0].split('/')[1] : null;
-        }
-    }
-
-    /**
-     * Recalculates size of the viewport and set a proper device state
-     * @warn You must fire this method on each resize of window manually
-     */
-    this.resize = function(){
-        var vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
-            vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-
-        viewport = {vw: vw, vh: vh};
-
-        darLogRef.info(NAME + ": window resize to vw=" + vw + ", vh=" + vh);
-
-        // update device state
-        var newState;
-        if(vw > this.DESKTOP_WIDTH){
-            newState = this.DEVICE_STATE.DESKTOP_WIDE;
-        } else if(vw > this.TABLET_WIDE_WIDTH){
-            newState = this.DEVICE_STATE.DESKTOP;
-        } else if(vw > this.TABLET_WIDTH){
-            newState = this.DEVICE_STATE.TABLET_WIDE;
-        } else if(vw > this.MOBILE_WIDTH){
-            newState = this.DEVICE_STATE.TABLET;
-        } else {
-            newState = this.DEVICE_STATE.MOBILE;
-        }
-
-        if(newState !== this.deviceState){
-            this.deviceState = newState;
-
-            this.isMobileState = this.deviceState === this.DEVICE_STATE.MOBILE;
-            this.isTabletState = this.deviceState === this.DEVICE_STATE.TABLET || this.deviceState === this.DEVICE_STATE.TABLET_WIDE;
-
-            darLogRef.info(NAME + ": device state changed to " + newState);
-        }
-
-        // update device orientation
-        var newOrientation;
-        if(vw > vh){
-            newOrientation = this.DEVICE_ORIENTATION.LANDSCAPE;
-            this.isLandscapeMode = true;
-            this.isPortraitMode = false;
-        } else {
-            newOrientation = this.DEVICE_ORIENTATION.PORTRAIT;
-            this.isLandscapeMode = false;
-            this.isPortraitMode = true;
-        }
-
-        if(newOrientation !== this.deviceOrientation){
-            this.deviceOrientation = newOrientation;
-            darLogRef.info(NAME + ": device orientation changed to " + newOrientation);
-        }
-    };
-
-    /**
-     * Returs object with width and height of the viewport
-     * @return {vw, vh}
-     */
-    this.getViewport = function(){
-        if(!viewport){
-            this.resize();
-        }
-        return viewport;
-    };
-
-    this.$get = function(darLog){
-        darLogRef = darLog;
-
-        return {
-            MOBILE_WIDTH: this.MOBILE_WIDTH,
-            TABLET_WIDTH: this.TABLET_WIDTH,
-            TABLET_WIDE_WIDTH: this.TABLET_WIDE_WIDTH,
-            DESKTOP_WIDTH: this.DESKTOP_WIDTH,
-            DESKTOP_BASE_WIDTH: this.DESKTOP_BASE_WIDTH,
-
-            DEVICE_STATE: this.DEVICE_STATE,
-            deviceState: this.deviceState,
-            isMobileState: this.isMobileState,
-            isTabletState: this.isTabletState,
-
-            DEVICE_ORIENTATION: this.DEVICE_ORIENTATION,
-            deviceOrientation: this.deviceOrientation,
-
-            resize: this.resize,
-            getViewport: this.getViewport, // {vw, vh}
-
-            isPortraitMode: this.isPortraitMode,
-            isLandscapeMode: this.isLandscapeMode,
-
-            browser : browser,
-            version : version,
-            mobile : mobile,
-            os : os,
-            osVersion : osversion,
-            bit: bit
-        }
-    }
-});
-
-/**
- * Service, that provides handy logging
- * You can set default log level in the angular's config method
- * @service
- */
-DAR.MODULE.UTIL.provider("darLog", function(){
-    "use strict";
-    this.LOG_LEVEL = {
-        ALL: "ALL",
-        INFO: "INFO",
-        WARN: "WARN",
-        ERROR: "ERROR",
-        FATAL: "FATAL",
-        OFF: "OFF"
-    };
-
-    var LEVEL_PRIORITY = {
-        ALL: 0,
-        INFO: 1,
-        WARN: 2,
-        ERROR: 3,
-        FATAL: 4,
-        OFF: 5
-    };
-
-    var WRITE_WAY = ["log", "info", "warn", "error", "error"];
-
-    var colon = ": ",
-        currentLogLevel = this.LOG_LEVEL.ALL; // default level
-
-    /**
-     * Set log level
-     * @param logLevel - one value from the this.LOG_LEVEL
-     */
-    this.setLogLevel = function(logLevel){
-        currentLogLevel = logLevel;
-    };
-
-    /**
-     * Write log message without any level
-     * @param msg - String
-     */
-    this.write = function(msg){
-        if(LEVEL_PRIORITY[currentLogLevel] !== LEVEL_PRIORITY.OFF){
-            window.console.log(msg);
-        }
-    };
-
-    /**
-     * Write log message using passing log level
-     * @param logLevel - one value from the this.LOG_LEVEL
-     * @param msg - String
-     */
-    this.writeAs = function(logLevel, msg){
-        var requestedPriority = LEVEL_PRIORITY[logLevel];
-        if(LEVEL_PRIORITY[currentLogLevel] <= requestedPriority){
-            window.console[WRITE_WAY[requestedPriority]](logLevel + colon + msg);
-        }
-    };
-
-    this.all = function(msg){
-        this.writeAs(this.LOG_LEVEL.ALL, msg);
-    };
-
-    this.info = function(msg){
-        this.writeAs(this.LOG_LEVEL.INFO, msg);
-    };
-
-    this.warn = function(msg){
-        this.writeAs(this.LOG_LEVEL.WARN, msg);
-    };
-
-    this.error = function(msg){
-        this.writeAs(this.LOG_LEVEL.ERROR, msg);
-    };
-
-    this.fatal = function(msg){
-        this.writeAs(this.LOG_LEVEL.FATAL, msg);
-    };
-
-    this.$get = function(){
-        return {
-            LOG_LEVEL: this.LOG_LEVEL,
-            setLogLevel: this.setLogLevel,
-            writeAs: this.writeAs,
-            write: this.write,
-            all: this.all,
-            info: this.info,
-            warn: this.warn,
-            fatal: this.fatal
-        };
-    }
-});
+}]);
 
 /**
  * Service, that provides useful methods for DOM elements (analog of jQuery)
@@ -1200,7 +1202,9 @@ DAR.MODULE.UTIL.service("darElement", function Element(){
  * Service, that provides useful methods for DOM elements (analog of jQuery)
  * @service
  */
-DAR.MODULE.UTIL.service("darPageScroller", function($window, darLog){
+DAR.MODULE.UTIL.service("darPageScroller", 
+    ['$window', 'darLog', 
+    function($window, darLog){
     var NAME = "PageScroller";
 
     this.scrollTo = function(targetPosition, componentName){
@@ -1231,5 +1235,4 @@ DAR.MODULE.UTIL.service("darPageScroller", function($window, darLog){
 
         scrollToPosition();
     };
-
-});
+}]);
