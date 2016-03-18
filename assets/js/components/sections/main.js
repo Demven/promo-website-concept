@@ -186,8 +186,14 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain',
 
                         bgImageUrl = slide.data(this.VAL.DATA_ORIGINAL_IMAGE);
 
-                        slide.css(this.VAL.BACKGROUND_IMAGE, 'url(' + bgImageUrl + '-' + necessarySize + '.jpg)');
-                        console.warn(bgImageUrl + ' size=' + necessarySize);
+                        var tmpImg = new Image() ;
+                        tmpImg.src = bgImageUrl + '.jpg';
+                        tmpImg.onload = (function(self, slide, url, size) {
+                            return function() {
+                                slide.css(self.VAL.BACKGROUND_IMAGE, 'url(' + url + '-' + size + '.jpg)');
+                            };
+
+                        })(this, slide, bgImageUrl, necessarySize);
                     }
                 };
 
