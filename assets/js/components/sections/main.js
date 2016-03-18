@@ -186,28 +186,49 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain',
 
                         bgImageUrl = slide.data(this.VAL.DATA_ORIGINAL_IMAGE);
 
-                        var tmpImg = new Image() ;
-                        tmpImg.src = bgImageUrl + '.jpg';
-                        tmpImg.onload = (function(self, slide, url, size) {
-                            return function() {
-                                slide.css(self.VAL.BACKGROUND_IMAGE, 'url(' + url + '-' + size + '.jpg)');
-                            };
-
+                        (function(self, slide, baseUrl, size){
+                            // load preview image (blurred)
+                            self.loadImageAsync(baseUrl + '.jpg')
+                                .done(function() {
+                                    // preview image is loaded
+                                    // load original image (full-size)
+                                    var originalImageUrl = baseUrl + '-' + size + '.jpg';
+                                    console.log('loaded preview ' + baseUrl);
+                                    self.loadImageAsync(originalImageUrl)
+                                        .done(function() {
+                                            console.log('loaded original ' + originalImageUrl);
+                                            // original image is loaded
+                                            // set it as a background for slide
+                                            slide.css(self.VAL.BACKGROUND_IMAGE, 'url(' + originalImageUrl + ')');
+                                        });
+                                });
                         })(this, slide, bgImageUrl, necessarySize);
                     }
                 };
 
-                this.touchPrevSlide = function(){
+                this.loadImageAsync = function(url) {
+                    var deferred = $.Deferred();
+
+                    var tmpImg = new Image() ;
+                    tmpImg.src = url;
+                    tmpImg.onload = function() {
+                        deferred.resolve();
+                    };
+
+                    return deferred.promise();
+                };
+
+                this.touchPrevSlide = function() {
                     this.stopAutoSlideshow();
                     this._prevSlide();
                 };
 
-                this.touchNextSlide = function(){
+                this.touchNextSlide = function() {
                     this.stopAutoSlideshow();
                     this._nextSlide();
                 };
 
-                this._prevSlide = function(){
+                this._prevSlide = function() {
                     this.ELEMENT.SLIDES_CONTAINER.slick('slickPrev');
                 };
 
