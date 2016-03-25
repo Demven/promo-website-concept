@@ -23,7 +23,6 @@ dar-section-projects
   flex-direction: column
   position: relative
   margin: 0 auto
-  font-family: $font-pt-sans-regular
   font-size: $section-projects-base-font-size
   h2
     width: 22.261em
@@ -102,11 +101,12 @@ dar-section-projects
           padding: 2.2em
           box-sizing: border-box
           .project-name
-            font-family: $font-roboto-bold
+            font-family: $no-font-roboto-bold
             font-size: 2.9em
+            font-weight: bold
             line-height: 1.5em
           .project-summary
-            font-family: $font-roboto-regular
+            font-family: $no-font-roboto-regular
             font-size: 2.5em
           &.top-left
             flex-direction: column
@@ -132,7 +132,6 @@ dar-section-projects
           display: block
           width: 100%
           height: auto
-          font-family: "Roboto-Regular"
           color: white
           position: absolute
           left: 0
@@ -140,11 +139,11 @@ dar-section-projects
           opacity: 0
           transition: transform .4s, opacity .4s
           .project-customer
-            font-family: $font-roboto-regular
+            font-family: $no-font-roboto-regular
             font-size: 2.9em
             line-height: 1.8em
           .project-date
-            font-family: $font-roboto-light
+            font-family: $no-font-roboto-light
             font-size: 2.5em
           &.top
             top: 0
@@ -260,3 +259,30 @@ dar-section-projects
               font-size: 3.8em
             .project-date
               font-size: 3.4em
+
+body.font-roboto-bold
+  dar-section-projects
+    .projects-container
+      .slider
+        .title-container
+          .project-name
+            font-family: $font-roboto-bold
+
+body.font-roboto-regular
+  dar-section-projects
+    .projects-container
+      .slider
+        .title-container
+          .project-summary
+            font-family: $font-roboto-regular
+        .hover-container
+          .project-customer
+            font-family: $font-roboto-regular
+
+body.font-roboto-light
+  dar-section-projects
+    .projects-container
+      .slider
+        .hover-container
+          .project-date
+            font-family: $font-roboto-light

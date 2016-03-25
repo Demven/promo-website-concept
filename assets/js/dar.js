@@ -31,9 +31,14 @@ DAR.MODULE.DAR
         // log config
         darLogProvider.setLogLevel(darLogProvider.LOG_LEVEL.ALL);
     }])
-    .run(['$rootScope', 'darLog', 'darDeviceInfo', function($rootScope, darLog, darDeviceInfo /*, $state, authService*/){
+    .run(['$rootScope', 'darLog', 'darDeviceInfo', 'darFontProvider',
+        function($rootScope, darLog, darDeviceInfo, darFontProvider /*, $state, authService*/){
 
+        // adjust all components to fit perfectly to the current viewport
         darDeviceInfo.resize();
+
+        // load custom fonts
+        darFontProvider.loadFonts();
 
         // TODO: Authentication checkout
         /*$rootScope.$on('$stateChangeStart',

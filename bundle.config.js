@@ -2,8 +2,11 @@ module.exports = {
     bundle: {
         main: {
             scripts: [
+                'node_modules/fontfaceobserver/fontfaceobserver.js',
+
                 'public/js/modules.js',
                 'public/js/services/util.js',
+                'public/js/services/fontProvider.js',
                 'public/js/components/header.js',
                 'public/js/components/sections/main.js',
                 'public/js/components/sections/about.js',
@@ -18,9 +21,6 @@ module.exports = {
             options: {
                 rev: false
             }
-        },
-        /*vendor: {
-            scripts: './bower_components/angular/angular.js'
-        }*/
+        }
     }
 };

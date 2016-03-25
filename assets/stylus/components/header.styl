@@ -8,6 +8,7 @@
 $header-base-font-size = 1rem // Desktop
 
 $header-height = 8.7em
+$header-items-no-font-size = 3.4em
 $header-items-font-size = 4.29em
 $header-logo-size = 1.4em
 
@@ -24,12 +25,13 @@ header
   position: fixed
   top: 0
   left: 0
-  font-family: $font-bebas-regular
+  font-family: $no-font-bebas-regular
   font-size: $header-base-font-size
   align-items: center
   flex-wrap: nowrap
   justify-content: center
   z-index: 100
+
   .content-shadow
     display: none
   ul
@@ -45,7 +47,7 @@ header
     box-shadow: 0 0 .6em .3em rgba(0,0,0,0.2)
     li
       padding: .61em .51em 0.59em
-      font-size: $header-items-font-size
+      font-size: $header-items-no-font-size
       transition: background-color 0.5s
       cursor: pointer
       &:hover
@@ -219,3 +221,10 @@ header
 body.prevent-scroll
   header
     pointer-events: auto
+
+body.font-bebas-regular
+  header
+    font-family: $font-bebas-regular
+    ul
+      li
+        font-size: $header-items-font-size

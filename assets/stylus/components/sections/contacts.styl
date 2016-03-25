@@ -47,7 +47,7 @@ dar-section-contacts
         position: absolute
         top: 0
         left: 0
-        font-family: $font-pt-sans-regular
+        font-family: $no-font-pt-sans-regular
         cursor: initial
         transition: transform .4s
         &:before
@@ -149,3 +149,11 @@ dar-section-contacts
         .address-box
           .address
             transform: translate(-8em, -11.8em) scale(0.6)
+
+
+body.font-pt-sans-regular
+  dar-section-contacts
+    .address-container
+      .address-box
+        .address
+          font-family: $font-pt-sans-regular

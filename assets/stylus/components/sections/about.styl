@@ -10,7 +10,7 @@ $section-about-base-font-size = 1rem // Desktop
 $section-about-width = 102.4em
 
 dar-section-about
-  font-family: $font-pt-sans-regular
+  font-family: $no-font-pt-sans-regular
   font-size: $section-about-base-font-size
   display: flex
   justify-content: center
@@ -65,4 +65,8 @@ dar-section-about
     box-sizing: border-box
     .about-content
       font-size: 2.5em
+
+body.font-pt-sans-regular
+  dar-section-about
+    font-family: $font-pt-sans-regular
 

@@ -36,7 +36,7 @@ dar-section-main
     align-items: center
     z-index: 10
     .company-title
-      font-family: $font-compact-regular
+      font-family: $no-font-compact-regular
       font-size: 11em
       color: #fff
 
@@ -146,7 +146,7 @@ dar-section-main
           width: 100vw
           position: absolute
           bottom: 1em
-          font-family: $font-bebas-bold
+          font-family: $no-font-bebas-bold
           font-size: 7.2em
           text-align: center
           color: #fff
@@ -157,7 +157,7 @@ $mobile-and-tablet-portrait-mixin()
   dar-section-main
     .company-title-container
       .company-title
-        font-size: 9em
+        font-size: 7em
     .slideshow
       .prev
         height: 32em
@@ -182,3 +182,22 @@ $mobile-and-tablet-portrait-mixin()
         .slide
           background-size: cover
 
+body.font-compact-regular
+  dar-section-main
+    .company-title-container
+      .company-title
+        font-family: $font-compact-regular
+        @media $tablet-portrait
+          &
+            font-size: 9em
+        @media $mobile-portrait
+          &
+            font-size: 9em
+
+body.font-bebas-bold
+  dar-section-main
+    .slideshow
+      .slides
+        .slide
+          .title
+            font-family: $font-bebas-bold
