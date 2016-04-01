@@ -38,7 +38,7 @@ DAR.MODULE.DAR
         darDeviceInfo.resize();
 
         // load custom fonts
-        darFontProvider.loadFonts();
+        darFontProvider.loadBaseFonts();
 
         // TODO: Authentication checkout
         /*$rootScope.$on('$stateChangeStart',

@@ -193,10 +193,8 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain',
                                     // preview image is loaded
                                     // load original image (full-size)
                                     var originalImageUrl = baseUrl + '-' + size + '.jpg';
-                                    console.log('loaded preview ' + baseUrl);
                                     self.loadImageAsync(originalImageUrl)
                                         .done(function() {
-                                            console.log('loaded original ' + originalImageUrl);
                                             // original image is loaded
                                             // set it as a background for slide
                                             slide.css(self.VAL.BACKGROUND_IMAGE, 'url(' + originalImageUrl + ')');

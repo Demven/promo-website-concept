@@ -3,8 +3,8 @@
  * Created by Dmitry Salnikov on 12/2/2015.
  */
 DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts', 
-    ['$rootScope', '$window', 'darExtendService', 'darDeviceInfo', 'darPageScroller',
-    function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
+    ['$rootScope', '$window', 'darExtendService', 'darDeviceInfo', 'darPageScroller', 'darFontProvider',
+    function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller, darFontProvider) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/sections/contacts.html',
@@ -63,6 +63,8 @@ DAR.MODULE.SECTION_CONTACTS.directive('darSectionContacts',
 
                 this._render = function(){
                     this.setState(this.STATE.NORMAL);
+
+                    darFontProvider.loadOtherFonts();
                 };
 
                 this._setState = function(state){

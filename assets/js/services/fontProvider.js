@@ -2,9 +2,12 @@
 
 DAR.MODULE.UTIL.provider("darFontProvider", function(){
     "use strict";
-    this.NAME = "FontProvider";
+
+    var darLogRef;
 
     function FontProvider() {
+        this.NAME = "FontProvider";
+
         var self = this,
             $body = $('body');
 
@@ -37,25 +40,33 @@ DAR.MODULE.UTIL.provider("darFontProvider", function(){
                 }
             };
 
-        this.loadFonts = function() {
+        /**
+         * Must be called on application run
+         */
+        this.loadBaseFonts = function() {
             if(window.sessionStorage && sessionStorage.darFirstFontsLoaded) {
                 $body.addClass(CLASS.FIRST.BEBAS_REGULAR);
                 $body.addClass(CLASS.FIRST.COMPACT_REGULAR);
+
+                darLogRef.info(self.NAME + ":  applied first fonts from session [Bebas-Regular, Compact-Regular]");
 
                 if(sessionStorage.darSecondFontsLoaded) {
                     $body.addClass(CLASS.SECOND.BEBAS_BOLD);
                     $body.addClass(CLASS.SECOND.PT_SANS_REGULAR);
 
+                    darLogRef.info(self.NAME + ": applied second fonts from session [Bebas-Bold, PT-Sans-Regular]");
+
                     if(sessionStorage.darThirdFontsLoaded) {
                         $body.addClass(CLASS.THIRD.ROBOTO_REGULAR);
                         $body.addClass(CLASS.THIRD.ROBOTO_LIGHT);
                         $body.addClass(CLASS.THIRD.ROBOTO_BOLD);
+
+                        darLogRef.info(self.NAME + ": applied third fonts from session [Roboto-Regular, Roboto-Light, Roboto-Bold]");
                     }
                 }
 
                 return;
             }
-
 
             self._loadFirstFonts()
                 .then(function () {
@@ -63,18 +74,47 @@ DAR.MODULE.UTIL.provider("darFontProvider", function(){
                         sessionStorage.darFirstFontsLoaded = true;
                     }
 
-                    self._loadSecondFonts()
+                    darLogRef.info(self.NAME + ": first fonts are loaded [Bebas-Regular, Compact-Regular]");
+                });
+        };
+
+        /**
+         * Must be called after render of the last component on the page
+         * to ensure that the whole page is rendered
+         */
+        this.loadOtherFonts = function() {
+            if(window.sessionStorage && sessionStorage.darSecondFontsLoaded) {
+                $body.addClass(CLASS.SECOND.BEBAS_BOLD);
+                $body.addClass(CLASS.SECOND.PT_SANS_REGULAR);
+
+                darLogRef.info(self.NAME + ": applied second fonts from session [Bebas-Bold, PT-Sans-Regular]");
+
+                if(sessionStorage.darThirdFontsLoaded) {
+                    $body.addClass(CLASS.THIRD.ROBOTO_REGULAR);
+                    $body.addClass(CLASS.THIRD.ROBOTO_LIGHT);
+                    $body.addClass(CLASS.THIRD.ROBOTO_BOLD);
+
+                    darLogRef.info(self.NAME + ": applied third fonts from session [Roboto-Regular, Roboto-Light, Roboto-Bold]");
+                }
+
+                return;
+            }
+            
+            self._loadSecondFonts()
+                .then(function () {
+                    if(window.sessionStorage) {
+                        sessionStorage.darSecondFontsLoaded = true;
+                    }
+
+                    darLogRef.info(self.NAME + ": second fonts are loaded [Bebas-Bold, PT-Sans-Regular]");
+
+                    self._loadThirdFonts()
                         .then(function () {
                             if(window.sessionStorage) {
-                                sessionStorage.darSecondFontsLoaded = true;
+                                sessionStorage.darThirdFontsLoaded = true;
                             }
 
-                            self._loadThirdFonts()
-                                .then(function () {
-                                    if(window.sessionStorage) {
-                                        sessionStorage.darThirdFontsLoaded = true;
-                                    }
-                                });
+                            darLogRef.info(self.NAME + ": third fonts are loaded [Roboto-Regular, Roboto-Light, Roboto-Bold]");
                         });
                 });
         };
@@ -132,8 +172,11 @@ DAR.MODULE.UTIL.provider("darFontProvider", function(){
 
     var fontProvider = new FontProvider();
 
-    this.$get = function(){
+    this.$get = ['darLog', function(darLog){
+
+        darLogRef = darLog;
+
         return fontProvider;
-    }
+    }];
 });
 
