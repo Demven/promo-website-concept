@@ -20,7 +20,7 @@ app.use(require("compression")());
 
 
 // Routes
-app.get("/", /*auth.basicAuth('dar', 'dar2016'),*/ function(req, res) {
+app.get("/", auth.basicAuth('dar', 'dar2016'), function(req, res) {
     res.sendFile(path.join(__dirname, '../public', 'dar.html'));
 });
 
