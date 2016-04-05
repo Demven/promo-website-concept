@@ -120,6 +120,15 @@ gulp.task("build:images", function () {
 });
 
 //*********************************
+//********* Build manifest **********
+//*********************************
+gulp.task("build:manifest", function () {
+    // Read sources
+    return gulp.src("assets/manifest.json")
+        .pipe(gulp.dest("public/"));
+});
+
+//*********************************
 //********** Build GZIP ***********
 //*********************************
 gulp.task("build:gzip", function () {
@@ -163,7 +172,7 @@ gulp.task("rev:replace", function(){
 //***********************************
 gulp.task("build", function (callback) {
     runSequence("build:clean",
-        ["build:css", "build:js"], ["build:fonts", "build:images", "build:vendors"],
+        ["build:css", "build:js"], ["build:fonts", "build:images", "build:vendors", "build:manifest"],
         "build:html", "build:gzip", callback);
 });
 
