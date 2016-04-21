@@ -1,6 +1,6 @@
 var express = require("express"),
     app = express(),
-    https = require('https'),
+    //https = require('https'),
     fs = require('fs'),
     path = require("path"),
     auth = require('./utils/auth'),
@@ -30,6 +30,6 @@ app.get("/", /*auth.basicAuth('dar', 'dar2016'), */function(req, res) {
     res.sendFile(path.join(__dirname, '../public', 'dar.html'));
 });
 
-//app.listen(app.get("port"));
-https.createServer(httpsOptions, app).listen(443);
-console.info("Server started on localhost: 443");
+app.listen(app.get("port"));
+//https.createServer(httpsOptions, app).listen(443);
+console.info("Server started on localhost: 4000");
