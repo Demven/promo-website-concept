@@ -8,7 +8,15 @@
 $header-base-font-size = 1rem // Desktop
 
 $header-height = 8.7em
-$header-items-font-size = 4.6em
+$header-items-no-font-size = 3.4em
+$header-items-font-size = 4.29em
+$header-logo-size = 1.4em
+
+$logo-show()
+  width: $header-logo-size
+  opacity: 1
+  padding: 0.33em 0.5em 0.21em
+  position: relative
 
 header
   width: 100vw
@@ -17,12 +25,15 @@ header
   position: fixed
   top: 0
   left: 0
-  font-family: $font-bebas-regular
+  font-family: $no-font-bebas-regular
   font-size: $header-base-font-size
   align-items: center
   flex-wrap: nowrap
   justify-content: center
   z-index: 100
+
+  .content-shadow
+    display: none
   ul
     width: 102.4em
     height: 100%
@@ -32,16 +43,188 @@ header
     text-transform: uppercase
     background-color: #fff
     color: #232323
+    z-index: 100
+    box-shadow: 0 0 .6em .3em rgba(0,0,0,0.2)
     li
-      padding: .45em .5em
-      font-size: $header-items-font-size
+      padding: .61em .51em 0.59em
+      font-size: $header-items-no-font-size
       transition: background-color 0.5s
       cursor: pointer
       &:hover
         background-color: rgba(0,0,0,0.06)
 
+      &.logo
+        width: 0
+        background-color: initial
+        padding: 0 0 0.3em 0
+        opacity: 0
+        transition: width .4s, opacity .4s, padding .4s
+        &.show
+          $logo-show()
+          &:after
+            content: ''
+            width:  100%
+            height: 100%
+            position: absolute
+            top: 0
+            left: 0
+        img
+          width: 100%
+          height: $header-logo-size
+        &:hover
+          background-color: rgba(0,0,0,0.06)
+  .menu-button
+    display: none;
+
 /* MOBILE STYLES */
 @media $mobile
   header
+    height: 100%
+    top: -100%
+    flex-direction: column
+    justify-content: start
+    transition: top .4s
+    .content-shadow
+      width: 100%
+      height: 100%
+      position: absolute
+      top: 0
+      left: 0
+      background: rgba(0,0,0,0.3)
+      display: block
     ul
-      display: none
+      height: 80%
+      width: 100vw
+      background-color: #fff
+      flex-direction: column
+      box-shadow: none
+      position: absolute
+      top: 0
+      left: 0
+      li
+        &.logo
+          $logo-show()
+          width: 1.6em
+          height: 1.6em
+          padding-top: 1em
+          &:after
+            content: ''
+            width:  100%
+            height: 100%
+            position: absolute
+            top: 0
+            left: 0
+          img
+            height: 1.6em
+            margin-top: -0.5em
+    &:after
+      content: ""
+      position:absolute
+      bottom: 0
+      width: 0
+      height: 0
+      border-left: 80vw solid rgba(0,0,0,0)
+      border-right: 80vw solid rgba(0,0,0,0)
+      border-top: 30vh solid #fff
+      left: -30vw
+    &:before
+      content: ""
+      position: absolute
+      bottom: 0
+      width: 0
+      height: 0
+      border-left: 80vw solid rgba(0,0,0,0)
+      border-right: 80vw solid rgba(0,0,0,0)
+      border-top: 30vh solid rgba(0,0,0,0.5)
+      left: -30vw
+      -webkit-filter: blur(1em)
+    .menu-button
+      width: 6em
+      height: 4.6em
+      display: block
+      z-index: 100
+      position: absolute
+      left: 50%
+      bottom: 2.5%
+      margin-left: -3em
+      cursor: pointer
+      transition: transform .4s
+      .line-container
+        width: 6em
+        height: 4.6em
+        display: flex
+        flex-direction: column
+        justify-content: space-between
+        position: absolute
+        .line
+          width: 100%
+          height: 0.8em
+          background-color: #000
+          border-radius: 0.4em
+          transition: transform .6s, opacity .2s
+    &.closed
+      top: -92%
+      .content-shadow
+        opacity: 0
+        transition: opacity 0.4s 0s
+      .menu-button
+        transform: scale(.7)
+    &.open
+      top: 0
+      .content-shadow
+        opacity: 1
+        transition: opacity 0.4s 0.3s
+      .menu-button
+        transform: scale(1) translateY(-3vh)
+        .line-container
+          .line:nth-child(1)
+            transform: translateY(1.95em) rotate(135deg)
+          .line:nth-child(2)
+            opacity: 0
+          .line:nth-child(3)
+            transform: translateY(-1.95em) rotate(-135deg)
+
+
+@media $mobile-landscape
+  header
+    &:after
+      border-left: 100vw solid rgba(0,0,0,0)
+      border-right: 100vw solid rgba(0,0,0,0)
+      left: -50vw
+    &:before
+      border-left: 100vw solid rgba(0,0,0,0)
+      border-right: 100vw solid rgba(0,0,0,0)
+      left: -50vw
+    &.closed
+      top: -91%
+
+@media $mobile-portrait
+   header
+     &:after
+       border-left: 90vw solid rgba(0,0,0,0)
+       border-right: 90vw solid rgba(0,0,0,0)
+       left: -40vw
+     &:before
+       border-left: 90vw solid rgba(0,0,0,0)
+       border-right: 90vw solid rgba(0,0,0,0)
+       left: -40vw
+     &.closed
+       top: -91%
+
+@media $tablet-portrait
+  header
+    ul
+      li
+        font-size: 4.24em
+
+
+body.prevent-scroll
+  header
+    pointer-events: auto
+
+body.font-bebas-regular
+  header
+    font-family: $font-bebas-regular
+    ul
+      li
+        font-size: $header-items-font-size

@@ -1,0 +1,72 @@
+/** SECTION ABOUT COMPONENT
+  * @author Dmitry Salnikov
+  * @since 11/4/2015
+ */
+@require './base/util'
+@require './base/devices'
+
+$section-about-base-font-size = 1rem // Desktop
+
+$section-about-width = 102.4em
+
+dar-section-about
+  font-family: $no-font-pt-sans-regular
+  font-size: $section-about-base-font-size
+  display: flex
+  justify-content: center
+  flex-direction: column
+  position: relative
+  width: $section-about-width
+  margin: 0 auto
+  padding-bottom: 3em
+  .about-content
+    font-size: 2.8em
+    line-height: 1.3em
+    text-align: justify
+    p
+      padding-bottom: 0.4em;
+    .more
+      display: none
+  .show-more,
+  .hide-more
+    width: 8em
+    color: #3466cc
+    font-size: 2.4em
+    cursor: pointer
+    display: none;
+    &:hover
+      text-decoration: underline
+
+  &.closed
+    .about-content
+      .more
+        display: none
+    .show-more
+      display: block
+    .hide-more
+      display: none
+
+  &.open
+    .about-content
+      .more
+        display: block
+    .show-more
+      display: none
+    .hide-more
+      display: block
+
+/* MOBILE STYLES */
+@media $mobile
+  dar-section-about
+    font-size: .8rem !important
+    width: 100%
+    padding-left: 3em
+    padding-right: 3em
+    box-sizing: border-box
+    .about-content
+      font-size: 2.5em
+
+body.font-pt-sans-regular
+  dar-section-about
+    font-family: $font-pt-sans-regular
+

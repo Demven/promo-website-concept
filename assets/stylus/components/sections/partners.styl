@@ -1,0 +1,56 @@
+/** SECTION PARTNERS COMPONENT
+  * @author Dmitry Salnikov
+  * @since 12/22/2015
+ */
+@require './base/util'
+@require './base/devices'
+
+$section-partners-base-font-size = 1rem // Desktop
+
+$section-partners-width = 102.4em
+$section-partners-height = 14em
+
+dar-section-partners
+  width: $section-partners-width
+  display: flex
+  flex-direction: column
+  margin: 0 auto
+  padding-bottom: 5em
+  font-size: $section-partners-base-font-size
+  .partner-list
+    width: 100%
+    height: $section-partners-height
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: space-between
+    align-items: center
+    position: relative
+    .partner
+      filter: grayscale(100%)
+      transition: filter .4s, -webkit-filter .4s
+      cursor: pointer
+      position: relative
+      &:after
+        content: ''
+        position: absolute
+        top: 0
+        left: 0
+        width: 100%
+        height: 100%
+      &:hover
+        filter: grayscale(0%)
+      &.hover
+        filter: grayscale(0%)
+
+
+/* MOBILE STYLES */
+@media $mobile
+  dar-section-partners
+    width: 100vw
+    .partner-list
+      height: auto
+      justify-content: center
+      .partner
+        padding: 2em
+

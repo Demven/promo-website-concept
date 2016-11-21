@@ -1,0 +1,155 @@
+/** FOOTER COMPONENT
+  * @author Dmitry Salnikov
+  * @since 11/26/2015
+ */
+@require './base/util'
+@require './base/devices'
+
+$footer-base-font-size = 1rem // Desktop
+
+$footer-height = 24em
+
+$social-media-after()
+  content: ''
+  display: block
+  width: 0.8em
+  height: 0.8em
+  position: absolute
+  left: 0.3em
+  top: 0.35em
+
+footer
+  width: 100vw
+  height: $footer-height
+  display: flex
+  background: $color-base
+  flex-direction: column
+  align-items: center
+  flex-wrap: nowrap
+  font-size: $footer-base-font-size
+  font-family: $no-font-pt-sans-regular
+  opacity: 0
+  transition: opacity 1s 0.4s
+  &.normal
+    opacity: 1
+  .social-container
+    height: 7em
+    width: 60em
+    display: flex
+    flex-direction: row
+    justify-content: space-between
+    align-items: center
+    color: #fff
+    .social-media
+      font-size: 2.8em
+      position: relative
+      box-sizing: border-box
+      padding: 0.3em
+      padding-left: 1.4em
+      cursor: pointer
+      display: block !important
+      &:hover
+        padding-bottom: 0.2286em
+        border-bottom: 2px dotted #fff
+      &:after
+        $social-media-after()
+      &.fb:after
+        background: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0ndXRmLTgnPz48c3ZnIHZlcnNpb249JzEuMScgaWQ9J0xheWVyXzEnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZycgeG1sbnM6eGxpbms9J2h0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsnIHg9JzBweCcgeT0nMHB4JyB2aWV3Qm94PScwIDAgMjAwIDIwMCcgZW5hYmxlLWJhY2tncm91bmQ9J25ldyAwIDAgMjAwIDIwMCcgeG1sOnNwYWNlPSdwcmVzZXJ2ZSc+PHBhdGggZmlsbD0nI2ZmZicgZD0nTTExOC44LDUwaDUwVjBIMTAwQzgyLjUsMCw2OC44LDEzLjgsNjguOCwzMS4yVjc1SDMxLjJ2NTBoMzcuNXY3NWg1MHYtNzVoMzcuNWwxMi41LTUwaC01MFY1MEgxMTguOHonLz48L3N2Zz4=")
+      &.vk
+        padding-left: 1.6em
+        &:after
+          width: 1.34em
+          height: 1.34em
+          left: 0.1em
+          top: 0.08em
+          background: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0ndXRmLTgnPz48c3ZnIHZlcnNpb249JzEuMScgaWQ9J0xheWVyXzEnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZycgeG1sbnM6eGxpbms9J2h0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsnIHg9JzBweCcgeT0nMHB4JyB2aWV3Qm94PScwIDAgMjAgMjAnIGVuYWJsZS1iYWNrZ3JvdW5kPSduZXcgMCAwIDIwIDIwJyB4bWw6c3BhY2U9J3ByZXNlcnZlJz48cGF0aCBmaWxsLXJ1bGU9J2V2ZW5vZGQnIGNsaXAtcnVsZT0nZXZlbm9kZCcgZmlsbD0nI2ZmZicgZD0nTTE4LjEsMTUuOGMtMC41LDAtMS43LDAtMi4yLDBjLTEuNCwwLTEuNy0wLjUtMi45LTEuN2MtMS4xLTEuMS0xLjMtMC41LTEuMywxLjFjMCwwLjQtMC4yLDAuOC0wLjcsMC44Yy0xLjUsMC0zLjIsMC41LTUuNC0yYy0yLjQtMi43LTQuNC03LjUtNC41LThDMC45LDUuNCwxLjEsNS4yLDEuNiw1LjJjMC42LDAsMS45LDAsMi4zLDBjMC43LDAsMC43LDAuNCwwLjksMC44YzAuOCwxLjksMi45LDYuMywzLjQsNC4yYzAuMy0xLjIsMC4zLTQtMS00LjNjLTAuOS0wLjIsMS0xLjQsMy41LTAuOGMwLjksMC4yLDAuOSwwLjcsMC45LDEuM2MwLDIuNC0wLjMsMy45LDAuMyw0LjNjMC42LDAuNCwyLTIuNiwyLjgtNC42YzAuMi0wLjYsMC4zLTAuOSwwLjktMC45YzMuMSwwLDIuMiwwLDIuNSwwYzEuNywwLDAsMi42LTEuNSw0LjVjLTEuMiwxLjYtMS4xLDEuNiwwLjIsM0MxOC41LDE0LjEsMjAuMSwxNS44LDE4LjEsMTUuOHonLz48L3N2Zz4=")
+      &.inst:after
+        background: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0ndXRmLTgnPz48c3ZnIHZlcnNpb249JzEuMScgaWQ9J0xheWVyXzEnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZycgeG1sbnM6eGxpbms9J2h0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsnIHg9JzBweCcgeT0nMHB4JyB2aWV3Qm94PScwIDAgMjAwIDIwMCcgZW5hYmxlLWJhY2tncm91bmQ9J25ldyAwIDAgMjAwIDIwMCcgeG1sOnNwYWNlPSdwcmVzZXJ2ZSc+PHBhdGggZmlsbD0nI2ZmZicgZD0nTTE4Ny41LDBoLTE3NUM2LjIsMCwwLDYuMiwwLDEyLjV2MTc1YzAsNi4yLDYuMiwxMi41LDEyLjUsMTIuNWgxNzVjNi4yLDAsMTIuNS02LjIsMTIuNS0xMi41di0xNzVDMjAwLDYuMiwxOTMuOCwwLDE4Ny41LDB6IE0xMDAsNjIuNWMyMS4yLDAsMzcuNSwxNi4yLDM3LjUsMzcuNXMtMTYuMiwzNy41LTM3LjUsMzcuNVM2Mi41LDEyMS4yLDYyLjUsMTAwUzc4LjgsNjIuNSwxMDAsNjIuNXogTTE3NSwxNzVIMjVWODcuNWgxMy44Yy0xLjIsMy44LTEuMiw4LjgtMS4yLDEyLjVjMCwzNSwyNy41LDYyLjUsNjIuNSw2Mi41czYyLjUtMjcuNSw2Mi41LTYyLjVjMC0zLjgsMC04LjgtMS4yLTEyLjVIMTc1VjE3NXogTTE1Ni4yLDYyLjVjLTEwLDAtMTguOC04LjctMTguOC0xOC44UzE0Ni4yLDI1LDE1Ni4yLDI1UzE3NSwzMy44LDE3NSw0My44UzE2Ni4yLDYyLjUsMTU2LjIsNjIuNXonLz48L3N2Zz4=")
+  .motto
+    font-family: $no-font-bebas-regular
+    font-size: 7em
+    color: #fff
+    line-height: 0.8em
+  .copyright
+    font-size: 2em
+    padding: 1em 0 0.6em
+    color: #fff
+  .designed-by
+    height: 2em
+    font-size: 1.73em
+    color: #fff
+    transition: transform .4s
+    span
+      display: none
+    a
+      border-bottom: 1px dashed #fff
+      text-decoration: none
+      color: #fff
+    &:hover
+      transform: scale(1.3)
+      span
+        display: inline
+        padding-right: 20px;
+
+@media $tablet-any
+  footer
+    font-size: 0.8rem
+    .social-container
+      .social-media
+        &:hover
+          border: none
+          padding-bottom: 0.3em
+
+@media $mobile
+   footer
+     font-size: 0.6rem
+     height: auto
+     .social-container
+       order: 2
+       width: 100vw
+       height: auto
+       flex-direction: column
+       margin-bottom: 1em
+       .social-media
+         padding: 0.3em 0 0.3em 1.1em
+         font-size: 5em
+         &:hover
+           border: none
+           padding-bottom: 0.3em
+         &:after
+           top: 0.4em
+           left: 0
+         &.vk:after
+           top: 0.1em
+           left: -0.05em
+     .motto
+       order: 1
+       font-size: 5.6em
+       margin: 0.8em 0 0.6em 0
+      .copyright
+        order: 3
+        font-size: 3.6em
+      .designed-by
+        order: 4
+        font-size: 3.1em
+        padding-bottom: 2em
+        &:hover
+          transform: initial
+          span
+            display: block
+            padding: 0.3em 0
+
+body.font-pt-sans-regular
+  footer
+    font-family: $font-pt-sans-regular
+
+body.font-pt-sans-regular
+  footer
+    .motto
+      font-family: $font-bebas-regular
+      font-size: 9.6em
+      @media $mobile
+         &
+           font-size: 7.6em
+
+

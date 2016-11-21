@@ -1,0 +1,288 @@
+/** SECTION PROJECTS COMPONENT
+  * @author Dmitry Salnikov
+  * @since 11/12/2015
+ */
+@require './base/util'
+@require './base/devices'
+
+$section-projects-base-font-size = 1rem // Desktop
+
+$section-projects-height = 62em
+$section-projects-tile-big-height = 60.4em
+$section-projects-tile-big-width = 60.4em
+$section-projects-tile-small-height = 29.4em
+$section-projects-tile-small-width = 40.4em
+
+$section-projects-control-arrow-width = 1.3em
+$section-projects-control-arrow-height = 6em
+
+dar-section-projects
+  width: 100%
+  display: flex
+  justify-content: center
+  flex-direction: column
+  position: relative
+  margin: 0 auto
+  font-size: $section-projects-base-font-size
+  h2
+    width: 22.261em
+    margin: 0 auto
+  .projects-container
+    height: $section-projects-height
+    width: 100%
+    position: relative
+    overflow: hidden
+    .slider
+      width: 2120px
+      height: $section-projects-height
+      display: flex
+      position: absolute
+      top: 0
+      flex-direction: column
+      flex-wrap: wrap
+      align-content: flex-start
+      cursor: pointer
+      &.in-moving
+        cursor: w-resize
+      &.animate
+        transition: transform .4s
+      .tile
+        display: flex
+        justify-content: center
+        align-items: center
+        overflow: hidden
+        margin: .8em
+        position: relative
+        user-select: none
+        transition: transform .4s
+        z-index: 100
+        &.big
+          width: $section-projects-tile-big-width
+          height: $section-projects-tile-big-height
+        &.small
+          width: $section-projects-tile-small-width
+          height: $section-projects-tile-small-height
+        &:after
+          content: ''
+          display: block
+          position: absolute
+          width: 100%
+          height: 100%
+          top: 0
+          left: 0
+        .image-container
+          width: 1000%
+          height: 100%
+          display: flex
+          justify-content: center
+          align-items: center
+          &:after
+            content: ''
+            display: block
+            position: absolute
+            width: 100%
+            height: 100%
+            top: 0
+            left: 0
+            background: rgba(0,0,0,0.2)
+            opacity: 0
+            transition: opacity .4s
+          img
+            min-width: 100%
+            min-height: 100%
+            object-fit: cover
+        .title-container
+          display: flex
+          position: absolute
+          width: 100%
+          height: 100%
+          left: 0
+          color: #fff
+          padding: 2.2em
+          box-sizing: border-box
+          .project-name
+            font-family: $no-font-roboto-bold
+            font-size: 2.9em
+            font-weight: bold
+            line-height: 1.5em
+          .project-summary
+            font-family: $no-font-roboto-regular
+            font-size: 2.5em
+          &.top-left
+            flex-direction: column
+            top: 0
+            text-align: left
+          &.top-right
+            flex-direction: column
+            top: 0
+            text-align: right
+          &.bottom-left
+            flex-direction: column-reverse
+            bottom: 0
+            text-align: left
+            .project-name
+              order: 1
+          &.bottom-right
+            flex-direction: column-reverse
+            bottom: 0
+            text-align: right
+            .project-name
+              order: 1
+        .hover-container
+          display: block
+          width: 100%
+          height: auto
+          color: white
+          position: absolute
+          left: 0
+          text-align: center
+          opacity: 0
+          transition: transform .4s, opacity .4s
+          .project-customer
+            font-family: $no-font-roboto-regular
+            font-size: 2.9em
+            line-height: 1.8em
+          .project-date
+            font-family: $no-font-roboto-light
+            font-size: 2.5em
+          &.top
+            top: 0
+            transform: translateY(-5em)
+          &.bottom
+            bottom: 0
+            transform: translateY(5em)
+
+      .tile:hover
+        transform: scale(1.02)
+        .image-container
+          &:after
+            opacity: 1
+        .hover-container
+          opacity: 1
+          &.top
+            transform: translateY(2.2em)
+          &.bottom
+            transform: translateY(-2.2em)
+
+
+    $slider-control()
+      width: 15em
+      height: $section-projects-height
+      position: absolute
+      top: 0
+      z-index: 20
+      cursor: pointer
+      transition: background-color 0.5s, width 0.5s
+      &:before
+        content: ""
+        width: $section-projects-control-arrow-width
+        height: $section-projects-control-arrow-height
+        display: block
+        position: absolute
+        background-color: #484848
+        opacity: 0.4
+        transition: background-color 0.5s
+      &:after
+        content: ""
+        width: $section-projects-control-arrow-width
+        height: $section-projects-control-arrow-height
+        display: block
+        position: absolute
+        background-color: #484848
+        opacity: 0.4
+        transition: background-color 0.5s
+      &:hover
+        width: 17em
+        &:before
+          background-color: #000
+          opacity: 0.5
+        &:after
+          background-color: #000
+          opacity: 0.5
+
+
+    .prev
+      $slider-control()
+      left: 0
+      background: linear-gradient(90deg, #fff, rgba(255,255,255,0))
+      &:before
+        bottom: 49.96%
+        left: 2em
+        transform: skewX(-27deg)
+        transform-origin: left bottom
+      &:after
+        top: 49.96%
+        left: 2em
+        transform: skewX(27deg)
+        transform-origin: left top
+    .next
+      $slider-control()
+      right: 0
+      background: linear-gradient(-90deg, #fff, rgba(255,255,255,0))
+      &:before
+        bottom: 49.9%
+        right: 2.6em
+        transform: skewX(27deg)
+        transform-origin: right bottom
+      &:after
+        top: 49.96%
+        right: 2.6em
+        transform: skewX(-27deg)
+        transform-origin: right top
+
+/* MOBILE STYLES */
+@media $mobile
+  dar-section-projects
+    h2
+      width: auto
+      margin: 0
+    .projects-container
+      .slider
+        .tile
+          &.big
+            width: $section-projects-tile-big-width
+            height: $section-projects-tile-big-height
+          &.small
+            width: $section-projects-tile-big-width
+            height: $section-projects-tile-big-height
+          .image-container
+            align-items: initial
+          .title-container
+            .project-name
+              font-size: 3.8em
+              line-height: 1.3em
+              padding-bottom: 0.3em
+            .project-summary
+              font-size: 3.4em
+          .hover-container
+            .project-customer
+              font-size: 3.8em
+            .project-date
+              font-size: 3.4em
+
+body.font-roboto-bold
+  dar-section-projects
+    .projects-container
+      .slider
+        .title-container
+          .project-name
+            font-family: $font-roboto-bold
+
+body.font-roboto-regular
+  dar-section-projects
+    .projects-container
+      .slider
+        .title-container
+          .project-summary
+            font-family: $font-roboto-regular
+        .hover-container
+          .project-customer
+            font-family: $font-roboto-regular
+
+body.font-roboto-light
+  dar-section-projects
+    .projects-container
+      .slider
+        .hover-container
+          .project-date
+            font-family: $font-roboto-light

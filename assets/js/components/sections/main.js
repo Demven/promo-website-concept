@@ -1,9 +1,11 @@
 /* global Quo */
 
 /**
- * Created by Dmitry_Salnikov on 9/24/2015.
+ * Created by Dmitry Salnikov on 9/24/2015.
  */
-DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window, darExtendService, darDeviceInfo) {
+DAR.MODULE.SECTION_MAIN.directive('darSectionMain',
+    ['$rootScope', '$window', 'darExtendService', 'darDeviceInfo', 'darPageScroller',
+    function($rootScope, $window, darExtendService, darDeviceInfo, darPageScroller) {
     return {
         restrict: 'E',
         templateUrl: 'templates/components/sections/main.html',
@@ -14,36 +16,25 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                 SectionMainElementComponent.superclass.constructor.call(this);
 
                 this.NAME = "SectionMain";
-                this.VERSION = "0.4";
+                this.VERSION = "1.0";
                 this.isDestroyOnPageChange = true;
                 this.isTriggerResize = true;
 
-                this.CONFIG = {
-                    SECTION_HEIGHT: 0.85,  // % from viewport (used only for certain cases)
-                    MAX_FONT_SIZE: 1,
-                    MAX_MOBILE_FONT_SIZE: 0.6
-                };
-
                 this.ATTR = {
                     FONT_SIZE: "font-size",
-                    TRANSFORM: "transform"
                 };
 
                 this.VAL = {
                     REM: "rem",
-                    AUTO: "auto",
-                    VW: "vw"
+                    BACKGROUND_IMAGE: 'background-image',
+                    DATA_ORIGINAL_IMAGE: 'original-image',
+                    DATA_SIZES: 'sizes',
                 };
 
                 this.EVENT = {
                     TAP: "touch",
                     SWIPE_TO_RIGHT: "swipeRight",
                     SWIPE_TO_LEFT: "swipeLeft"
-                };
-
-                this.CLASS = {
-                    CLONED_FIRST: "cloned-first",
-                    CLONED_LAST: "cloned-last"
                 };
 
                 this.SELECTOR = {
@@ -55,27 +46,49 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
 
                 this.ELEMENT = {
                     SLIDES_CONTAINER: angular.element(wrapper[0].querySelector(this.SELECTOR.SLIDES_CONTAINER)),
-                    SLIDES: angular.element(wrapper[0].querySelectorAll(this.SELECTOR.SLIDES)),
+                    //SLIDES: angular.element(wrapper[0].querySelectorAll(this.SELECTOR.SLIDES)),
                     PREV_BUTTON: angular.element(wrapper[0].querySelector(this.SELECTOR.PREV_BUTTON)),
                     NEXT_BUTTON: angular.element(wrapper[0].querySelector(this.SELECTOR.NEXT_BUTTON))
                 };
 
-                this.slidesNumber = this.ELEMENT.SLIDES.length;
+                this.CONFIG = {
+                    SECTION_HEIGHT: 0.85,  // % from viewport (used only for certain cases)
+                    MAX_FONT_SIZE: 1,
+                    MAX_MOBILE_FONT_SIZE: 0.6,
+                    SLIDES_INTERVAL_MS: 10000
+                };
 
                 // global listeners
-                /*var offLeftDrawerOpen = new Function();*/
+                var offScrollToSection = new Function(),
+                    nextSlideClearIntervalId,
+                    autoSlideshowStopped = false,
+                    previousVwForImages = 0;
 
                 this._postCreate = function(){
                     // global listeners
-                    //offLeftDrawerOpen = $rootScope.$on(IR.EVENT.OCCURRED.LEFT_DRAWER_OPEN, angular.bind(this, this._onLeftDrawerOpen));*/
+                    offScrollToSection = $rootScope.$on(DAR.EVENT.WISH.SCROLL_TO_SECTION, angular.bind(this, this.onScrollToSectionEvent));
 
                     // local listeners
                     // tap
-                    Quo(this.ELEMENT.PREV_BUTTON[0]).on(this.EVENT.TAP, angular.bind(this, this.prevSlide));
-                    Quo(this.ELEMENT.NEXT_BUTTON[0]).on(this.EVENT.TAP, angular.bind(this, this.nextSlide));
+                    Quo(this.ELEMENT.PREV_BUTTON[0]).on(this.EVENT.TAP, angular.bind(this, this.touchPrevSlide));
+                    Quo(this.ELEMENT.NEXT_BUTTON[0]).on(this.EVENT.TAP, angular.bind(this, this.touchNextSlide));
                     // swipe
-                    Quo(wrapper[0]).on(this.EVENT.SWIPE_TO_RIGHT, angular.bind(this, this.prevSlide));
-                    Quo(wrapper[0]).on(this.EVENT.SWIPE_TO_LEFT, angular.bind(this, this.nextSlide));
+                    Quo(wrapper[0]).on(this.EVENT.SWIPE_TO_RIGHT, angular.bind(this, this.touchPrevSlide));
+                    Quo(wrapper[0]).on(this.EVENT.SWIPE_TO_LEFT, angular.bind(this, this.touchNextSlide));
+
+                    // auto-sliding
+                    nextSlideClearIntervalId = window.setInterval(angular.bind(this, this._nextSlide), this.CONFIG.SLIDES_INTERVAL_MS);
+                };
+
+                this._render = function(){
+                    this.ELEMENT.SLIDES_CONTAINER.slick({
+                        arrows: false,
+                        initialSlide: 1,
+                        pauseOnHover: true,
+                        draggable: false,
+                        swipe: false,
+                        touchMove: false
+                    });
                 };
 
                 this._resize = function(vw, vh){
@@ -119,80 +132,129 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
                             wrapper.css(this.ATTR.FONT_SIZE, fontSize + this.VAL.REM);
                         }
                     }
+
+                    this.loadImages(vw);
                 };
 
                 this._destroy = function(){
                     // remove global listeners
-                    //offLeftDrawerOpen();
+                    offScrollToSection();
 
                     // remove local listeners
                     Quo(this.ELEMENT.PREV_BUTTON[0]).off(this.EVENT.TAP);
                     Quo(this.ELEMENT.NEXT_BUTTON[0]).off(this.EVENT.TAP);
                     Quo(this.ELEMENT.SLIDES_CONTAINER[0]).off(this.EVENT.SWIPE_TO_RIGHT);
                     Quo(this.ELEMENT.SLIDES_CONTAINER[0]).off(this.EVENT.SWIPE_TO_LEFT);
+
+                    window.clearInterval(nextSlideClearIntervalId);
+
+                    this.ELEMENT.SLIDES_CONTAINER.slick('unslick');
                 };
 
-                this.prevSlide = function(){
-                    var slide,
-                        translateX;
-                    for(var i = 0, len = this.slidesNumber; i < len; i++){
-                        slide = this.ELEMENT.SLIDES.eq(i);
-                        translateX = this._getTranslateX(slide);
-                        this._setTranslateX(slide, translateX + 100);
+
+                /************************ */
+
+                this.loadImages = function(vw) {
+                    // load images only if the difference between new and previous width value > 70 px
+                    if ((vw - previousVwForImages) < 70) {
+                        return;
                     }
 
-                    this._moveLastSlideToFirstPosition();
-                };
+                    previousVwForImages = vw;
 
-                this.nextSlide = function(){
-                    var slide,
-                        translateX;
-                    for(var i = 0, len = this.slidesNumber; i < len; i++){
-                        slide = this.ELEMENT.SLIDES.eq(i);
-                        translateX = this._getTranslateX(slide);
-                        this._setTranslateX(slide, translateX - 100);
+                    vw = vw + 200;
+
+                    var slides = $(wrapper[0].querySelectorAll(this.SELECTOR.SLIDES)),
+                        i = 0,
+                        len = slides.length,
+                        slide,
+                        sizeArray,
+                        bgImageUrl,
+                        necessarySize;
+                    for ( ; i < len ; i++) {
+                        slide = $(slides[i]);
+                        sizeArray = slide.data(this.VAL.DATA_SIZES);
+                        necessarySize = sizeArray[sizeArray.length - 1]; // last value as default
+
+                        var s = sizeArray.length;
+                        for (; s--; ) {
+                            if (vw >= sizeArray[s-1]) {
+                                necessarySize = sizeArray[s];
+                                break;
+                            }
+                        }
+
+                        bgImageUrl = slide.data(this.VAL.DATA_ORIGINAL_IMAGE);
+
+                        (function(self, slide, baseUrl, size){
+                            // load preview image (blurred)
+                            self.loadImageAsync(baseUrl + '.jpg')
+                                .done(function() {
+                                    // preview image is loaded
+                                    // load original image (full-size)
+                                    var originalImageUrl = baseUrl + '-' + size + '.jpg';
+                                    self.loadImageAsync(originalImageUrl)
+                                        .done(function() {
+                                            // original image is loaded
+                                            // set it as a background for slide
+                                            slide.css(self.VAL.BACKGROUND_IMAGE, 'url(' + originalImageUrl + ')');
+                                        });
+                                });
+                        })(this, slide, bgImageUrl, necessarySize);
                     }
-
-                    this._moveFirstSlideToLastPosition();
                 };
 
-                this._moveFirstSlideToLastPosition = function(){
-                    var first = this.ELEMENT.SLIDES.eq(0),
-                        lastTranslateX = this._getTranslateX(this.ELEMENT.SLIDES.eq(this.slidesNumber - 1));
+                this.loadImageAsync = function(url) {
+                    var deferred = $.Deferred();
 
-                    this._setTranslateX(first, lastTranslateX + 100);
+                    var tmpImg = new Image() ;
+                    tmpImg.src = url;
+                    tmpImg.onload = function() {
+                        deferred.resolve();
+                    };
 
-                    this.ELEMENT.SLIDES_CONTAINER.append(first);
-
-                    // update list of slides
-                    this.ELEMENT.SLIDES = angular.element(wrapper[0].querySelectorAll(this.SELECTOR.SLIDES));
+                    return deferred.promise();
                 };
 
-                this._moveLastSlideToFirstPosition = function(){
-                    var last = this.ELEMENT.SLIDES.eq(this.slidesNumber - 1),
-                        firstTranslateX = this._getTranslateX(this.ELEMENT.SLIDES.eq(0));
-
-                    this._setTranslateX(last, firstTranslateX - 100);
-
-                    this.ELEMENT.SLIDES_CONTAINER.prepend(last);
-
-                    // update list of slides
-                    this.ELEMENT.SLIDES = angular.element(wrapper[0].querySelectorAll(this.SELECTOR.SLIDES));
+                this.touchPrevSlide = function() {
+                    this.stopAutoSlideshow();
+                    this._prevSlide();
                 };
 
-                this._setTranslateX = function($el, numberValue){
-                    return $el.css(this.ATTR.TRANSFORM, "translateX(" + numberValue + "vw)");
+                this.touchNextSlide = function() {
+                    this.stopAutoSlideshow();
+                    this._nextSlide();
                 };
 
-                this._getTranslateX = function($el){
-                    return Number($el.css(this.ATTR.TRANSFORM).split("(")[1].slice(0, -3));
+                this._prevSlide = function() {
+                    this.ELEMENT.SLIDES_CONTAINER.slick('slickPrev');
+                };
+
+                this._nextSlide = function(){
+                    this.ELEMENT.SLIDES_CONTAINER.slick('slickNext');
+                };
+
+                this.stopAutoSlideshow = function() {
+                    if (!autoSlideshowStopped) {
+                        window.clearInterval(nextSlideClearIntervalId);
+                        autoSlideshowStopped = true;
+                    }
+                };
+
+                this.onScrollToSectionEvent = function(ev, data) {
+                    if (data.sectionName && data.sectionName === this.NAME) {
+                        var sectionOffsetTop = wrapper[0].offsetTop,
+                            additionalOffsetTop = data.offsetTop || 0,
+                            targetValue = sectionOffsetTop - additionalOffsetTop;
+
+                        darPageScroller.scrollTo(targetValue, data.sectionName);
+                    }
                 };
             }
 
             darExtendService.extend(SectionMainElementComponent, darExtendService.BaseElementComponent);
 
             if(DAR.UIC.SECTION.MAIN){
-                // no need to do a second header component
                 DAR.UIC.SECTION.MAIN.destroy();
             }
             DAR.UIC.SECTION.MAIN = new SectionMainElementComponent().build().render();
@@ -200,5 +262,5 @@ DAR.MODULE.SECTION_MAIN.directive('darSectionMain', function($rootScope, $window
             return DAR.UIC.SECTION.MAIN;
         }
     };
-});
+}]);
 
