@@ -9,6 +9,7 @@ Gulp is used to compile Stylus and create bundles.
 Manifest.json is used to add the abilities of Progressive Web Applications (PWA).
 
 <h3>How to start:</h3>
+
 ```shell
 npm install
 gulp production
